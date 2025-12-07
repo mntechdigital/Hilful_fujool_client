@@ -14,17 +14,13 @@ interface StatCard {
 
 const DIAGONAL_LINE_STYLES = {
   transform: "translate(-50%, -50%) rotate(30deg)",
-  background: `linear-gradient(
-    90deg,
-    transparent,
-    rgba(148, 163, 184, 0.4),
-    rgba(148, 163, 184, 0.8)
-  )`,
-  boxShadow: `
-    0 0 15px rgba(100, 116, 139, 0.5),
-    inset 2px 0 8px rgba(100, 116, 139, 0.4)
-  `,
-  filter: "drop-shadow(-4px 0 4px rgba(100, 116, 139, 0.9))",
+  background: "rgba(148, 163, 184, 0.6)",
+};
+
+const SHADOW_LINE_STYLES = {
+  transform: "translate(calc(-50% - 2px), -50%) rotate(30deg)",
+  background: "rgba(100, 116, 139, 0.2)",
+  filter: "blur(1px)",
 };
 
 const STAT_CARDS: StatCard[] = [
@@ -91,10 +87,8 @@ function StatisticsCard({ card }: { card: StatCard }) {
         "
       />
 
-      <div
-        className="absolute left-1/2 top-1/2 w-[0.5px] h-[500%] origin-center"
-        style={DIAGONAL_LINE_STYLES}
-      />
+      <div className="absolute left-1/2 top-1/2 w-[1px] h-[500%] origin-center" style={SHADOW_LINE_STYLES} />
+      <div className="absolute left-1/2 top-1/2 w-[0.5px] h-[500%] origin-center" style={DIAGONAL_LINE_STYLES} />
 
       <div className="relative flex items-start justify-between">
         {/* Text Content: Title and Value */}

@@ -1,11 +1,11 @@
 import React from "react";
 import Image from "next/image";
 import { Plane, MapPin, Clock, ArrowUpRight } from "lucide-react";
-
+import package1 from "../../../../../public/package-1.png"
 interface Package {
   id: number;
   title: string;
-  image: string;
+  image: typeof package1;
   route: string;
   location: string;
   duration: string;
@@ -16,7 +16,7 @@ const PACKAGES: Package[] = [
   {
     id: 1,
     title: "হজ ভিআইপি প্যাকেজ",
-    image: "/hajj-1.jpg",
+    image: package1,
     route: "মক্কা, মদিনা ভ্রমণ",
     location: "সৌদি আরব",
     duration: "২৭ দিন ২৫ রাত",
@@ -25,7 +25,7 @@ const PACKAGES: Package[] = [
   {
     id: 2,
     title: "হজ স্পেশাল প্যাকেজ",
-    image: "/hajj-2.jpg",
+    image: package1,
     route: "মক্কা, মদিনা ভ্রমণ",
     location: "সৌদি আরব",
     duration: "৪৪ দিন ৪২ রাত",
@@ -34,7 +34,7 @@ const PACKAGES: Package[] = [
   {
     id: 3,
     title: "হজ 'এ' ক্যাটাগরি প্যাকেজ",
-    image: "/hajj-3.jpg",
+    image: package1,
     route: "মক্কা, মদিনা ভ্রমণ",
     location: "সৌদি আরব",
     duration: "৪৪ দিন ৪২ রাত",
@@ -87,12 +87,12 @@ const PackageCard = ({ package: pkg }: { package: Package }) => {
 
         <div className="border-t border-dashed border-gray-300 pt-4">
           {pkg.isFeatured ? (
-            <button className="w-full flex items-center justify-between px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors">
+            <button className="w-full flex items-center justify-between px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors cursor-pointer">
               <span>বিস্তারিত পড়ুন</span>
               <ArrowUpRight className="w-5 h-5" />
             </button>
           ) : (
-            <button className="w-full flex items-center justify-between px-4 py-3 border-2 border-amber-500 text-amber-600 rounded-lg hover:bg-amber-50 transition-colors">
+            <button className="w-full flex items-center justify-between px-4 py-3 border-2 border-amber-500 text-amber-600 rounded-lg hover:bg-amber-50 transition-colors cursor-pointer">
               <span>বিস্তারিত পড়ুন</span>
               <ArrowUpRight className="w-5 h-5" />
             </button>
