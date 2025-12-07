@@ -17,7 +17,7 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
   const pathname = usePathname();
 
   const allowedPaths: string[] =
-    adminData?.role?.roleFeature?.map((feature: any) => `/${feature.path}`) ?? [];
+    adminData?.role?.roleFeature?.map((feature: any) => `${feature.path}`) ?? [];
 
   const filteredNavItems = NAV_ITEMS.filter((item) =>
     allowedPaths.includes(item.href)

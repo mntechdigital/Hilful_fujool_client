@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Barishal Times | বরিশালটাইমস – নতুন চেতনায় প্রতিক্ষণে…",
+  title: "Hilful Fujul | হিলফুল ফুজুল – নতুন চেতনায় প্রতিক্ষণে…",
   description:
-    "© বরিশালটাইমস মিডিয়া লিমিটেডের একটি প্রতিষ্ঠান। ইসরাফিল ভিলা (তৃতীয় তলা), ফলপট্টি রোড, বরিশাল ৮২০০। ফোন: ০২৪৭৮৮৩০৫৪৫, ০১৬৭০-৬৮৭৯৫২ barishaltimes@gmail.com, bslhasib@gmail.com.",
+    "© হিলফুল ফুজুল মিডিয়া লিমিটেডের একটি প্রতিষ্ঠান। ইসরাফিল ভিলা (তৃতীয় তলা), ফলপট্টি রোড, বরিশাল ৮২০০। ফোন: ০২৪৭৮৮৩০৫৪৫, ০১৬৭০-৬৮৭৯৫২ barishaltimes@gmail.com, bslhasib@gmail.com.",
 };
 
 export default function RootLayout({

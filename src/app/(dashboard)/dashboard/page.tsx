@@ -1,8 +1,10 @@
+import { DashboardWrapper } from "./_components/DashboardWrapper";
+
 const Dashboard = async () => {
   return (
-    <div>
-      <h2>Dashboard</h2>
-    </div>
+    <DashboardWrapper>
+      <h2>Dashboard Home page</h2>
+    </DashboardWrapper>
   );
 };
 

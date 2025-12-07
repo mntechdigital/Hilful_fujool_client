@@ -21,7 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Sidebar } from "./DashboardSidebar";
-import logo from "../../../../public/barishal-times-logo.png";
+import logo from "../../../../public/hilful_fujul.png";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRouter } from "next/navigation";
 
@@ -64,7 +64,7 @@ export function Navbar({ adminData }: NavbarProps) {
         <Link href="/dashboard" className="flex items-center">
           <Image
             src={logo || "/placeholder.svg"}
-            alt="barishal-times-logo"
+            alt="Hilful Fujul Logo"
             width={150}
             height={40}
             className="lg:h-10 lg:w-auto"
