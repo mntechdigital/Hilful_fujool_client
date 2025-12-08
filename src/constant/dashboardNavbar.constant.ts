@@ -1,10 +1,11 @@
-import { LayoutDashboard, ImageIcon, Video, BarChart3, Settings2, ShieldCheck, Mail, Users, Settings, Palette, Grip, LayoutDashboardIcon, PanelBottom, Landmark } from "lucide-react";
+import { LayoutDashboard, ImageIcon, Video, BarChart3, Settings2, ShieldCheck, Mail, Users, Settings, Palette, Grip, LayoutDashboardIcon, PanelBottom, Landmark, User } from "lucide-react";
 
 export const NAV_ITEMS = [
   { icon: LayoutDashboardIcon, label: "Dashboard", href: "/dashboard" },
   { icon: Grip, label: "Services", href: "/services" },
   { icon: PanelBottom, label: "Packages", href: "/packages" },
   { icon: Landmark, label: "Five Pillars of Islam", href: "/fivePillarsOfIslam" },
+  { icon: User, label: "Contacts", href: "/contacts" },
   { icon: ImageIcon, label: "Gallery News", href: "/gallery-news" },
   { icon: Video, label: "Video News", href: "/video-news" },
   { icon: BarChart3, label: "Advertisement", href: "/advertisement" },
