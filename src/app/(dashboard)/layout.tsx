@@ -88,9 +88,9 @@ export default async function DashboardLayout({
         },
         {
           id: "rf-009",
-          name: "Manage Users",
+          name: "Roles & Permissions",
           index: 9,
-          path: "/dashboard/users",
+          path: "/roles_permissions",
           isChecked: true,
         },
         {
