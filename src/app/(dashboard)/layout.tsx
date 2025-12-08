@@ -3,13 +3,11 @@ export const dynamic = "force-dynamic";
 import { Navbar } from "./_components/DashboardNavbar";
 import { Sidebar } from "./_components/DashboardSidebar";
 
-
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
   const demoData = {
     id: "admin-001",
     fullName: "John Doe",
@@ -41,15 +39,36 @@ export default async function DashboardLayout({
         },
         {
           id: "rf-002",
-          name: "Manage Users",
+          name: "Services",
           index: 2,
-          path: "/dashboard/users",
+          path: "/services",
           isChecked: true,
         },
         {
           id: "rf-003",
-          name: "Settings",
+          name: "Packages",
           index: 3,
+          path: "/packages",
+          isChecked: true,
+        },
+        {
+          id: "rf-004",
+          name: "Five Pillars of Islam",
+          index: 4,
+          path: "/fivePillarsOfIslam",
+          isChecked: true,
+        },
+        {
+          id: "rf-005",
+          name: "Manage Users",
+          index: 5,
+          path: "/dashboard/users",
+          isChecked: true,
+        },
+        {
+          id: "rf-006",
+          name: "Settings",
+          index: 6,
           path: "/dashboard/settings",
           isChecked: false,
         },
