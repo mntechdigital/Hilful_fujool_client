@@ -30,5 +30,6 @@ export const NAV_ITEMS = [
       { label: "Contact us", href: "/dashboard/page-setting/contact-us", icon: Mail },
     ],
   },
+  { icon: User2, label: "Update Profile", href: "/update-profile" },
   { icon: Palette, label: "Theme", href: "/theme" },
 ];

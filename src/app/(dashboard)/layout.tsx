@@ -121,6 +121,13 @@ export default async function DashboardLayout({
           path: "/page-setting/contact-us",
           isChecked: true,
         },
+        {
+          id: "rf-014",
+          name: "Update Profile",
+          index: 14,
+          path: "/update-profile",
+          isChecked: true,
+        },
       ],
 
       adminUser: [], // optional
