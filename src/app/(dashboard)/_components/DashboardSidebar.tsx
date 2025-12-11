@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/constant/dashboardNavbar.constant";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import React, { useState } from "react";
 
 interface SidebarProps {
   adminData?: any;
@@ -19,14 +22,26 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
   const allowedPaths: string[] =
     adminData?.role?.roleFeature?.map((feature: any) => `${feature.path}`) ?? [];
 
-  const filteredNavItems = NAV_ITEMS.filter((item) =>
-    allowedPaths.includes(item.href)
-  );
+  const filteredNavItems = NAV_ITEMS.filter((item) => {
+    if (allowedPaths.includes(item.href)) return true;
+    if (item.children && Array.isArray(item.children)) {
+      // Show parent if any child is allowed
+      return item.children.some((child: any) => allowedPaths.includes(child.href));
+    }
+    return false;
+  });
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
     const clean = href.startsWith("/") ? href.slice(1) : href;
     return pathname === `/dashboard/${clean}` || pathname.startsWith(`/dashboard/${clean}/`);
+  };
+
+  // Dropdown state for items with children
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const handleDropdownClick = (label: string) => {
+    setOpenDropdown((prev) => (prev === label ? null : label));
   };
 
   return (
@@ -44,6 +59,57 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
             {filteredNavItems.length > 0 ? (
               filteredNavItems.map((item) => {
                 const Icon = item.icon;
+                if (item.children && Array.isArray(item.children)) {
+                  // Dropdown menu item
+                  const isOpen = openDropdown === item.label;
+                  return (
+                    <div key={item.label} className="relative">
+                      <button
+                        type="button"
+                        className={cn(
+                          "flex items-center gap-3 rounded-3xl px-3 py-2 text-sm font-medium w-full transition-colors hover:bg-brand/10 hover:text-brand",
+                          isOpen && "bg-brand text-white hover:bg-brand/90 hover:text-white",
+                          !isOpen && "text-muted-foreground"
+                        )}
+                        onClick={() => handleDropdownClick(item.label)}
+                      >
+                        {Icon && <Icon className="h-4 w-4" />}
+                        <span>{item.label}</span>
+                        {isOpen ? (
+                          <ChevronUp className="ml-auto w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="ml-auto w-4 h-4" />
+                        )}
+                      </button>
+                      {isOpen && (
+                        <div className="pl-2 mt-1 space-y-1">
+                          {item.children.map((child: any) => {
+                            const ChildIcon = child.icon;
+                            return (
+                              <Link
+                                key={child.href}
+                                href={child.href}
+                                prefetch={true}
+                                className={cn(
+                                  "flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium transition-colors hover:bg-brand/10 hover:text-brand",
+                                  isActive(child.href) &&
+                                    "bg-brand text-white hover:bg-brand/90 hover:text-white",
+                                  !isActive(child.href) && "text-muted-foreground"
+                                )}
+                                style={{ marginLeft: '0.5rem' }}
+                                onClick={onNavItemClick}
+                              >
+                                {ChildIcon && <ChildIcon className="h-4 w-4" />}
+                                <span>{child.label}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+                // Regular menu item
                 return (
                   <Link
                     key={item.href}

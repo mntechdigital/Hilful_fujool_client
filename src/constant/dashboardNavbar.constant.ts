@@ -20,5 +20,15 @@ export const NAV_ITEMS = [
   { icon: Users, label: "Reporter", href: "/reporter" },
   { icon: Mail, label: "News Poll", href: "/news-poll" },
   { icon: Settings, label: "General Setting", href: "/general-setting" },
+  {
+    icon: Settings,
+    label: "Page Setting",
+    href: "/page-setting",
+    children: [
+      { label: "Hero area", href: "/page-setting/hero-area", icon: LayoutDashboardIcon },
+      { label: "About us", href: "/page-setting/about-us", icon: NotepadText },
+      { label: "Contact us", href: "/page-setting/contact-us", icon: Mail },
+    ],
+  },
   { icon: Palette, label: "Theme", href: "/theme" },
 ];
