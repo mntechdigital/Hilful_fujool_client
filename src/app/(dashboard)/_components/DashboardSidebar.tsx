@@ -82,7 +82,7 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
                         )}
                       </button>
                       {isOpen && (
-                        <div className="pl-2 mt-1 space-y-1">
+                        <div className="mt-1 space-y-1">
                           {item.children.map((child: any) => {
                             const ChildIcon = child.icon;
                             return (
@@ -96,7 +96,7 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
                                      "bg-brand-gradient text-white hover:bg-brand/90 hover:text-white",
                                   !isActive(child.href) && "text-muted-foreground"
                                 )}
-                                style={{ marginLeft: '0.5rem' }}
+                                // align with parent, no extra margin
                                 onClick={onNavItemClick}
                               >
                                 {ChildIcon && <ChildIcon className="h-4 w-4" />}
