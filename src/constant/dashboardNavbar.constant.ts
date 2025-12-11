@@ -1,11 +1,11 @@
-import { LayoutDashboard, Video, BarChart3, Settings2, ShieldCheck, Mail, Users, Settings, Palette, Grip, LayoutDashboardIcon, PanelBottom, Landmark, User, ImagePlus, MessageCircleMore, NotepadText, User2 } from "lucide-react";
+import { LayoutDashboard, Video, BarChart3, Settings2, ShieldCheck, Mail, Users, Settings, Palette, Grip, LayoutDashboardIcon, PanelBottom, Landmark, ImagePlus, MessageCircleMore, NotepadText, User2, Layers2 } from "lucide-react";
 
 export const NAV_ITEMS = [
   { icon: LayoutDashboardIcon, label: "Dashboard", href: "/dashboard" },
   { icon: Grip, label: "Services", href: "/services" },
   { icon: PanelBottom, label: "Packages", href: "/packages" },
   { icon: Landmark, label: "Five Pillars of Islam", href: "/fivePillarsOfIslam" },
-  { icon: User, label: "Contacts", href: "/contacts" },
+  { icon: Users, label: "Contacts", href: "/contacts" },
   { icon: ImagePlus, label: "Gallery", href: "/gallery" },
   { icon: MessageCircleMore, label: "Reviews", href: "/reviews" },
   { icon: NotepadText, label: "Blogs", href: "/blogs" },
@@ -25,7 +25,7 @@ export const NAV_ITEMS = [
     label: "Page Setting",
     href: "/page-setting",
     children: [
-      { label: "Hero area", href: "/dashboard/page-setting/hero-area", icon: LayoutDashboardIcon },
+      { label: "Hero area", href: "/dashboard/page-setting/hero-area", icon: Layers2 },
       { label: "About us", href: "/dashboard/page-setting/about-us", icon: NotepadText },
       { label: "Contact us", href: "/dashboard/page-setting/contact-us", icon: Mail },
     ],

@@ -68,7 +68,7 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
                         type="button"
                         className={cn(
                           "flex items-center gap-3 rounded-3xl px-3 py-2 text-sm font-medium w-full transition-colors hover:bg-brand/10 hover:text-brand",
-                          isOpen && "bg-brand text-white hover:bg-brand/90 hover:text-white",
+                          isOpen && "bg-brand-gradient text-white hover:bg-brand/90 hover:text-white",
                           !isOpen && "text-muted-foreground"
                         )}
                         onClick={() => handleDropdownClick(item.label)}
@@ -92,8 +92,8 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
                                 prefetch={true}
                                 className={cn(
                                   "flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium transition-colors hover:bg-brand/10 hover:text-brand",
-                                  isActive(child.href) &&
-                                    "bg-brand text-white hover:bg-brand/90 hover:text-white",
+                                   isActive(child.href) &&
+                                     "bg-brand-gradient text-white hover:bg-brand/90 hover:text-white",
                                   !isActive(child.href) && "text-muted-foreground"
                                 )}
                                 style={{ marginLeft: '0.5rem' }}
@@ -122,7 +122,7 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
                     className={cn(
                       "flex items-center gap-3 rounded-3xl px-3 py-2 text-sm font-medium transition-colors hover:bg-brand/10 hover:text-brand",
                       isActive(item.href) &&
-                        "bg-brand text-white hover:bg-brand/90 hover:text-white",
+                         "bg-brand-gradient text-white hover:bg-brand/90 hover:text-white",
                       !isActive(item.href) && "text-muted-foreground"
                     )}
                     onClick={onNavItemClick}
