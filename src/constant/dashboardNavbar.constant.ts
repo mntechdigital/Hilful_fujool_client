@@ -25,9 +25,9 @@ export const NAV_ITEMS = [
     label: "Page Setting",
     href: "/page-setting",
     children: [
-      { label: "Hero area", href: "/page-setting/hero-area", icon: LayoutDashboardIcon },
-      { label: "About us", href: "/page-setting/about-us", icon: NotepadText },
-      { label: "Contact us", href: "/page-setting/contact-us", icon: Mail },
+      { label: "Hero area", href: "/dashboard/page-setting/hero-area", icon: LayoutDashboardIcon },
+      { label: "About us", href: "/dashboard/page-setting/about-us", icon: NotepadText },
+      { label: "Contact us", href: "/dashboard/page-setting/contact-us", icon: Mail },
     ],
   },
   { icon: Palette, label: "Theme", href: "/theme" },
