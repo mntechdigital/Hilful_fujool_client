@@ -67,7 +67,7 @@ export const deleteFivePillars = async (id: string | undefined) => {
 
 export const updateFivePillarStatus = async (id: string, status: boolean) => {
   const response = await apiRequest(`fivepillars/${id}/status`, {
-    method: "PUT",
+    method: "PATCH",
     body: JSON.stringify({ status }),
     authRequired: true,
   });

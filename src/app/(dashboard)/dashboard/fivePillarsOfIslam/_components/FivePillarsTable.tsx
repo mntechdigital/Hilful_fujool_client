@@ -1,8 +1,11 @@
-
-import {  GripVertical, Pencil } from "lucide-react";
+"use client";
+import { GripVertical, Pencil } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
 import DeleteFIvePillarDialog from "./DeleteFIvePillarDialog";
+import { updateFivePillarStatus } from "@/services/fivePillar";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 
 interface Pillar {
   id: string;
@@ -13,8 +16,21 @@ interface Pillar {
   status: boolean;
 }
 
-
-const FivePillarsTable = ({ fivePillarsData }: { fivePillarsData: Pillar[] }) => {
+const FivePillarsTable = ({
+  fivePillarsData,
+}: {
+  fivePillarsData: Pillar[];
+}) => {
+  const handleStatusChange = async (pillar: Pillar) => {
+    const res = await updateFivePillarStatus(pillar.id, !pillar.status);
+    if (res.statusCode === 200) {
+      showSuccessToast(
+        `Pillar ${!pillar.status ? "activated" : "deactivated"} successfully`
+      );
+    } else {
+      showErrorToast(res.message || "Something went wrong");
+    }
+  };
 
   return (
     <>
@@ -22,22 +38,44 @@ const FivePillarsTable = ({ fivePillarsData }: { fivePillarsData: Pillar[] }) =>
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-100">
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">SN</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Image</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Title</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Description</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Reorder</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Status</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                SN
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                Image
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                Title
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                Description
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                Reorder
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                Status
+              </th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="text-sm">
             {fivePillarsData?.map((pillar) => (
-              <tr key={pillar.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+              <tr
+                key={pillar.id}
+                className="border-b border-gray-50 hover:bg-gray-50/50"
+              >
                 <td className="py-4 px-6 text-gray-600">{pillar.id}</td>
                 <td className="py-4 px-6">
                   <div className="w-14 h-14 rounded-lg overflow-hidden relative">
-                    <Image src={pillar.image} alt={pillar.title} fill className="object-cover" />
+                    <Image
+                      src={pillar.image}
+                      alt={pillar.title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 </td>
                 <td className="py-4 px-6 text-gray-700">{pillar.title}</td>
@@ -52,14 +90,22 @@ const FivePillarsTable = ({ fivePillarsData }: { fivePillarsData: Pillar[] }) =>
                     </button>
                   </div>
                 </td>
-                {/* <td className="py-4 px-6">
+                <td className="py-4 px-6">
                   <button
-                    onClick={() => toggleStatus(pillar.id)}
-                    className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${pillar.status ? "bg-[#0f3d3e]" : "bg-gray-300"}`}
+                    onClick={() => handleStatusChange(pillar)}
+                    className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${
+                      pillar.status ? "bg-[#0f3d3e]" : "bg-gray-300"
+                    }`}
+                    aria-pressed={pillar.status}
+                    aria-label={pillar.status ? "Active" : "Inactive"}
                   >
-                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${pillar.status ? "right-1" : "left-1"}`} />
+                    <span
+                      className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${
+                        pillar.status ? "right-1" : "left-1"
+                      }`}
+                    />
                   </button>
-                </td> */}
+                </td>
                 <td className="py-4 px-6">
                   <div className="flex items-center gap-2">
                     <Link
@@ -75,8 +121,6 @@ const FivePillarsTable = ({ fivePillarsData }: { fivePillarsData: Pillar[] }) =>
             ))}
           </tbody>
         </table>
-
-        
       </div>
     </>
   );

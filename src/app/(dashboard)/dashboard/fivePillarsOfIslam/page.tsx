@@ -34,7 +34,6 @@ const FivePillarsOfIslamPage = async (props: {
     },
   ];
   const fivePillarsData = await getFivePillars(query);
-  console.log("get five pillar data==>", fivePillarsData); //await getFivePillars();
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
