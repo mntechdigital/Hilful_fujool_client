@@ -1,5 +1,5 @@
 
-import { ChevronLeft, ChevronRight, GripVertical, Pencil } from "lucide-react";
+import {  GripVertical, Pencil } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import DeleteFIvePillarDialog from "./DeleteFIvePillarDialog";
@@ -76,21 +76,7 @@ const FivePillarsTable = ({ fivePillarsData }: { fivePillarsData: Pillar[] }) =>
           </tbody>
         </table>
 
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
-          <p className="text-sm text-gray-600">Showing 1 to 3 of 3 entries</p>
-          <div className="flex items-center gap-1">
-            <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center bg-[#0f3d3e] text-white rounded-full">1</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">2</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">3</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">4</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        
       </div>
     </>
   );
