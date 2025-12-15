@@ -65,3 +65,14 @@ export const deleteFivePillars = async (id: string | undefined) => {
   return await response;
 };
 
+export const updateFivePillarStatus = async (id: string, status: boolean) => {
+  const response = await apiRequest(`fivepillars/${id}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
+    authRequired: true,
+  });
+
+  revalidatePath("/dashboard/fivepillar");
+
+  return await response;
+};
