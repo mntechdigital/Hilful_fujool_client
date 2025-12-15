@@ -1,13 +1,11 @@
-"use client";
 
-import { ChevronLeft, ChevronRight, GripVertical, Pencil, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical, Pencil } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
-import DeleteModal from "@/components/shared/DeleteModal";
 import Link from "next/link";
+import DeleteFIvePillarDialog from "./DeleteFIvePillarDialog";
 
 interface Pillar {
-  id: number;
+  id: string;
   image: string;
   title: string;
   description: string;
@@ -15,63 +13,8 @@ interface Pillar {
   status: boolean;
 }
 
-const INITIAL_PILLARS_DATA: Pillar[] = [
-  {
-    id: 1,
-    image: "/hajj-1.jpg",
-    title: "শাহাদা (সাক্ষ্য)",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    order: 1,
-    status: true,
-  },
-  {
-    id: 2,
-    image: "/hajj-2.jpg",
-    title: "সালাত (নামাজ)",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    order: 2,
-    status: true,
-  },
-  {
-    id: 3,
-    image: "/hajj-3.jpg",
-    title: "যাকাত (দান)",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    order: 3,
-    status: false,
-  },
-];
 
-const FivePillarsTable = () => {
-  const [pillars, setPillars] = useState<Pillar[]>(INITIAL_PILLARS_DATA);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedPillarId, setSelectedPillarId] = useState<number | null>(null);
-
-  const toggleStatus = (id: number) => {
-    setPillars((prev) =>
-      prev.map((pillar) =>
-        pillar.id === id ? { ...pillar, status: !pillar.status } : pillar
-      )
-    );
-  };
-
-  const handleDeleteClick = (id: number) => {
-    setSelectedPillarId(id);
-    setDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (selectedPillarId !== null) {
-      setPillars((prev) => prev.filter((pillar) => pillar.id !== selectedPillarId));
-    }
-    setDeleteModalOpen(false);
-    setSelectedPillarId(null);
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteModalOpen(false);
-    setSelectedPillarId(null);
-  };
+const FivePillarsTable = ({ fivePillarsData }: { fivePillarsData: Pillar[] }) => {
 
   return (
     <>
@@ -89,7 +32,7 @@ const FivePillarsTable = () => {
             </tr>
           </thead>
           <tbody className="text-sm">
-            {pillars.map((pillar) => (
+            {fivePillarsData?.map((pillar) => (
               <tr key={pillar.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                 <td className="py-4 px-6 text-gray-600">{pillar.id}</td>
                 <td className="py-4 px-6">
@@ -109,14 +52,14 @@ const FivePillarsTable = () => {
                     </button>
                   </div>
                 </td>
-                <td className="py-4 px-6">
+                {/* <td className="py-4 px-6">
                   <button
                     onClick={() => toggleStatus(pillar.id)}
                     className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${pillar.status ? "bg-[#0f3d3e]" : "bg-gray-300"}`}
                   >
                     <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${pillar.status ? "right-1" : "left-1"}`} />
                   </button>
-                </td>
+                </td> */}
                 <td className="py-4 px-6">
                   <div className="flex items-center gap-2">
                     <Link
@@ -125,12 +68,7 @@ const FivePillarsTable = () => {
                     >
                       <Pencil className="w-4 h-4" />
                     </Link>
-                    <button
-                      onClick={() => handleDeleteClick(pillar.id)}
-                      className="w-8 h-8 flex items-center justify-center border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <DeleteFIvePillarDialog id={pillar.id} />
                   </div>
                 </td>
               </tr>
@@ -154,13 +92,6 @@ const FivePillarsTable = () => {
           </div>
         </div>
       </div>
-
-      <DeleteModal
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-      />
     </>
   );
 };

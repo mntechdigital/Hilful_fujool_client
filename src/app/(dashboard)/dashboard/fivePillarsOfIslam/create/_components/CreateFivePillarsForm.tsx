@@ -151,28 +151,7 @@ export default function CreateFivePillarsForm() {
           )}
         </div>
 
-        {/* Status Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Status <span className="text-red-500">*</span>
-          </label>
-          <Controller
-            name="status"
-            control={control}
-            rules={{ required: "Status is required" }}
-            render={({ field }) => (
-              <input
-                type="checkbox"
-                checked={field.value}
-                onChange={e => field.onChange(e.target.checked)}
-                className="w-5 h-5 text-[#0f3d3e] border-gray-300 rounded focus:ring-[#0f3d3e]"
-              />
-            )}
-          />
-          {errors.status && (
-            <p className="text-red-500 text-sm">{errors.status.message}</p>
-          )}
-        </div>
+        {/* ...status field removed, status will always be true in form data... */}
         {/* Image Upload Field */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">

@@ -13,6 +13,7 @@ import {
   FaArrowRight,
   FaBars,
 } from "react-icons/fa";
+import Image from "next/image";
 
 const menu = [
   { label: "Home", href: "/", icon: FaHome },
@@ -33,11 +34,16 @@ const Navber = () => {
         {/* Logo */}
         <div className="flex items-center gap-2">
           <Link href="/">
-            <img
-              src="/logo.png"
-              alt="Logo"
-              className="w-12 h-12 rounded-full border-2 border-[#0E595C] object-cover"
-            />
+            <div className="w-12 h-12 rounded-full border-2 border-[#0E595C] overflow-hidden">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={48}
+                height={48}
+                className="object-cover w-full h-full"
+                priority
+              />
+            </div>
           </Link>
         </div>
         {/* Menu */}
@@ -49,7 +55,11 @@ const Navber = () => {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`flex items-center gap-1 font-semibold transition-colors ${isActive ? "text-[#b88a00]" : "text-[#222] hover:text-[#b88a00]"}`}
+                className={`flex items-center gap-1 font-semibold transition-colors ${
+                  isActive
+                    ? "text-[#b88a00]"
+                    : "text-[#222] hover:text-[#b88a00]"
+                }`}
               >
                 <Icon className="w-4 h-4" />
                 {item.label}
@@ -86,7 +96,11 @@ const Navber = () => {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`flex items-center gap-2 font-semibold py-2 px-2 rounded transition-colors ${isActive ? "text-[#b88a00] bg-[#f6f1e7]" : "text-[#222] hover:text-[#b88a00]"}`}
+                  className={`flex items-center gap-2 font-semibold py-2 px-2 rounded transition-colors ${
+                    isActive
+                      ? "text-[#b88a00] bg-[#f6f1e7]"
+                      : "text-[#222] hover:text-[#b88a00]"
+                  }`}
                   onClick={() => setMobileOpen(false)}
                 >
                   <Icon className="w-4 h-4" />

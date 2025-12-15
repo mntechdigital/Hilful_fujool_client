@@ -3,8 +3,37 @@ import { DashboardWrapper } from "../_components/DashboardWrapper";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import FivePillarsTable from "./_components/FivePillarsTable";
+import { getFivePillars } from "@/services/fivePillar";
+import { TQuery } from "@/types/query.types";
 
-const FivePillarsOfIslamPage = () => {
+const FivePillarsOfIslamPage = async(props: {
+  searchParams: Promise<{ search: string; page: string }>;
+}) => {
+  const searchParams = await props.searchParams;
+  const search = searchParams.search || "";
+  const page = parseInt(searchParams.page) || 1;
+    const query: TQuery[] = [
+    {
+      key: "orderBy",
+      value: JSON.stringify({
+        createdAt: "desc",
+      }),
+    },
+    {
+      key: "searchTerm",
+      value: search,
+    },
+    {
+      key: "page",
+      value: page.toString(),
+    },
+    {
+      key: "limit",
+      value: "10",
+    },
+  ];
+  const fivePillarsData = await getFivePillars(query);
+  console.log("get five pillar data==>",fivePillarsData); //await getFivePillars();
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -17,7 +46,7 @@ const FivePillarsOfIslamPage = () => {
           <span className="font-medium">Create New</span>
         </Link>
       </div>
-      <FivePillarsTable />
+      <FivePillarsTable fivePillarsData={fivePillarsData?.data?.data} />
     </DashboardWrapper>
   );
 };
