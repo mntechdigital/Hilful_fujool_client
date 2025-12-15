@@ -17,35 +17,23 @@ interface EditFivePillarsFormProps {
   pillarId: string;
 }
 
-// Mock data for demonstration - replace with actual API call
-const MOCK_PILLARS: Record<string, FivePillarsFormData & { imageUrl: string }> = {
-  "1": {
-    title: "শাহাদা (সাক্ষ্য)",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    order: 1,
-    image: null,
-    imageUrl: "/hajj-1.jpg",
-  },
-  "2": {
-    title: "সালাত (নামাজ)",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    order: 2,
-    image: null,
-    imageUrl: "/hajj-2.jpg",
-  },
-  "3": {
-    title: "যাকাত (দান)",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    order: 3,
-    image: null,
-    imageUrl: "/hajj-3.jpg",
-  },
-};
+import { getFivePillarsById, updateFivePillars } from "@/services/fivePillar";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { useRouter } from "next/navigation";
 
-export default function EditFivePillarsForm({ pillarId }: EditFivePillarsFormProps) {
+export default function EditFivePillarsForm({
+  pillarId,
+}: EditFivePillarsFormProps) {
+  const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { control, handleSubmit, setValue, reset, formState: { errors } } = useForm<FivePillarsFormData>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<FivePillarsFormData>({
     defaultValues: {
       title: "",
       description: "",
@@ -56,16 +44,19 @@ export default function EditFivePillarsForm({ pillarId }: EditFivePillarsFormPro
 
   // Load pillar data on component mount
   useEffect(() => {
-    const pillarData = MOCK_PILLARS[pillarId];
-    if (pillarData) {
-      reset({
-        title: pillarData.title,
-        description: pillarData.description,
-        order: pillarData.order,
-        image: null,
-      });
-      setImagePreview(pillarData.imageUrl);
-    }
+    const fetchPillar = async () => {
+      const res = await getFivePillarsById(pillarId);
+      if (res?.data) {
+        reset({
+          title: res.data.title || "",
+          description: res.data.description || "",
+          order: res.data.order || 1,
+          image: null,
+        });
+        setImagePreview(res.data.image || null);
+      }
+    };
+    fetchPillar();
   }, [pillarId, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,9 +76,22 @@ export default function EditFivePillarsForm({ pillarId }: EditFivePillarsFormPro
     setValue("image", null);
   };
 
-  const onSubmit = (data: FivePillarsFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: FivePillarsFormData) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("order", String(data.order));
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const res = await updateFivePillars(pillarId, formData);
+    if (res.statusCode === 200) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/fivePillarsOfIslam");
+    } else {
+      showErrorToast(res.message);
+    }
   };
 
   return (
@@ -147,7 +151,10 @@ export default function EditFivePillarsForm({ pillarId }: EditFivePillarsFormPro
           <Controller
             name="order"
             control={control}
-            rules={{ required: "Order is required", min: { value: 1, message: "Order must be at least 1" } }}
+            rules={{
+              required: "Order is required",
+              min: { value: 1, message: "Order must be at least 1" },
+            }}
             render={({ field }) => (
               <input
                 {...field}
@@ -172,7 +179,12 @@ export default function EditFivePillarsForm({ pillarId }: EditFivePillarsFormPro
           <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
             {imagePreview ? (
               <>
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  className="object-cover"
+                />
                 <button
                   type="button"
                   onClick={handleRemoveImage}
@@ -184,7 +196,9 @@ export default function EditFivePillarsForm({ pillarId }: EditFivePillarsFormPro
             ) : (
               <>
                 <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
-                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
+                  Upload
+                </span>
                 <input
                   type="file"
                   accept="image/*"

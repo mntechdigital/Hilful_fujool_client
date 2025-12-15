@@ -64,7 +64,6 @@ export default function CreateFivePillarsForm() {
       formData.append("image", data.image);
     }
     const res = await createFivePillars(formData);
-    console.log("res==>",res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
