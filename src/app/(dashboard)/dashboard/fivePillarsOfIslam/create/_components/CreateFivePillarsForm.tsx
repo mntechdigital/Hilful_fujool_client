@@ -5,23 +5,35 @@ import { useForm, Controller } from "react-hook-form";
 import { ImageIcon, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { createFivePillars } from "@/services/fivePillar";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { useRouter } from "next/navigation";
 
 interface FivePillarsFormData {
   title: string;
   description: string;
   order: number;
   image: File | null;
+  status: boolean;
 }
 
 export default function CreateFivePillarsForm() {
+  const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { control, handleSubmit, setValue, formState: { errors } } = useForm<FivePillarsFormData>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<FivePillarsFormData>({
     defaultValues: {
       title: "",
       description: "",
       order: 1,
       image: null,
+      status: true,
     },
   });
 
@@ -42,9 +54,24 @@ export default function CreateFivePillarsForm() {
     setValue("image", null);
   };
 
-  const onSubmit = (data: FivePillarsFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: FivePillarsFormData) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("order", String(data.order));
+    formData.append("status", String(data.status));
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const res = await createFivePillars(formData);
+    console.log("res==>",res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/fivePillarsOfIslam");
+    } else {
+      showErrorToast(res.message);
+    }
   };
 
   return (
@@ -104,7 +131,10 @@ export default function CreateFivePillarsForm() {
           <Controller
             name="order"
             control={control}
-            rules={{ required: "Order is required", min: { value: 1, message: "Order must be at least 1" } }}
+            rules={{
+              required: "Order is required",
+              min: { value: 1, message: "Order must be at least 1" },
+            }}
             render={({ field }) => (
               <input
                 {...field}
@@ -121,6 +151,28 @@ export default function CreateFivePillarsForm() {
           )}
         </div>
 
+        {/* Status Field */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Status <span className="text-red-500">*</span>
+          </label>
+          <Controller
+            name="status"
+            control={control}
+            rules={{ required: "Status is required" }}
+            render={({ field }) => (
+              <input
+                type="checkbox"
+                checked={field.value}
+                onChange={e => field.onChange(e.target.checked)}
+                className="w-5 h-5 text-[#0f3d3e] border-gray-300 rounded focus:ring-[#0f3d3e]"
+              />
+            )}
+          />
+          {errors.status && (
+            <p className="text-red-500 text-sm">{errors.status.message}</p>
+          )}
+        </div>
         {/* Image Upload Field */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
@@ -129,7 +181,12 @@ export default function CreateFivePillarsForm() {
           <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
             {imagePreview ? (
               <>
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  className="object-cover"
+                />
                 <button
                   type="button"
                   onClick={handleRemoveImage}
@@ -141,7 +198,9 @@ export default function CreateFivePillarsForm() {
             ) : (
               <>
                 <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
-                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
+                  Upload
+                </span>
                 <input
                   type="file"
                   accept="image/*"
