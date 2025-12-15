@@ -62,12 +62,12 @@ const FivePillarsTable = ({
             </tr>
           </thead>
           <tbody className="text-sm">
-            {fivePillarsData?.map((pillar) => (
+            {fivePillarsData?.map((pillar, idx) => (
               <tr
                 key={pillar.id}
                 className="border-b border-gray-50 hover:bg-gray-50/50"
               >
-                <td className="py-4 px-6 text-gray-600">{pillar.id}</td>
+                <td className="py-4 px-6 text-gray-600">{idx + 1}</td>
                 <td className="py-4 px-6">
                   <div className="w-14 h-14 rounded-lg overflow-hidden relative">
                     <Image
