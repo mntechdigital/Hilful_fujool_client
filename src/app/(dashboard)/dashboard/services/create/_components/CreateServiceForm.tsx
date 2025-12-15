@@ -5,24 +5,28 @@ import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
+import { createService } from "@/services/service";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 
 interface ServiceFormData {
   title: string;
   shortDescription: string;
   description: string;
   image: File | null;
+  status: boolean;
 }
 
 export default function CreateServiceForm() {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { control, handleSubmit, setValue } = useForm<ServiceFormData>({
+  const { control, handleSubmit, setValue, reset } = useForm<ServiceFormData>({
     defaultValues: {
       title: "",
       shortDescription: "",
       description: "",
       image: null,
+      status: true,
     },
   });
 
@@ -43,8 +47,23 @@ export default function CreateServiceForm() {
     setValue("image", null);
   };
 
-  const onSubmit = (data: ServiceFormData) => {
-    console.log(data);
+  const onSubmit = async (data: ServiceFormData) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("shortDescription", data.shortDescription);
+    formData.append("description", data.description);
+    formData.append("status", String(data.status));
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const res = await createService(formData);
+    console.log("create service==>", res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+    } else {
+      showErrorToast(res.message || "Create failed");
+    }
   };
 
   return (
@@ -66,7 +85,9 @@ export default function CreateServiceForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Short Description</label>
+        <label className="text-sm font-medium text-gray-700">
+          Short Description
+        </label>
         <Controller
           name="shortDescription"
           control={control}
@@ -98,11 +119,18 @@ export default function CreateServiceForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Upload Image</label>
+        <label className="text-sm font-medium text-gray-700">
+          Upload Image
+        </label>
         <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
           {imagePreview ? (
             <>
-              <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+              <Image
+                src={imagePreview}
+                alt="Preview"
+                fill
+                className="object-cover"
+              />
               <button
                 type="button"
                 onClick={handleRemoveImage}
@@ -114,7 +142,9 @@ export default function CreateServiceForm() {
           ) : (
             <>
               <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
-              <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+              <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
+                Upload
+              </span>
               <input
                 type="file"
                 accept="image/*"
