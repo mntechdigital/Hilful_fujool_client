@@ -3,8 +3,23 @@ import { DashboardWrapper } from "../_components/DashboardWrapper";
 import { Plus } from "lucide-react";
 import ServiceTable from "./_components/ServiceTable";
 import Link from "next/link";
+import { getServices } from "@/services/service";
+import { TQuery } from "@/types/query.types";
+import PaginationWrapper from "@/components/shared/PaginationWrapper";
 
-const Servicepage = () => {
+const ServicePage = async (props: {
+  searchParams: Promise<{ search: string; page: string }>;
+}) => {
+  const searchParams = await props.searchParams;
+  const search = searchParams.search || "";
+  const page = parseInt(searchParams.page) || 1;
+  const query: TQuery[] = [
+    { key: "orderBy", value: JSON.stringify({ createdAt: "desc" }) },
+    { key: "searchTerm", value: search },
+    { key: "page", value: page.toString() },
+    { key: "limit", value: "10" },
+  ];
+  const servicesData = await getServices(query);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -17,10 +32,17 @@ const Servicepage = () => {
           <span className="font-medium">Create New</span>
         </Link>
       </div>
-      <ServiceTable />
-      
+      <ServiceTable servicesData={servicesData?.data?.data} />
+      {/* Add PaginationWrapper if needed, similar to FivePillarsOfIslam */}
+      {servicesData?.meta?.totalPages > 1 && (
+        <PaginationWrapper
+          active={page}
+          totalPages={servicesData?.meta?.totalPages || 1}
+          totalItems={servicesData?.meta?.totalItems || 0}
+        />
+      )}
     </DashboardWrapper>
   );
 };
 
-export default Servicepage;
+export default ServicePage;

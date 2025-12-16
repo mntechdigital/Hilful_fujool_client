@@ -1,55 +1,42 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Pencil, X } from "lucide-react";
+import { Pencil } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
-import DeleteModal from "@/components/shared/DeleteModal";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import {  updateServiceStatus } from "@/services/service";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import DeleteServiceDialog from "./DeleteServiceDialog";
 
 interface Service {
-  id: number;
+  id: string;
   image: string;
   title: string;
+  shortDescription?: string;
+  description?: string;
   createdAt: string;
   status: boolean;
 }
 
-const INITIAL_SERVICES_DATA: Service[] = [
-  { id: 1, image: "/hajj-1.jpg", title: "ভিসা প্রক্রিয়াকরণ", createdAt: "02 May, 2025", status: true },
-  { id: 2, image: "/hajj-2.jpg", title: "ভিসা প্রক্রিয়াকরণ", createdAt: "02 May, 2025", status: true },
-  { id: 3, image: "/hajj-3.jpg", title: "ভিসা প্রক্রিয়াকরণ", createdAt: "02 May, 2025", status: false },
-];
 
-const ServiceTable = () => {
-  const [services, setServices] = useState<Service[]>(INITIAL_SERVICES_DATA);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+const ServiceTable = ({ servicesData = [] }: { servicesData: Service[] }) => {
+  const [services, setServices] = useState<Service[]>(servicesData);
 
-  const toggleStatus = (id: number) => {
-    setServices((prev) =>
-      prev.map((service) =>
-        service.id === id ? { ...service, status: !service.status } : service
-      )
-    );
-  };
+  useEffect(() => {
+    setServices(servicesData);
+  }, [servicesData]);
 
-  const handleDeleteClick = (id: number) => {
-    setSelectedServiceId(id);
-    setDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (selectedServiceId !== null) {
-      setServices((prev) => prev.filter((service) => service.id !== selectedServiceId));
+  const handleStatusChange = async (service: Service) => {
+    const res = await updateServiceStatus(service.id, !service.status);
+    if (res.statusCode === 200) {
+      showSuccessToast(`Service ${!service.status ? "activated" : "deactivated"} successfully`);
+      setServices((prev) => prev.map((s) => (s.id === service.id ? { ...s, status: !s.status } : s)));
+    } else {
+      showErrorToast(res.message || "Something went wrong");
     }
-    setDeleteModalOpen(false);
-    setSelectedServiceId(null);
   };
 
-  const handleCancelDelete = () => {
-    setDeleteModalOpen(false);
-    setSelectedServiceId(null);
-  };
+  // Delete logic can be added here if you have a DeleteServiceDialog component
 
   return (
     <>
@@ -60,28 +47,36 @@ const ServiceTable = () => {
               <th className="text-left py-4 px-6 font-semibold text-gray-700">SN</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Image</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Title</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Created At</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">Description</th>
+              <th className="text-left py-4 px-6 font-semibold text-gray-700">Reorder</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Status</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th>
             </tr>
           </thead>
           <tbody className="text-sm">
-            {services.map((service) => (
+            {services?.map((service, idx) => (
               <tr key={service.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                <td className="py-4 px-6 text-gray-600">{service.id}</td>
+                <td className="py-4 px-6 text-gray-600">{idx + 1}</td>
                 <td className="py-4 px-6">
                   <div className="w-14 h-14 rounded-lg overflow-hidden relative">
                     <Image src={service.image} alt={service.title} fill className="object-cover" />
                   </div>
                 </td>
                 <td className="py-4 px-6 text-gray-700">{service.title}</td>
-                <td className="py-4 px-6 text-gray-600">{service.createdAt}</td>
+                <td className="py-4 px-6 text-gray-600 max-w-xs">
+                  <p className="line-clamp-2">{service.shortDescription || service.description}</p>
+                </td>
+                
                 <td className="py-4 px-6">
                   <button
-                    onClick={() => toggleStatus(service.id)}
+                    onClick={() => handleStatusChange(service)}
                     className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${service.status ? "bg-[#0f3d3e]" : "bg-gray-300"}`}
+                    aria-pressed={service.status}
+                    aria-label={service.status ? "Active" : "Inactive"}
                   >
-                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${service.status ? "right-1" : "left-1"}`} />
+                    <span
+                      className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${service.status ? "right-1" : "left-1"}`}
+                    />
                   </button>
                 </td>
                 <td className="py-4 px-6">
@@ -92,42 +87,15 @@ const ServiceTable = () => {
                     >
                       <Pencil className="w-4 h-4" />
                     </Link>
-                    <button
-                      onClick={() => handleDeleteClick(service.id)}
-                      className="w-8 h-8 flex items-center justify-center border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    {/* Add DeleteServiceDialog or similar here if needed */}
+                    <DeleteServiceDialog/>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
-          <p className="text-sm text-gray-600">Showing 1 to 5 of 5 entries</p>
-          <div className="flex items-center gap-1">
-            <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center bg-[#0f3d3e] text-white rounded-full">1</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">2</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">3</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded">4</button>
-            <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
       </div>
-
-      <DeleteModal
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-      />
     </>
   );
 };

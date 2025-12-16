@@ -17,11 +17,9 @@ interface EditServiceFormProps {
   serviceId: string;
 }
 
-const MOCK_SERVICES = [
-  { id: "1", title: "ভিসা প্রক্রিয়াকরণ", shortDescription: "ভিসা সম্পর্কিত সেবা", description: "বিস্তারিত বিবরণ এখানে", image: "/hajj-1.jpg" },
-  { id: "2", title: "ভিসা প্রক্রিয়াকরণ", shortDescription: "ভিসা সম্পর্কিত সেবা", description: "বিস্তারিত বিবরণ এখানে", image: "/hajj-2.jpg" },
-  { id: "3", title: "ভিসা প্রক্রিয়াকরণ", shortDescription: "ভিসা সম্পর্কিত সেবা", description: "বিস্তারিত বিবরণ এখানে", image: "/hajj-3.jpg" },
-];
+
+import { getServiceById, updateService } from "@/services/service";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 
 export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
   const router = useRouter();
@@ -37,16 +35,19 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
   });
 
   useEffect(() => {
-    const service = MOCK_SERVICES.find((s) => s.id === serviceId);
-    if (service) {
-      reset({
-        title: service.title,
-        shortDescription: service.shortDescription,
-        description: service.description,
-        image: null,
-      });
-      setImagePreview(service.image);
-    }
+    const fetchService = async () => {
+      const res = await getServiceById(serviceId);
+      if (res?.data) {
+        reset({
+          title: res.data.title || "",
+          shortDescription: res.data.shortDescription || "",
+          description: res.data.description || "",
+          image: null,
+        });
+        setImagePreview(res.data.image || null);
+      }
+    };
+    fetchService();
   }, [serviceId, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,9 +67,22 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
     setValue("image", null);
   };
 
-  const onSubmit = (data: ServiceFormData) => {
-    console.log("Update service:", serviceId, data);
-    router.push("/dashboard/services");
+  const onSubmit = async (data: ServiceFormData) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("shortDescription", data.shortDescription);
+    formData.append("description", data.description);
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const res = await updateService(serviceId, formData);
+    if (res.statusCode === 200) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/services");
+    } else {
+      showErrorToast(res.message || "Update failed");
+    }
   };
 
   return (
