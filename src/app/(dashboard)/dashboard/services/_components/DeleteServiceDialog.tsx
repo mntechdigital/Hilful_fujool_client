@@ -14,7 +14,7 @@ import {
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { deleteFivePillars } from "@/services/fivePillar";
+import { deleteService } from "@/services/service";
 
 const DeleteServiceDialog = ({ id }: { id?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +22,7 @@ const DeleteServiceDialog = ({ id }: { id?: string }) => {
 
   const handleDelete = async () => {
     startTransition(async () => {
-      const result = await deleteFivePillars(id);
+      const result = await deleteService(id);
 
       if (result.statusCode === 200) {
         setIsOpen(false);

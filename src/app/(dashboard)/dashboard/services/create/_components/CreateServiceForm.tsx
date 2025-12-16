@@ -158,7 +158,7 @@ export default function CreateServiceForm() {
       <div className="flex items-center justify-end gap-3 pt-4">
         <button
           type="submit"
-          className="flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors"
+          className="flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
         >
           <Save className="w-4 h-4" />
           <span>Save</span>
@@ -166,7 +166,7 @@ export default function CreateServiceForm() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex items-center gap-2 bg-red-500 text-white px-6 py-2.5 rounded-full hover:bg-red-600 transition-colors"
+          className="flex items-center gap-2 bg-red-500 text-white px-6 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
           <span>Close</span>

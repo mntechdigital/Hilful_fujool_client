@@ -1,11 +1,11 @@
 "use client";
 
+import { updateServiceStatus } from "@/services/service";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 import { Pencil } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import {  updateServiceStatus } from "@/services/service";
-import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { useEffect, useState } from "react";
 import DeleteServiceDialog from "./DeleteServiceDialog";
 
 interface Service {
@@ -48,51 +48,64 @@ const ServiceTable = ({ servicesData = [] }: { servicesData: Service[] }) => {
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Image</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Title</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Description</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Reorder</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Status</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th>
             </tr>
           </thead>
           <tbody className="text-sm">
-            {services?.map((service, idx) => (
-              <tr key={service.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                <td className="py-4 px-6 text-gray-600">{idx + 1}</td>
-                <td className="py-4 px-6">
-                  <div className="w-14 h-14 rounded-lg overflow-hidden relative">
-                    <Image src={service.image} alt={service.title} fill className="object-cover" />
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-gray-700">{service.title}</td>
-                <td className="py-4 px-6 text-gray-600 max-w-xs">
-                  <p className="line-clamp-2">{service.shortDescription || service.description}</p>
-                </td>
-                
-                <td className="py-4 px-6">
-                  <button
-                    onClick={() => handleStatusChange(service)}
-                    className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${service.status ? "bg-[#0f3d3e]" : "bg-gray-300"}`}
-                    aria-pressed={service.status}
-                    aria-label={service.status ? "Active" : "Inactive"}
-                  >
-                    <span
-                      className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${service.status ? "right-1" : "left-1"}`}
-                    />
-                  </button>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/dashboard/services/edit/${service.id}`}
-                      className="w-8 h-8 flex items-center justify-center border border-[#0f3d3e] text-[#0f3d3e] rounded hover:bg-[#0f3d3e] hover:text-white transition-colors cursor-pointer"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Link>
-                    {/* Add DeleteServiceDialog or similar here if needed */}
-                    <DeleteServiceDialog/>
-                  </div>
+            {services.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-8 px-6 text-center text-gray-500">
+                  No data found
                 </td>
               </tr>
-            ))}
+            ) : (
+              services.map((service, idx) => (
+                <tr key={service.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                  <td className="py-4 px-6 text-gray-600">{idx + 1}</td>
+                  <td className="py-4 px-6">
+                    <div className="w-14 h-14 rounded-lg overflow-hidden relative">
+                      <Image src={service.image} alt={service.title} fill className="object-cover" />
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-gray-700">{service.title}</td>
+                  <td className="py-4 px-6 text-gray-600 max-w-xs">
+                    <p>
+                      {(() => {
+                        const desc = service.shortDescription || service.description;
+                        if (!desc) return null;
+                        return desc.length > 20 ? desc.slice(0, 20) + "..." : desc;
+                      })()}
+                    </p>
+                  </td>
+
+                  <td className="py-4 px-6">
+                    <button
+                      onClick={() => handleStatusChange(service)}
+                      className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${service.status ? "bg-[#0f3d3e]" : "bg-gray-300"}`}
+                      aria-pressed={service.status}
+                      aria-label={service.status ? "Active" : "Inactive"}
+                    >
+                      <span
+                        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${service.status ? "right-1" : "left-1"}`}
+                      />
+                    </button>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/dashboard/services/edit/${service.id}`}
+                        className="w-8 h-8 flex items-center justify-center border border-[#0f3d3e] text-[#0f3d3e] rounded hover:bg-[#0f3d3e] hover:text-white transition-colors cursor-pointer"
+                      >
+                        <Pencil className="w-4 h-4"/>
+                      </Link>
+                      {/* Add DeleteServiceDialog or similar here if needed */}
+                      <DeleteServiceDialog id={service.id}/>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
