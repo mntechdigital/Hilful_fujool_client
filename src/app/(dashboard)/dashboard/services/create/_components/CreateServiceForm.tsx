@@ -57,7 +57,6 @@ export default function CreateServiceForm() {
       formData.append("image", data.image);
     }
     const res = await createService(formData);
-    console.log("create service==>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
