@@ -5,7 +5,6 @@ import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 import { Pencil } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import DeleteGalleryDialog from "./DeleteGalleryDialog";
 
 interface GalleryItem {
@@ -21,7 +20,9 @@ const GalleryTable = ({ galleryData = [] }: { galleryData?: GalleryItem[] }) => 
     const res = await updateGalleryStatus(item?.id, !item?.status);
     console.log("status-->",res);
     if (res.statusCode === 200) {
-      showSuccessToast(`Gallery ${!item.status ? "ACTIVE" : "INACTIVE"} successfully`);
+      showSuccessToast(
+        `Gallery ${!item.status ? "activated" : "deactivated"} successfully`
+      );
     } else {
       showErrorToast(res.message || "Something went wrong");
     }
@@ -57,7 +58,7 @@ const GalleryTable = ({ galleryData = [] }: { galleryData?: GalleryItem[] }) => 
                       onClick={() => handleStatusChange(item)}
                       className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${item.status ? "bg-[#0f3d3e]" : "bg-gray-300"}`}
                       aria-pressed={item.status}
-                      aria-label={item.status ? "ACTIVE" : "INACTIVE"}
+                      aria-label={item.status ? "Active" : "Inactive"}
                     >
                       <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${item.status ? "right-1" : "left-1"}`} />
                     </button>

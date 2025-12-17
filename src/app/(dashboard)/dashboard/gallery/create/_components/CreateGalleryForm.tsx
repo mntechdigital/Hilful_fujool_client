@@ -10,6 +10,7 @@ import {  useForm } from "react-hook-form";
 
 interface GalleryFormData {
   image: File | null;
+  status: boolean;
 }
 
 export default function CreateGalleryForm() {
@@ -24,6 +25,7 @@ export default function CreateGalleryForm() {
   } = useForm<GalleryFormData>({
     defaultValues: {
       image: null,
+      status: true,
     },
   });
 
@@ -48,10 +50,14 @@ export default function CreateGalleryForm() {
 
   const onSubmit = async (data: GalleryFormData) => {
     const formData = new FormData();
+    formData.append("status", String(data.status));
     if (data.image) {
       formData.append("image", data.image);
     }
+    console.log("formData object ===>", Object.fromEntries(formData.entries()));
+
     const res = await createGallery(formData);
+    console.log("create gallery==>",res)
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();

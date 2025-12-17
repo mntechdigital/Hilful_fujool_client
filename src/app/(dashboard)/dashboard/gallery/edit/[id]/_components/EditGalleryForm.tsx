@@ -65,6 +65,7 @@ export default function EditGalleryForm({ galleryId }: EditGalleryFormProps) {
       formData.append("image", data.image);
     }
     const res = await updateGallery(galleryId, formData);
+    console.log("see update image==>",res)
     if (res.statusCode === 200) {
       showSuccessToast(res.message);
       reset();
