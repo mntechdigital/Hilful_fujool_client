@@ -24,7 +24,6 @@ export default function EditGalleryForm({ galleryId }: EditGalleryFormProps) {
     handleSubmit,
     setValue,
     reset,
-    formState: { errors },
   } = useForm<GalleryFormData>({
     defaultValues: {
       image: null,

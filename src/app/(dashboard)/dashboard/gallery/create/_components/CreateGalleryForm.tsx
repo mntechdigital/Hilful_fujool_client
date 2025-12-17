@@ -2,11 +2,11 @@
 
 import { createGallery } from "@/services/gallery";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { ImageIcon, Save, Trash2, X } from "lucide-react";
+import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import {  useForm } from "react-hook-form";
 
 interface GalleryFormData {
   image: File | null;
@@ -17,7 +17,6 @@ export default function CreateGalleryForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
-    control,
     handleSubmit,
     setValue,
     reset,
@@ -52,9 +51,7 @@ export default function CreateGalleryForm() {
     if (data.image) {
       formData.append("image", data.image);
     }
-    console.log("Line 68==>",Object.fromEntries(formData));
     const res = await createGallery(formData);
-    console.log("res=>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
@@ -107,6 +104,10 @@ export default function CreateGalleryForm() {
               </>
             )}
           </div>
+          {/* Show error if image is required and not provided */}
+          {errors.image && (
+            <p className="text-red-500 text-xs mt-1">{errors.image.message || "Image is required."}</p>
+          )}
         </div>
 
         {/* Action Buttons */}
