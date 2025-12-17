@@ -55,10 +55,8 @@ export default function CreateGalleryForm() {
     if (data.image) {
       formData.append("image", data.image);
     }
-    console.log("formData object ===>", Object.fromEntries(formData.entries()));
 
     const res = await createGallery(formData);
-    console.log("create gallery==>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
