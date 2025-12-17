@@ -1,30 +1,43 @@
 "use client";
 
+
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { createBlogs } from "@/services/blog";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+
 
 interface BlogFormData {
-  designation: string;
+  author: string;
   title: string;
   shortDescription: string;
   description: string;
   image: File | null;
+  status: boolean;
 }
+
 
 export default function CreateBlogForm() {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { control, handleSubmit, setValue, formState: { errors } } = useForm<BlogFormData>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<BlogFormData>({
     defaultValues: {
-      designation: "",
+      author: "",
       title: "",
       shortDescription: "",
       description: "",
       image: null,
+      status: true,
     },
   });
 
@@ -45,9 +58,25 @@ export default function CreateBlogForm() {
     setValue("image", null);
   };
 
-  const onSubmit = (data: BlogFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: BlogFormData) => {
+    const formData = new FormData();
+    formData.append("author", data.author);
+    formData.append("title", data.title);
+    formData.append("shortDescription", data.shortDescription);
+    formData.append("description", data.description);
+    formData.append("status", String(data.status));
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const res = await createBlogs(formData);
+    console.log("create blog==>",res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/blogs");
+    } else {
+      showErrorToast(res.message);
+    }
   };
 
   const handleClose = () => {
@@ -57,24 +86,24 @@ export default function CreateBlogForm() {
   return (
     <div className="bg-[#f8f9fa] rounded-2xl p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Designation Field */}
+        {/* Author Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Designation</label>
+          <label className="block text-sm font-medium text-gray-700">Author</label>
           <Controller
-            name="designation"
+            name="author"
             control={control}
-            rules={{ required: "Designation is required" }}
+            rules={{ required: "Author is required" }}
             render={({ field }) => (
               <input
                 {...field}
                 type="text"
-                placeholder="write here..."
+                placeholder="Enter author name"
                 className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
               />
             )}
           />
-          {errors.designation && (
-            <p className="text-red-500 text-sm">{errors.designation.message}</p>
+          {errors.author && (
+            <p className="text-red-500 text-sm">{errors.author.message}</p>
           )}
         </div>
 
@@ -170,6 +199,7 @@ export default function CreateBlogForm() {
             )}
           </div>
         </div>
+
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 pt-4">
