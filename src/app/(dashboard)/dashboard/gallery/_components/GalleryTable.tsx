@@ -18,7 +18,6 @@ const GalleryTable = ({ galleryData = [] }: { galleryData?: GalleryItem[] }) => 
 
   const handleStatusChange = async (item: GalleryItem) => {
     const res = await updateGalleryStatus(item?.id, !item?.status);
-    console.log("status-->",res);
     if (res.statusCode === 200) {
       showSuccessToast(
         `Gallery ${!item.status ? "activated" : "deactivated"} successfully`

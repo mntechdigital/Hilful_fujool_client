@@ -1,10 +1,13 @@
 "use client";
 
+
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { ImageIcon, Save, Star, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { createReview } from "@/services/review";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 
 interface ReviewFormData {
   name: string;
@@ -12,6 +15,7 @@ interface ReviewFormData {
   rating: number;
   description: string;
   image: File | null;
+  status: boolean;
 }
 
 export default function CreateReviewForm() {
@@ -19,13 +23,14 @@ export default function CreateReviewForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [hoverRating, setHoverRating] = useState(0);
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<ReviewFormData>({
+  const { control, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm<ReviewFormData>({
     defaultValues: {
       name: "",
       designation: "",
       rating: 4,
       description: "",
       image: null,
+      status: true,
     },
   });
 
@@ -52,9 +57,25 @@ export default function CreateReviewForm() {
     setValue("rating", rating);
   };
 
-  const onSubmit = (data: ReviewFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: ReviewFormData) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("designation", data.designation);
+    formData.append("rating", String(data.rating));
+    formData.append("description", data.description);
+    formData.append("status", String(data.status));
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+
+    const res = await createReview(formData);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/reviews");
+    } else {
+      showErrorToast(res.message || "Create failed");
+    }
   };
 
   const handleClose = () => {
