@@ -3,8 +3,21 @@ import { DashboardWrapper } from "../_components/DashboardWrapper";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import ReviewsTable from "./_components/ReviewsTable";
+import { getReviews } from "@/services/review";
+import { TQuery } from "@/types/query.types";
+import PaginationWrapper from "@/components/shared/PaginationWrapper";
 
-const ReviewPage = () => {
+const ReviewPage = async (props: { searchParams: Promise<{ search: string; page: string }> }) => {
+  const searchParams = await props.searchParams;
+  const search = searchParams.search || "";
+  const page = parseInt(searchParams.page) || 1;
+  const query: TQuery[] = [
+    { key: "orderBy", value: JSON.stringify({ createdAt: "desc" }) },
+    { key: "searchTerm", value: search },
+    { key: "page", value: page.toString() },
+    { key: "limit", value: "10" },
+  ];
+  const reviewsData = await getReviews(query);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -17,7 +30,14 @@ const ReviewPage = () => {
           <span className="font-medium">Create New</span>
         </Link>
       </div>
-      <ReviewsTable />
+      <ReviewsTable reviewsData={reviewsData?.data?.data || []} />
+      {reviewsData?.meta?.totalPages > 1 && (
+        <PaginationWrapper
+          active={page}
+          totalPages={reviewsData?.meta?.totalPages || 1}
+          totalItems={reviewsData?.meta?.totalItems || 0}
+        />
+      )}
     </DashboardWrapper>
   );
 };

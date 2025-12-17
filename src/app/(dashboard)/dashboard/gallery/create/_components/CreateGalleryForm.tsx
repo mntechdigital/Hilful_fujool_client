@@ -2,14 +2,15 @@
 
 import { createGallery } from "@/services/gallery";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { ImageIcon, Save, Trash2, X } from "lucide-react";
+import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import {  useForm } from "react-hook-form";
 
 interface GalleryFormData {
   image: File | null;
+  status?: boolean;
 }
 
 export default function CreateGalleryForm() {
@@ -17,7 +18,6 @@ export default function CreateGalleryForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
-    control,
     handleSubmit,
     setValue,
     reset,
@@ -25,6 +25,7 @@ export default function CreateGalleryForm() {
   } = useForm<GalleryFormData>({
     defaultValues: {
       image: null,
+      status: true,
     },
   });
 
@@ -49,12 +50,13 @@ export default function CreateGalleryForm() {
 
   const onSubmit = async (data: GalleryFormData) => {
     const formData = new FormData();
+    // Ensure status is a boolean string, default to true if undefined
+    formData.append("status", String(data.status === undefined ? true : data.status));
     if (data.image) {
       formData.append("image", data.image);
     }
-    console.log("Line 68==>",Object.fromEntries(formData));
+
     const res = await createGallery(formData);
-    console.log("res=>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
@@ -107,6 +109,24 @@ export default function CreateGalleryForm() {
               </>
             )}
           </div>
+          {/* Status toggle (optional) */}
+          {/*
+          <div className="mt-2">
+            <label className="inline-flex items-center">
+              <input
+                type="checkbox"
+                checked={!!watch("status")}
+                onChange={e => setValue("status", e.target.checked)}
+                className="form-checkbox"
+              />
+              <span className="ml-2 text-sm">Active</span>
+            </label>
+          </div>
+          */}
+          {/* Show error if image is required and not provided */}
+          {errors.image && (
+            <p className="text-red-500 text-xs mt-1">{errors.image?.message || "Image is required."}</p>
+          )}
         </div>
 
         {/* Action Buttons */}

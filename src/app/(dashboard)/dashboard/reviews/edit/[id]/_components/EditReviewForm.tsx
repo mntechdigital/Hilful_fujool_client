@@ -5,6 +5,8 @@ import { useForm, Controller } from "react-hook-form";
 import { ImageIcon, Save, Star, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { getReviewById, updateReview } from "@/services/review";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 
 interface ReviewFormData {
   name: string;
@@ -23,34 +25,6 @@ const MOCK_REVIEWS: Record<string, ReviewFormData & { imageUrl: string }> = {
   "1": {
     name: "Asif Khan",
     designation: "Business Owner",
-    rating: 5,
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    image: null,
-    imageUrl: "/hajj-1.jpg",
-  },
-  "2": {
-    name: "Asif Khan",
-    designation: "Teacher",
-    rating: 4,
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    image: null,
-    imageUrl: "/hajj-2.jpg",
-  },
-  "3": {
-    name: "Asif Khan",
-    designation: "Engineer",
-    rating: 3,
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    image: null,
-    imageUrl: "/hajj-3.jpg",
-  },
-};
-
-export default function EditReviewForm({ reviewId }: EditReviewFormProps) {
-  const router = useRouter();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [hoverRating, setHoverRating] = useState(0);
-
   const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ReviewFormData>({
     defaultValues: {
       name: "",
@@ -70,17 +44,20 @@ export default function EditReviewForm({ reviewId }: EditReviewFormProps) {
       reset({
         name: reviewData.name,
         designation: reviewData.designation,
-        rating: reviewData.rating,
-        description: reviewData.description,
-        image: null,
-      });
-      setImagePreview(reviewData.imageUrl);
-    }
-  }, [reviewId, reset]);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const fetchReview = async () => {
+      const res = await getReviewById(reviewId);
+      if (res?.data) {
+        reset({
+          name: res.data.name || "",
+          designation: res.data.designation || "",
+          rating: res.data.rating || 4,
+          description: res.data.description || "",
+          image: null,
+        });
+        setImagePreview(res.data.image || null);
+      }
+    };
+    fetchReview();
       setValue("image", file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -104,8 +81,22 @@ export default function EditReviewForm({ reviewId }: EditReviewFormProps) {
     // Handle form submission here
   };
 
-  const handleClose = () => {
-    router.push("/dashboard/reviews");
+  const onSubmit = async (data: ReviewFormData) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("designation", data.designation);
+    formData.append("rating", String(data.rating));
+    formData.append("description", data.description);
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const res = await updateReview(reviewId, formData);
+    if (res.statusCode === 200) {
+      showSuccessToast(res.message);
+      router.push("/dashboard/reviews");
+    } else {
+      showErrorToast(res.message || "Update failed");
+    }
   };
 
   return (
