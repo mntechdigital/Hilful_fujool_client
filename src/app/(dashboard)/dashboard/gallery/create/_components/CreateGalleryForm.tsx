@@ -10,7 +10,7 @@ import {  useForm } from "react-hook-form";
 
 interface GalleryFormData {
   image: File | null;
-  status: boolean;
+  status?: boolean;
 }
 
 export default function CreateGalleryForm() {
@@ -50,14 +50,15 @@ export default function CreateGalleryForm() {
 
   const onSubmit = async (data: GalleryFormData) => {
     const formData = new FormData();
-    formData.append("status", String(data.status));
+    // Ensure status is a boolean string, default to true if undefined
+    formData.append("status", String(data.status === undefined ? true : data.status));
     if (data.image) {
       formData.append("image", data.image);
     }
     console.log("formData object ===>", Object.fromEntries(formData.entries()));
 
     const res = await createGallery(formData);
-    console.log("create gallery==>",res)
+    console.log("create gallery==>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
@@ -110,9 +111,23 @@ export default function CreateGalleryForm() {
               </>
             )}
           </div>
+          {/* Status toggle (optional) */}
+          {/*
+          <div className="mt-2">
+            <label className="inline-flex items-center">
+              <input
+                type="checkbox"
+                checked={!!watch("status")}
+                onChange={e => setValue("status", e.target.checked)}
+                className="form-checkbox"
+              />
+              <span className="ml-2 text-sm">Active</span>
+            </label>
+          </div>
+          */}
           {/* Show error if image is required and not provided */}
           {errors.image && (
-            <p className="text-red-500 text-xs mt-1">{errors.image.message || "Image is required."}</p>
+            <p className="text-red-500 text-xs mt-1">{errors.image?.message || "Image is required."}</p>
           )}
         </div>
 
