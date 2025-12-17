@@ -1,10 +1,35 @@
-import React from "react";
+
+import PaginationWrapper from "@/components/shared/PaginationWrapper";
+import { getGallery } from "@/services/gallery";
+import { TQuery } from "@/types/query.types";
 import { DashboardWrapper } from "../_components/DashboardWrapper";
-import { Plus } from "lucide-react";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import GalleryTable from "./_components/GalleryTable";
 
-const GalleryPage = () => {
+const GalleryPage = async (props: { searchParams: Promise<{ search: string; page: string }> }) => {
+  const searchParams = await props.searchParams;
+  const search = searchParams.search || "";
+  const page = parseInt(searchParams.page) || 1;
+  const query: TQuery[] = [
+    {
+      key: "orderBy",
+      value: JSON.stringify({ createdAt: "desc" }),
+    },
+    {
+      key: "searchTerm",
+      value: search,
+    },
+    {
+      key: "page",
+      value: page.toString(),
+    },
+    {
+      key: "limit",
+      value: "10",
+    },
+  ];
+  const galleryData = await getGallery(query);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -17,7 +42,14 @@ const GalleryPage = () => {
           <span className="font-medium">Create New</span>
         </Link>
       </div>
-      <GalleryTable />
+      <GalleryTable galleryData={galleryData?.data?.data} />
+      {galleryData?.meta?.totalPages > 1 && (
+        <PaginationWrapper
+          active={page}
+          totalPages={galleryData?.meta?.totalPages || 1}
+          totalItems={galleryData?.meta?.totalItems || 0}
+        />
+      )}
     </DashboardWrapper>
   );
 };

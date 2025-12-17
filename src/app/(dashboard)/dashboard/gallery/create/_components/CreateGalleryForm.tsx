@@ -1,19 +1,38 @@
 "use client";
 
-import React, { useState } from "react";
-import { Trash2, Save, X } from "lucide-react";
+import { createGallery } from "@/services/gallery";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { ImageIcon, Save, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+
+interface GalleryFormData {
+  image: File | null;
+}
 
 export default function CreateGalleryForm() {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<GalleryFormData>({
+    defaultValues: {
+      image: null,
+    },
+  });
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
+      setValue("image", file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -22,15 +41,26 @@ export default function CreateGalleryForm() {
     }
   };
 
+ 
   const handleRemoveImage = () => {
     setImagePreview(null);
-    setImageFile(null);
+    setValue("image", null);
   };
 
-  const handleSave = () => {
-    if (imageFile) {
-      console.log("Saving image:", imageFile);
-      // Handle save logic here
+  const onSubmit = async (data: GalleryFormData) => {
+    const formData = new FormData();
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    console.log("Line 68==>",Object.fromEntries(formData));
+    const res = await createGallery(formData);
+    console.log("res=>", res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/gallery");
+    } else {
+      showErrorToast(res.message);
     }
   };
 
@@ -40,57 +70,64 @@ export default function CreateGalleryForm() {
 
   return (
     <div className="bg-[#f8f9fa] rounded-2xl p-6">
-      {/* Upload Image Label */}
-      <p className="text-sm text-gray-600 mb-3">Upload Image</p>
-
-      {/* Image Upload Area */}
-      <div className="mb-6">
-        {imagePreview ? (
-          <div className="relative w-32 h-24 rounded-lg overflow-hidden">
-            <Image
-              src={imagePreview}
-              alt="Preview"
-              fill
-              className="object-cover"
-            />
-            <button
-              type="button"
-              onClick={handleRemoveImage}
-              className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity"
-            >
-              <Trash2 className="w-6 h-6 text-red-500" />
-            </button>
-          </div>
-        ) : (
-          <label className="w-32 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors">
-            <span className="text-gray-400 text-2xl">+</span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Upload Image <span className="text-red-500">*</span>
           </label>
-        )}
-      </div>
+          <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
+            {imagePreview ? (
+              <>
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  className="object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </>
+            ) : (
+              <>
+                <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
+                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
+                  Upload
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </>
+            )}
+          </div>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={handleSave}
-          className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
-        >
-          <Save className="w-4 h-4" />
-          <span className="font-medium">Save</span>
-        </button>
-        <button
-          onClick={handleClose}
-          className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
-        >
-          <X className="w-4 h-4" />
-          <span className="font-medium">Close</span>
-        </button>
-      </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3">
+          <button
+            type="submit"
+            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+          >
+            <Save className="w-4 h-4" />
+            <span className="font-medium">Save</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+            <span className="font-medium">Close</span>
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
