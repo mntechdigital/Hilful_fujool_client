@@ -18,7 +18,6 @@ const ContactPage = async (props: { searchParams: Promise<{ search: string; page
     { key: "limit", value: "10" },
   ];
   const contactsData = await getContacts(query);
-  console.log("get data contact==>",contactsData)
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
