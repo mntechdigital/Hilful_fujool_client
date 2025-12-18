@@ -3,8 +3,38 @@ import { DashboardWrapper } from "../_components/DashboardWrapper";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import BlogsTable from "./_components/BlogsTable";
+import { TQuery } from "@/types/query.types";
+import { getBlogs } from "@/services/blog";
+import PaginationWrapper from "@/components/shared/PaginationWrapper";
 
-const BlogsPage = () => {
+const BlogsPage = async (props: {
+  searchParams: Promise<{ search: string; page: string }>;
+}) => {
+  const searchParams = await props.searchParams;
+  const search = searchParams.search || "";
+  const page = parseInt(searchParams.page) || 1;
+  const query: TQuery[] = [
+    {
+      key: "orderBy",
+      value: JSON.stringify({
+        createdAt: "desc",
+      }),
+    },
+    {
+      key: "searchTerm",
+      value: search,
+    },
+    {
+      key: "page",
+      value: page.toString(),
+    },
+    {
+      key: "limit",
+      value: "10",
+    },
+  ];
+
+  const blogsData = await getBlogs(query);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -17,7 +47,14 @@ const BlogsPage = () => {
           <span className="font-medium">Create New</span>
         </Link>
       </div>
-      <BlogsTable />
+      <BlogsTable blogs={blogsData?.data?.data} />
+      {blogsData?.meta?.totalPages > 1 && (
+        <PaginationWrapper
+          active={page}
+          totalPages={blogsData?.meta?.totalPages || 1}
+          totalItems={blogsData?.meta?.totalItems || 0}
+        />
+      )}
     </DashboardWrapper>
   );
 };

@@ -1,13 +1,17 @@
 "use client";
 
+
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { ImageIcon, Save, X } from "lucide-react";
+import { ImageIcon, X } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { getBlogsById, updateBlogs } from "@/services/blog";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 import { useRouter } from "next/navigation";
 
 interface BlogFormData {
-  designation: string;
+  author: string;
   title: string;
   shortDescription: string;
   description: string;
@@ -18,41 +22,19 @@ interface EditBlogFormProps {
   blogId: string;
 }
 
-// Mock data for demonstration - replace with actual API call
-const MOCK_BLOGS: Record<string, BlogFormData & { imageUrl: string }> = {
-  "1": {
-    designation: "হজ গাইড",
-    title: "হজ ভিআইপি প্যাকেজ",
-    shortDescription: "আমাদের ভিআইপি প্যাকেজে সর্বোচ্চ মানের সেবা",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    image: null,
-    imageUrl: "/hajj-1.jpg",
-  },
-  "2": {
-    designation: "উমরাহ গাইড",
-    title: "হজ ভিআইপি প্যাকেজ",
-    shortDescription: "স্পেশাল প্যাকেজে ৪ তারকা হোটেল",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    image: null,
-    imageUrl: "/hajj-2.jpg",
-  },
-  "3": {
-    designation: "ভ্রমণ গাইড",
-    title: "হজ ভিআইপি প্যাকেজ",
-    shortDescription: "এ ক্যাটাগরি প্যাকেজে মানসম্মত থাকা",
-    description: "আল্লাহ ছাড়া অন্য কোনো উপাস্য নেই, এবং মুহাম্মদ (সা.) তাঁর প্রেরিত রাসুল—এই সাক্ষ্য প্রদান করা।",
-    image: null,
-    imageUrl: "/hajj-3.jpg",
-  },
-};
 
-export default function EditBlogForm({ blogId }: EditBlogFormProps) {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { control, handleSubmit, setValue, reset, formState: { errors } } = useForm<BlogFormData>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<BlogFormData>({
     defaultValues: {
-      designation: "",
+      author: "",
       title: "",
       shortDescription: "",
       description: "",
@@ -60,19 +42,21 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
     },
   });
 
-  // Load blog data on component mount
   useEffect(() => {
-    const blogData = MOCK_BLOGS[blogId];
-    if (blogData) {
-      reset({
-        designation: blogData.designation,
-        title: blogData.title,
-        shortDescription: blogData.shortDescription,
-        description: blogData.description,
-        image: null,
-      });
-      setImagePreview(blogData.imageUrl);
-    }
+    const fetchBlog = async () => {
+      const res = await getBlogsById(blogId);
+      if (res?.data) {
+        reset({
+          author: res.data.author || "",
+          title: res.data.title || "",
+          shortDescription: res.data.shortDescription || "",
+          description: res.data.description || "",
+          image: null,
+        });
+        setImagePreview(res.data.image || null);
+      }
+    };
+    fetchBlog();
   }, [blogId, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,42 +76,58 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
     setValue("image", null);
   };
 
-  const onSubmit = (data: BlogFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: BlogFormData) => {
+    const formData = new FormData();
+    formData.append("author", data.author);
+    formData.append("title", data.title);
+    formData.append("shortDescription", data.shortDescription);
+    formData.append("description", data.description);
+    formData.append("status", "true");
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const res = await updateBlogs(blogId, formData);
+    if (res.statusCode === 200) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/blogs");
+    } else {
+      showErrorToast(res.message);
+    }
   };
 
-  const handleClose = () => {
-    router.push("/dashboard/blogs");
-  };
 
   return (
-    <div className="bg-[#f8f9fa] rounded-2xl p-6">
+    <div className="bg-white rounded-2xl shadow-sm p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Designation Field */}
+        {/* Author Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Designation</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Author <span className="text-red-500">*</span>
+          </label>
           <Controller
-            name="designation"
+            name="author"
             control={control}
-            rules={{ required: "Designation is required" }}
+            rules={{ required: "Author is required" }}
             render={({ field }) => (
               <input
                 {...field}
                 type="text"
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                placeholder="Enter author name"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
               />
             )}
           />
-          {errors.designation && (
-            <p className="text-red-500 text-sm">{errors.designation.message}</p>
+          {errors.author && (
+            <p className="text-red-500 text-sm">{errors.author.message}</p>
           )}
         </div>
 
         {/* Title Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Title <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="title"
             control={control}
@@ -136,8 +136,8 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
               <input
                 {...field}
                 type="text"
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                placeholder="Enter blog title"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
               />
             )}
           />
@@ -148,7 +148,9 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
 
         {/* Short Description Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Short Description</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Short Description <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="shortDescription"
             control={control}
@@ -157,8 +159,8 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
               <input
                 {...field}
                 type="text"
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                placeholder="Enter short description"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
               />
             )}
           />
@@ -169,7 +171,9 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
 
         {/* Description Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Discription</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Description <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="description"
             control={control}
@@ -178,8 +182,8 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
               <textarea
                 {...field}
                 rows={5}
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
+                placeholder="Enter blog description"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent resize-none"
               />
             )}
           />
@@ -190,11 +194,18 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
 
         {/* Image Upload Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-          <div className="w-28 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
+          <label className="block text-sm font-medium text-gray-700">
+            Image <span className="text-red-500">*</span>
+          </label>
+          <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
             {imagePreview ? (
               <>
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  className="object-cover"
+                />
                 <button
                   type="button"
                   onClick={handleRemoveImage}
@@ -205,8 +216,10 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
               </>
             ) : (
               <>
-                <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
-                <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+                <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
+                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
+                  Upload
+                </span>
                 <input
                   type="file"
                   accept="image/*"
@@ -218,23 +231,14 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4">
-          <button
+        {/* Submit Button */}
+        <div className="flex justify-end">
+          <Button
             type="submit"
-            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+            className="bg-[#0f3d3e] hover:bg-[#0f3d3e]/90 text-white px-8 py-3 rounded-full"
           >
-            <Save className="w-4 h-4" />
-            <span className="font-medium">Save</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-            <span className="font-medium">Close</span>
-          </button>
+            Update Blog
+          </Button>
         </div>
       </form>
     </div>

@@ -3,6 +3,9 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { createContacts } from "@/services/contacts";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 
 interface ContactFormData {
   fullName: string;
@@ -10,24 +13,33 @@ interface ContactFormData {
   phone: string;
   country: string;
   subject: string;
-  content: string;
+  message: string;
 }
 
 export default function CreateContactForm() {
-  const { control, handleSubmit, formState: { errors } } = useForm<ContactFormData>({
+  const router = useRouter();
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<ContactFormData>({
     defaultValues: {
       fullName: "",
       email: "",
       phone: "",
       country: "",
       subject: "",
-      content: "",
+      message: "",
     },
   });
 
-  const onSubmit = (data: ContactFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: ContactFormData) => {
+    // Send as JSON object instead of FormData
+    const res = await createContacts(data);
+    console.log("contact res==>", res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/contacts");
+    } else {
+      showErrorToast(res.message || "Create failed");
+    }
   };
 
   return (
@@ -156,26 +168,26 @@ export default function CreateContactForm() {
           )}
         </div>
 
-        {/* Content Field */}
+        {/* Message Field */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Content <span className="text-red-500">*</span>
+            Message <span className="text-red-500">*</span>
           </label>
           <Controller
-            name="content"
+            name="message"
             control={control}
-            rules={{ required: "Content is required" }}
+            rules={{ required: "Message is required" }}
             render={({ field }) => (
               <textarea
                 {...field}
                 rows={5}
-                placeholder="Enter content"
+                placeholder="Enter message"
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent resize-none"
               />
             )}
           />
-          {errors.content && (
-            <p className="text-red-500 text-sm">{errors.content.message}</p>
+          {errors.message && (
+            <p className="text-red-500 text-sm">{errors.message.message}</p>
           )}
         </div>
 
