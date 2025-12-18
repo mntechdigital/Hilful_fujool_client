@@ -196,6 +196,9 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
     );
   }
 
+  // Calculate total images for better UI feedback
+  const totalImages = existingImageUrls.length + imagePreviews.length;
+
   return (
     <div className="bg-[#f8f9fa] rounded-2xl p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -327,61 +330,78 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
 
         {/* Image Upload Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Upload Images</label>
-          <div className="w-full border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative p-6">
-            {(existingImageUrls.length > 0 || imagePreviews.length > 0) && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 w-full">
-                {/* Existing Images */}
+          <label className="block text-sm font-medium text-gray-700">
+            Upload Images {totalImages > 0 && <span className="text-gray-500">({totalImages} image{totalImages !== 1 ? 's' : ''})</span>}
+          </label>
+          <div className="w-full border border-dashed border-gray-300 rounded-lg p-6 hover:border-[#0f3d3e] transition-colors">
+            {/* Image Grid - Always visible when there are images */}
+            {totalImages > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {/* Existing Images from Server */}
                 {existingImageUrls.map((url, index) => (
-                  <div key={`existing-${index}`} className="relative aspect-square">
+                  <div key={`existing-${index}`} className="relative aspect-square group">
                     <Image
                       src={url}
                       alt={`Existing ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
                     />
+                    <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                      Existing
+                    </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveExistingImage(index)}
-                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg opacity-0 group-hover:opacity-100"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
-                {/* New Images */}
+                {/* New Images (Previews) */}
                 {imagePreviews.map((preview, index) => (
-                  <div key={`new-${index}`} className="relative aspect-square">
+                  <div key={`new-${index}`} className="relative aspect-square group">
                     <Image
                       src={preview}
                       alt={`Preview ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
                     />
+                    <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                      New
+                    </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index)}
-                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg opacity-0 group-hover:opacity-100"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
               </div>
             )}
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-              style={{ zIndex: 2 }}
-            />
-            <div className="flex flex-col items-center justify-center z-1 pointer-events-none">
-              <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+            
+            {/* Upload Area */}
+            <div className="relative flex flex-col items-center justify-center cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+              <div className="flex flex-col items-center justify-center pointer-events-none py-4">
+                <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
+                <span className="text-sm text-gray-600 mb-1">Click to upload more images</span>
+                <span className="text-xs text-gray-500">or drag and drop</span>
+                <span className="text-xs text-gray-400 mt-2 border border-gray-300 rounded px-3 py-1">Choose Files</span>
+              </div>
             </div>
           </div>
+          <p className="text-xs text-gray-500 mt-1">
+            💡 You can remove existing images by clicking the X button when hovering over them
+          </p>
         </div>
 
         {/* Action Buttons */}
