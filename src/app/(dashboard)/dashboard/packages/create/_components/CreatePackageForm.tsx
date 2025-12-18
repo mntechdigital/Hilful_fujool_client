@@ -1,5 +1,7 @@
 "use client";
-import { Save, X } from "lucide-react";
+import { createPackages } from "@/services/package";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -7,13 +9,17 @@ import { Controller, useForm } from "react-hook-form";
 
 interface PackageFormData {
   title: string;
-  price: string;
+  country: string;
+  maxTravelers: string;
+  minPax: string;
   duration: string;
   description: string;
+  status: boolean;
   images: File[];
 }
 
-const CreatePackageForm = () => {
+
+export default function CreatePackageForm() {
   const router = useRouter();
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
@@ -21,14 +27,18 @@ const CreatePackageForm = () => {
     control,
     handleSubmit,
     setValue,
+    reset,
     watch,
     formState: { errors },
   } = useForm<PackageFormData>({
     defaultValues: {
       title: "",
-      price: "",
+      country: "",
+      maxTravelers: "",
+      minPax: "",
       duration: "",
       description: "",
+      status: true,
       images: [],
     },
   });
@@ -62,19 +72,42 @@ const CreatePackageForm = () => {
     setImagePreviews(updatedPreviews);
   };
 
-  const onSubmit = (data: PackageFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: PackageFormData) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("country", data.country);
+    formData.append("maxTravelers", data.maxTravelers);
+    formData.append("minPax", data.minPax);
+    formData.append("duration", data.duration);
+    formData.append("description", data.description);
+    formData.append("status", String(data.status));
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((file) => {
+        formData.append("images", file);
+      });
+    }
+    console.log("Line 68==>",Object.fromEntries(formData));
+    const res = await createPackages(formData);
+    console.log("create blog==>",res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/packages");
+    } else {
+      showErrorToast(res.message);
+    }
+  };
+
+  const handleClose = () => {
+    router.push("/dashboard/packages");
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-[#f8f9fa] rounded-2xl p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Title Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Title <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Title</label>
           <Controller
             name="title"
             control={control}
@@ -84,7 +117,7 @@ const CreatePackageForm = () => {
                 {...field}
                 type="text"
                 placeholder="Enter package title"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
               />
             )}
           />
@@ -93,34 +126,72 @@ const CreatePackageForm = () => {
           )}
         </div>
 
-        {/* Price Field */}
+        {/* Country Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Price <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Country</label>
           <Controller
-            name="price"
+            name="country"
             control={control}
-            rules={{ required: "Price is required" }}
+            rules={{ required: "Country is required" }}
             render={({ field }) => (
               <input
                 {...field}
                 type="text"
-                placeholder="Enter package price"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
+                placeholder="Enter country"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
               />
             )}
           />
-          {errors.price && (
-            <p className="text-red-500 text-sm">{errors.price.message}</p>
+          {errors.country && (
+            <p className="text-red-500 text-sm">{errors.country.message}</p>
+          )}
+        </div>
+
+        {/* Max Travelers Field */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Max Travelers</label>
+          <Controller
+            name="maxTravelers"
+            control={control}
+            rules={{ required: "Max travelers is required" }}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder="Enter maximum number of travelers"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+              />
+            )}
+          />
+          {errors.maxTravelers && (
+            <p className="text-red-500 text-sm">{errors.maxTravelers.message}</p>
+          )}
+        </div>
+
+        {/* Min Pax Field */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Min Pax</label>
+          <Controller
+            name="minPax"
+            control={control}
+            rules={{ required: "Min pax is required" }}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder="Enter minimum pax"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+              />
+            )}
+          />
+          {errors.minPax && (
+            <p className="text-red-500 text-sm">{errors.minPax.message}</p>
           )}
         </div>
 
         {/* Duration Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Duration <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Duration</label>
           <Controller
             name="duration"
             control={control}
@@ -130,7 +201,7 @@ const CreatePackageForm = () => {
                 {...field}
                 type="text"
                 placeholder="Enter package duration (e.g., 15 days)"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
               />
             )}
           />
@@ -141,9 +212,7 @@ const CreatePackageForm = () => {
 
         {/* Description Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Description <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Description</label>
           <Controller
             name="description"
             control={control}
@@ -153,7 +222,7 @@ const CreatePackageForm = () => {
                 {...field}
                 rows={5}
                 placeholder="Enter package description"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent resize-none"
+                className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
               />
             )}
           />
@@ -164,13 +233,10 @@ const CreatePackageForm = () => {
 
         {/* Image Upload Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Images <span className="text-red-500">*</span>
-          </label>
-          <div className="border-2 border-dashed border-gray-200 rounded-lg p-6">
-            {/* Image Previews Grid */}
+          <label className="block text-sm font-medium text-gray-700">Upload Images</label>
+          <div className="w-full border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative p-6">
             {imagePreviews.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 w-full">
                 {imagePreviews.map((preview, index) => (
                   <div key={index} className="relative aspect-square">
                     <Image
@@ -190,68 +256,40 @@ const CreatePackageForm = () => {
                 ))}
               </div>
             )}
-
-            {/* Upload Button */}
-            <div className="text-center">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="hidden"
-                id="package-images"
-              />
-              <label
-                htmlFor="package-images"
-                className="cursor-pointer text-[#0f3d3e] hover:text-[#0f3d3e]/80"
-              >
-                <div className="space-y-2">
-                  <div className="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-6 h-6 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {imagePreviews.length > 0
-                      ? "Click to add more images"
-                      : "Click to upload package images"}
-                  </p>
-                </div>
-              </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              style={{ zIndex: 2 }}
+            />
+            <div className="flex flex-col items-center justify-center z-1 pointer-events-none">
+              <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4">
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-4">
           <button
             type="submit"
-            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors"
+            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>Save</span>
+            <span className="font-medium">Save</span>
           </button>
           <button
             type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-2 bg-red-500 text-white px-6 py-2.5 rounded-full hover:bg-red-600 transition-colors"
+            onClick={handleClose}
+            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
-            <span>Close</span>
+            <span className="font-medium">Close</span>
           </button>
         </div>
       </form>
     </div>
   );
-};
-
-export default CreatePackageForm;
+}
