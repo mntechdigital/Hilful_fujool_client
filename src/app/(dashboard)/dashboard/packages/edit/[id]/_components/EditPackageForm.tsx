@@ -57,7 +57,6 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
       try {
         setIsLoading(true);
         const response = await getPackagesById(packageId);
-        console.log("Fetched package data:", response);
         
         if (response && response.data) {
           const packageData = response.data;
@@ -74,13 +73,19 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
             images: [],
           });
           
-          // Set existing images if available
-          if (packageData.images && Array.isArray(packageData.images) && packageData.images.length > 0) {
+          // FIXED: Check for packageImages instead of images
+          const imageArray = packageData.packageImages || packageData.images;
+          
+          if (imageArray && Array.isArray(imageArray) && imageArray.length > 0) {
             // Handle different image data formats
-            const imageUrls = packageData.images.map((img: any) => {
+            const imageUrls = imageArray.map((img: any) => {
               // If it's already a string URL
               if (typeof img === 'string') {
                 return img;
+              }
+              // If it's an object with image property (YOUR API FORMAT)
+              if (img && typeof img === 'object' && img.image) {
+                return img.image;
               }
               // If it's an object with url property
               if (img && typeof img === 'object' && img.url) {
@@ -90,11 +95,16 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
               if (img && typeof img === 'object' && img.path) {
                 return img.path;
               }
-              return img;
+              // If it's an object with imageUrl property
+              if (img && typeof img === 'object' && img.imageUrl) {
+                return img.imageUrl;
+              }
+              return null;
             }).filter(Boolean); // Remove any null/undefined values
             
-            console.log("Processed image URLs:", imageUrls);
             setExistingImageUrls(imageUrls);
+          } else {
+            console.log("No images found in package data");
           }
           
           setImagePreviews([]);
@@ -169,9 +179,8 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
       });
     }
 
-    console.log("Update Package Data==>", Object.fromEntries(formData));
     const res = await updatePackages(packageId, formData);
-    console.log("update package==>", res);
+    console.log("update response==>",res);
     
     if (res.statusCode === 200 || res.statusCode === 201) {
       showSuccessToast(res.message || "Package updated successfully");
