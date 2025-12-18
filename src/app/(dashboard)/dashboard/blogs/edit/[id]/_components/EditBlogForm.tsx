@@ -1,6 +1,5 @@
 "use client";
 
-
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { ImageIcon, X } from "lucide-react";
@@ -22,7 +21,7 @@ interface EditBlogFormProps {
   blogId: string;
 }
 
-
+export default function EditBlogForm({ blogId }: EditBlogFormProps) {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -95,7 +94,6 @@ interface EditBlogFormProps {
       showErrorToast(res.message);
     }
   };
-
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
