@@ -102,6 +102,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
               return null;
             }).filter(Boolean); // Remove any null/undefined values
             
+            console.log("Processed image URLs:", imageUrls);
             setExistingImageUrls(imageUrls);
           } else {
             console.log("No images found in package data");
@@ -156,6 +157,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
   };
 
   const onSubmit = async (data: PackageFormData) => {
+    
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("country", data.country);
@@ -179,15 +181,20 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
       });
     }
 
-    const res = await updatePackages(packageId, formData);
-    console.log("update response==>",res);
-    
-    if (res.statusCode === 200 || res.statusCode === 201) {
-      showSuccessToast(res.message || "Package updated successfully");
-      reset();
-      router.push("/dashboard/packages");
-    } else {
-      showErrorToast(res.message || "Failed to update package");
+
+    try {
+      const res = await updatePackages(packageId, formData);
+      
+      if (res.statusCode === 200 || res.statusCode === 201) {
+        showSuccessToast(res.message || "Package updated successfully");
+        reset();
+        router.push("/dashboard/packages");
+      } else {
+        showErrorToast(res.message || "Failed to update package");
+      }
+    } catch (error) {
+      console.error("Error updating package:", error);
+      showErrorToast("An error occurred while updating the package");
     }
   };
 
