@@ -20,11 +20,11 @@ interface EditReviewFormProps {
   reviewId: string;
 }
 
-// Mock data for demonstration - replace with actual API call
-const MOCK_REVIEWS: Record<string, ReviewFormData & { imageUrl: string }> = {
-  "1": {
-    name: "Asif Khan",
-    designation: "Business Owner",
+export default function EditReviewForm({ reviewId }: EditReviewFormProps) {
+  const router = useRouter();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [hoverRating, setHoverRating] = useState(0);
+
   const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ReviewFormData>({
     defaultValues: {
       name: "",
@@ -39,11 +39,6 @@ const MOCK_REVIEWS: Record<string, ReviewFormData & { imageUrl: string }> = {
 
   // Load review data on component mount
   useEffect(() => {
-    const reviewData = MOCK_REVIEWS[reviewId];
-    if (reviewData) {
-      reset({
-        name: reviewData.name,
-        designation: reviewData.designation,
     const fetchReview = async () => {
       const res = await getReviewById(reviewId);
       if (res?.data) {
@@ -58,6 +53,11 @@ const MOCK_REVIEWS: Record<string, ReviewFormData & { imageUrl: string }> = {
       }
     };
     fetchReview();
+  }, [reviewId, reset]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
       setValue("image", file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -76,9 +76,8 @@ const MOCK_REVIEWS: Record<string, ReviewFormData & { imageUrl: string }> = {
     setValue("rating", rating);
   };
 
-  const onSubmit = (data: ReviewFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const handleClose = () => {
+    router.push("/dashboard/reviews");
   };
 
   const onSubmit = async (data: ReviewFormData) => {
@@ -171,7 +170,7 @@ const MOCK_REVIEWS: Record<string, ReviewFormData & { imageUrl: string }> = {
 
         {/* Description Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Discription</label>
+          <label className="block text-sm font-medium text-gray-700">Description</label>
           <Controller
             name="description"
             control={control}
