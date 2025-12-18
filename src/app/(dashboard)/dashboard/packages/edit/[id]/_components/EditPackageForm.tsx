@@ -1,64 +1,51 @@
 "use client";
 
-import { Save, X } from "lucide-react";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { updatePackages } from '@/services/package';
 
 interface PackageFormData {
   title: string;
-  price: string;
+  country: string;
+  maxTravelers: string;
+  minPax: string;
   duration: string;
   description: string;
+  status: boolean;
   images: File[];
 }
 
 interface EditPackageFormProps {
   packageId: string;
+  initialData?: any; // Replace 'any' with your package type
 }
 
-// Mock data for demonstration - replace with actual API call
-const MOCK_PACKAGES: Record<string, PackageFormData & { imageUrls: string[] }> = {
-  "1": {
-    title: "হজ ভিআইপি প্যাকেজ",
-    price: "৳ 500,000",
-    duration: "21 দিন",
-    description: "আমাদের ভিআইপি প্যাকেজে সর্বোচ্চ মানের সেবা প্রদান করা হয়। ৫ তারকা হোটেল, ব্যক্তিগত পরিবহন এবং বিশেষ গাইড সেবা অন্তর্ভুক্ত।",
-    images: [],
-    imageUrls: ["/hajj-1.jpg", "/hajj-2.jpg"],
-  },
-  "2": {
-    title: "হজ স্পেশাল প্যাকেজ",
-    price: "৳ 400,000",
-    duration: "18 দিন",
-    description: "স্পেশাল প্যাকেজে ৪ তারকা হোটেল এবং গ্রুপ পরিবহন সুবিধা রয়েছে।",
-    images: [],
-    imageUrls: ["/hajj-2.jpg"],
-  },
-  "3": {
-    title: "হজ এ ক্যাটাগরি প্যাকেজ",
-    price: "৳ 350,000",
-    duration: "15 দিন",
-    description: "এ ক্যাটাগরি প্যাকেজে মানসম্মত থাকা এবং খাবারের ব্যবস্থা রয়েছে।",
-    images: [],
-    imageUrls: ["/hajj-3.jpg"],
-  },
-};
-
-const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
-    
-      const router = useRouter();
-  // Separate state for existing images (URLs from server) and new images (File objects)
+export default function EditPackageForm({ packageId, initialData }: EditPackageFormProps) {
+  console.log("see package eidit id-->",packageId);
+  const router = useRouter();
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
-  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<PackageFormData>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<PackageFormData>({
     defaultValues: {
       title: "",
-      price: "",
+      country: "",
+      maxTravelers: "",
+      minPax: "",
       duration: "",
       description: "",
+      status: true,
       images: [],
     },
   });
@@ -67,19 +54,23 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
 
   // Load package data on component mount
   useEffect(() => {
-    const packageData = MOCK_PACKAGES[packageId];
-    if (packageData) {
+    if (initialData) {
       reset({
-        title: packageData.title,
-        price: packageData.price,
-        duration: packageData.duration,
-        description: packageData.description,
+        title: initialData.title || "",
+        country: initialData.country || "",
+        maxTravelers: initialData.maxTravelers || "",
+        minPax: initialData.minPax || "",
+        duration: initialData.duration || "",
+        description: initialData.description || "",
+        status: initialData.status ?? true,
         images: [],
       });
-      setExistingImageUrls(packageData.imageUrls);
-      setNewImagePreviews([]);
+      if (initialData.images && initialData.images.length > 0) {
+        setExistingImageUrls(initialData.images);
+      }
+      setImagePreviews([]);
     }
-  }, [packageId, reset]);
+  }, [initialData, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -92,7 +83,7 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
       newFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setNewImagePreviews((prev) => [...prev, reader.result as string]);
+          setImagePreviews((prev) => [...prev, reader.result as string]);
         };
         reader.readAsDataURL(file);
       });
@@ -105,26 +96,60 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
     setExistingImageUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleRemoveNewImage = (index: number) => {
+  const handleRemoveImage = (index: number) => {
     const updatedImages = images.filter((_, i) => i !== index);
-    const updatedPreviews = newImagePreviews.filter((_, i) => i !== index);
+    const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
     setValue("images", updatedImages);
-    setNewImagePreviews(updatedPreviews);
+    setImagePreviews(updatedPreviews);
   };
 
-  const onSubmit = (data: PackageFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission here
+  const onSubmit = async (data: PackageFormData) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("country", data.country);
+    formData.append("maxTravelers", data.maxTravelers);
+    formData.append("minPax", data.minPax);
+    formData.append("duration", data.duration);
+    formData.append("description", data.description);
+    formData.append("status", String(data.status));
+    
+    // Append existing image URLs that weren't removed
+    if (existingImageUrls.length > 0) {
+      existingImageUrls.forEach((url) => {
+        formData.append("existingImages", url);
+      });
+    }
+    
+    // Append new images
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((file) => {
+        formData.append("images", file);
+      });
+    }
+
+    console.log("Update Package Data==>", Object.fromEntries(formData));
+    const res = await updatePackages(packageId, formData);
+    console.log("update package==>", res);
+    
+    if (res.statusCode === 200) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/packages");
+    } else {
+      showErrorToast(res.message);
+    }
+  };
+
+  const handleClose = () => {
+    router.push("/dashboard/packages");
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-[#f8f9fa] rounded-2xl p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Title Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Title <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Title</label>
           <Controller
             name="title"
             control={control}
@@ -134,7 +159,7 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
                 {...field}
                 type="text"
                 placeholder="Enter package title"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
               />
             )}
           />
@@ -143,34 +168,72 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
           )}
         </div>
 
-        {/* Price Field */}
+        {/* Country Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Price <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Country</label>
           <Controller
-            name="price"
+            name="country"
             control={control}
-            rules={{ required: "Price is required" }}
+            rules={{ required: "Country is required" }}
             render={({ field }) => (
               <input
                 {...field}
                 type="text"
-                placeholder="Enter package price"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
+                placeholder="Enter country"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
               />
             )}
           />
-          {errors.price && (
-            <p className="text-red-500 text-sm">{errors.price.message}</p>
+          {errors.country && (
+            <p className="text-red-500 text-sm">{errors.country.message}</p>
+          )}
+        </div>
+
+        {/* Max Travelers Field */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Max Travelers</label>
+          <Controller
+            name="maxTravelers"
+            control={control}
+            rules={{ required: "Max travelers is required" }}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder="Enter maximum number of travelers"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+              />
+            )}
+          />
+          {errors.maxTravelers && (
+            <p className="text-red-500 text-sm">{errors.maxTravelers.message}</p>
+          )}
+        </div>
+
+        {/* Min Pax Field */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Min Pax</label>
+          <Controller
+            name="minPax"
+            control={control}
+            rules={{ required: "Min pax is required" }}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder="Enter minimum pax"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+              />
+            )}
+          />
+          {errors.minPax && (
+            <p className="text-red-500 text-sm">{errors.minPax.message}</p>
           )}
         </div>
 
         {/* Duration Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Duration <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Duration</label>
           <Controller
             name="duration"
             control={control}
@@ -180,7 +243,7 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
                 {...field}
                 type="text"
                 placeholder="Enter package duration (e.g., 15 days)"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
               />
             )}
           />
@@ -191,9 +254,7 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
 
         {/* Description Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Description <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Description</label>
           <Controller
             name="description"
             control={control}
@@ -203,7 +264,7 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
                 {...field}
                 rows={5}
                 placeholder="Enter package description"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent resize-none"
+                className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
               />
             )}
           />
@@ -214,13 +275,10 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
 
         {/* Image Upload Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Images <span className="text-red-500">*</span>
-          </label>
-          <div className="border-2 border-dashed border-gray-200 rounded-lg p-6">
-            {/* Image Previews Grid */}
-            {(existingImageUrls.length > 0 || newImagePreviews.length > 0) && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <label className="block text-sm font-medium text-gray-700">Upload Images</label>
+          <div className="w-full border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative p-6">
+            {(existingImageUrls.length > 0 || imagePreviews.length > 0) && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 w-full">
                 {/* Existing Images */}
                 {existingImageUrls.map((url, index) => (
                   <div key={`existing-${index}`} className="relative aspect-square">
@@ -240,17 +298,17 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
                   </div>
                 ))}
                 {/* New Images */}
-                {newImagePreviews.map((preview, index) => (
+                {imagePreviews.map((preview, index) => (
                   <div key={`new-${index}`} className="relative aspect-square">
                     <Image
                       src={preview}
-                      alt={`New ${index + 1}`}
+                      alt={`Preview ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
                     />
                     <button
                       type="button"
-                      onClick={() => handleRemoveNewImage(index)}
+                      onClick={() => handleRemoveImage(index)}
                       className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                     >
                       <X className="w-3 h-3" />
@@ -259,68 +317,40 @@ const EditPackageForm = ({ packageId }: EditPackageFormProps) => {
                 ))}
               </div>
             )}
-
-            {/* Upload Button */}
-            <div className="text-center">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="hidden"
-                id="package-images"
-              />
-              <label
-                htmlFor="package-images"
-                className="cursor-pointer text-[#0f3d3e] hover:text-[#0f3d3e]/80"
-              >
-                <div className="space-y-2">
-                  <div className="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-6 h-6 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {existingImageUrls.length > 0 || newImagePreviews.length > 0
-                      ? "Click to add more images"
-                      : "Click to upload package images"}
-                  </p>
-                </div>
-              </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              style={{ zIndex: 2 }}
+            />
+            <div className="flex flex-col items-center justify-center z-1 pointer-events-none">
+              <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4">
-        <button
-          type="submit"
-          className="flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
-        >
-          <Save className="w-4 h-4" />
-          <span>Update</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex items-center gap-2 bg-red-500 text-white px-6 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
-        >
-          <X className="w-4 h-4" />
-          <span>Close</span>
-        </button>
-      </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-4">
+          <button
+            type="submit"
+            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+          >
+            <Save className="w-4 h-4" />
+            <span className="font-medium">Update</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+            <span className="font-medium">Close</span>
+          </button>
+        </div>
       </form>
     </div>
   );
-};
-
-export default EditPackageForm;
+}
