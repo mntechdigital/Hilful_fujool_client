@@ -1,12 +1,12 @@
 "use client";
 
+import {  getPackagesById, updatePackages } from "@/services/package";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { updatePackages } from '@/services/package';
 
 interface PackageFormData {
   title: string;
@@ -21,14 +21,13 @@ interface PackageFormData {
 
 interface EditPackageFormProps {
   packageId: string;
-  initialData?: any; // Replace 'any' with your package type
 }
 
-export default function EditPackageForm({ packageId, initialData }: EditPackageFormProps) {
-  console.log("see package eidit id-->",packageId);
+export default function EditPackageForm({ packageId }: EditPackageFormProps) {
   const router = useRouter();
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     control,
@@ -52,25 +51,68 @@ export default function EditPackageForm({ packageId, initialData }: EditPackageF
 
   const images = watch("images");
 
-  // Load package data on component mount
+  // Fetch package data on component mount
   useEffect(() => {
-    if (initialData) {
-      reset({
-        title: initialData.title || "",
-        country: initialData.country || "",
-        maxTravelers: initialData.maxTravelers || "",
-        minPax: initialData.minPax || "",
-        duration: initialData.duration || "",
-        description: initialData.description || "",
-        status: initialData.status ?? true,
-        images: [],
-      });
-      if (initialData.images && initialData.images.length > 0) {
-        setExistingImageUrls(initialData.images);
+    const fetchPackageData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getPackagesById(packageId);
+        console.log("Fetched package data:", response);
+        
+        if (response && response.data) {
+          const packageData = response.data;
+          
+          // Reset form with fetched data
+          reset({
+            title: packageData.title || "",
+            country: packageData.country || "",
+            maxTravelers: String(packageData.maxTravelers || ""),
+            minPax: String(packageData.minPax || ""),
+            duration: packageData.duration || "",
+            description: packageData.description || "",
+            status: packageData.status ?? true,
+            images: [],
+          });
+          
+          // Set existing images if available
+          if (packageData.images && Array.isArray(packageData.images) && packageData.images.length > 0) {
+            // Handle different image data formats
+            const imageUrls = packageData.images.map((img: any) => {
+              // If it's already a string URL
+              if (typeof img === 'string') {
+                return img;
+              }
+              // If it's an object with url property
+              if (img && typeof img === 'object' && img.url) {
+                return img.url;
+              }
+              // If it's an object with path property
+              if (img && typeof img === 'object' && img.path) {
+                return img.path;
+              }
+              return img;
+            }).filter(Boolean); // Remove any null/undefined values
+            
+            console.log("Processed image URLs:", imageUrls);
+            setExistingImageUrls(imageUrls);
+          }
+          
+          setImagePreviews([]);
+        } else {
+          showErrorToast("Failed to load package data");
+        }
+      } catch (error) {
+        console.error("Error fetching package:", error);
+        showErrorToast("Error loading package data");
+      } finally {
+        setIsLoading(false);
       }
-      setImagePreviews([]);
+    };
+
+    if (packageId) {
+      fetchPackageData();
     }
-  }, [initialData, reset]);
+  }, [packageId, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -131,18 +173,28 @@ export default function EditPackageForm({ packageId, initialData }: EditPackageF
     const res = await updatePackages(packageId, formData);
     console.log("update package==>", res);
     
-    if (res.statusCode === 200) {
-      showSuccessToast(res.message);
+    if (res.statusCode === 200 || res.statusCode === 201) {
+      showSuccessToast(res.message || "Package updated successfully");
       reset();
       router.push("/dashboard/packages");
     } else {
-      showErrorToast(res.message);
+      showErrorToast(res.message || "Failed to update package");
     }
   };
 
   const handleClose = () => {
     router.push("/dashboard/packages");
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#f8f9fa] rounded-2xl p-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500">Loading package data...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#f8f9fa] rounded-2xl p-6">
