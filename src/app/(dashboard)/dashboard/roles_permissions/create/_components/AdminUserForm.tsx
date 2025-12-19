@@ -1,30 +1,40 @@
 "use client";
 
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Eye, EyeOff, Save, X, Upload, ImageIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { register } from "@/services/auth";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { Eye, EyeOff, ImageIcon, Save, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
-interface RoleFormData {
+
+interface AdminUserData {
   fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
   profilePhoto: File | null;
   status: boolean;
+  roleId: string;
 }
 
-const CreateRoleForm = () => {
+interface RoleData {
+  id: string;
+  name: string;
+  status: string;
+  isDeleted: boolean;
+  createdAt: string;
+}
+
+const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<RoleFormData>({
+  const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<AdminUserData>({
     defaultValues: {
       fullName: "",
       email: "",
@@ -32,6 +42,7 @@ const CreateRoleForm = () => {
       confirmPassword: "",
       profilePhoto: null,
       status: true,
+      roleId: "",
     },
   });
 
@@ -54,18 +65,19 @@ const CreateRoleForm = () => {
     setValue("profilePhoto", null);
   };
 
-  const onSubmit = async (data: RoleFormData) => {
+  const onSubmit = async (data: AdminUserData) => {
     const formData = new FormData();
     formData.append("fullName", data.fullName);
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("status", data.status ? "ACTIVE" : "INACTIVE");
+    formData.append("roleId", data.roleId);
     if (data.profilePhoto) {
       formData.append("profilePhoto", data.profilePhoto);
     }
     console.log("Form Data:", Object.fromEntries(formData));
     const res = await register(formData);
-    console.log("see admin register res==>",res);
+    console.log("see admin register res==>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
@@ -73,7 +85,6 @@ const CreateRoleForm = () => {
     } else {
       showErrorToast(res.message);
     }
-
     // Handle form submission
   };
 
@@ -122,6 +133,28 @@ const CreateRoleForm = () => {
             )}
           />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+        </div>
+
+        {/* Role Select */}
+        <div>
+          <label className="block text-gray-700 mb-2">Role</label>
+          <Controller
+            name="roleId"
+            control={control}
+            rules={{ required: "Role is required" }}
+            render={({ field }) => (
+              <select
+                {...field}
+                className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+              >
+                <option value="">Select a role</option>
+                {roleData.map((role: any) => (
+                  <option key={role.id} value={role.id}>{role.name}</option>
+                ))}
+              </select>
+            )}
+          />
+          {errors.roleId && <p className="text-red-500 text-sm mt-1">{errors.roleId.message}</p>}
         </div>
 
         {/* Password */}
@@ -188,34 +221,34 @@ const CreateRoleForm = () => {
       </div>
 
       {/* Image Upload Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-          <div className="w-28 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
-            {imagePreview ? (
-              <>
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
-                <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
-                <input
-                  type="file"
-                  accept="profilePhoto/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </>
-            )}
-          </div>
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+        <div className="w-28 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
+          {imagePreview ? (
+            <>
+              <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </>
+          ) : (
+            <>
+              <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+              <input
+                type="file"
+                accept="profilePhoto/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </>
+          )}
         </div>
+      </div>
 
       {/* Action Buttons */}
       <div className="flex gap-4 mt-8">
@@ -238,4 +271,4 @@ const CreateRoleForm = () => {
   );
 };
 
-export default CreateRoleForm;
+export default AdminUserForm;
