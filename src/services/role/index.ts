@@ -71,3 +71,16 @@ export const getRoleDetails = async (id: string) => {
 
   return await response;
 };
+
+export const deleteAdminUser = async (id: string | undefined) => {
+  const response = await apiRequest(`admin-users/${id}`, {
+    method: "DELETE",
+    authRequired: true,
+  });
+
+  ["/", "/dashboard/role"].forEach((path) => {
+    revalidatePath(path);
+  });
+
+  return await response;
+};

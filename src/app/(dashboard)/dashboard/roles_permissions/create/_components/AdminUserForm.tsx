@@ -82,9 +82,7 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
     if (data.profilePhoto) {
       formData.append("profilePhoto", data.profilePhoto);
     }
-    console.log("Form Data:", Object.fromEntries(formData));
     const res = await register(formData);
-    console.log("see admin register res==>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();

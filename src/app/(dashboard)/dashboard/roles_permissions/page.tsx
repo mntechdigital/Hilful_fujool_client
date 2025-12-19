@@ -3,8 +3,23 @@ import { DashboardWrapper } from "../_components/DashboardWrapper";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import RolesTable from "./_components/RolesTable";
+import { getRoles } from "@/services/role";
+import { TQuery } from "@/types/query.types";
 
-const RolesandPermissionPage = () => {
+const RolesandPermissionPage = async (props: {
+  searchParams: Promise<{ search: string; page: string }>;
+}) => {
+  const searchParams = await props.searchParams;
+  const search = searchParams.search || "";
+  const page = parseInt(searchParams.page) || 1;
+  const query: TQuery[] = [
+    { key: "orderBy", value: JSON.stringify({ createdAt: "desc" }) },
+    { key: "searchTerm", value: search },
+    { key: "page", value: page.toString() },
+    { key: "limit", value: "10" },
+  ];
+  const adminUsers = await getRoles(query);
+  console.log("see admin data==>",adminUsers.data);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -23,7 +38,7 @@ const RolesandPermissionPage = () => {
           <span className="font-medium">Create Admin User</span>
         </Link>
       </div>
-      <RolesTable />
+      <RolesTable rolesData={adminUsers.data} />
     </DashboardWrapper>
   );
 };
