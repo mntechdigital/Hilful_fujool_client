@@ -47,6 +47,7 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
   });
 
   const password = watch("password");
+  const confirmPassword = watch("confirmPassword");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,6 +67,12 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
   };
 
   const onSubmit = async (data: AdminUserData) => {
+    // Double-check passwords match before submitting
+    if (data.password !== data.confirmPassword) {
+      showErrorToast("Passwords do not match");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("fullName", data.fullName);
     formData.append("email", data.email);
@@ -81,11 +88,11 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
+      setImagePreview(null);
       // router.push("/dashboard/roles_permissions");
     } else {
       showErrorToast(res.message);
     }
-    // Handle form submission
   };
 
   return (
@@ -197,7 +204,10 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
               control={control}
               rules={{
                 required: "Please confirm your password",
-                validate: (value) => value === password || "Passwords do not match",
+                validate: (value) => {
+                  const currentPassword = watch("password");
+                  return value === currentPassword || "Passwords do not match";
+                },
               }}
               render={({ field }) => (
                 <input
@@ -221,7 +231,7 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
       </div>
 
       {/* Image Upload Field */}
-      <div className="space-y-2">
+      <div className="space-y-2 mt-6">
         <label className="block text-sm font-medium text-gray-700">Upload Image</label>
         <div className="w-28 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
           {imagePreview ? (
@@ -241,7 +251,7 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
               <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
               <input
                 type="file"
-                accept="profilePhoto/*"
+                accept="image/*"
                 onChange={handleImageChange}
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
