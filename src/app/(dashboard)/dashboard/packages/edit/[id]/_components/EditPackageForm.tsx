@@ -411,7 +411,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
                 <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-600 mb-1">Click to upload more images</span>
                 <span className="text-xs text-gray-500">or drag and drop</span>
-                <span className="text-xs text-gray-400 mt-2 border border-gray-300 rounded px-3 py-1">Choose Files</span>
+                <span className="text-xs text-gray-500 mt-2 border border-gray-300 rounded px-3 py-1">Choose Files</span>
               </div>
             </div>
           </div>

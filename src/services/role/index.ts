@@ -1,0 +1,73 @@
+"use server";
+
+import { apiRequest } from "@/lib/apiRequest";
+import { TQuery } from "@/types/query.types";
+import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
+
+export const getRoles = async (query: TQuery[]) => {
+  const params = new URLSearchParams();
+
+  if (query && query.length > 0) {
+    query.forEach((q) => {
+      params.append(q.key, q.value);
+    });
+  }
+
+  const response = await apiRequest(`roles?${params.toString()}`, {
+    method: "GET",
+    authRequired: true,
+  });
+
+  return await response;
+};
+
+export const createRole = async (payload: FieldValues) => {
+  const response = await apiRequest("roles", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    authRequired: true,
+  });
+
+  ["/", "/dashboard/role"].forEach((path) => {
+    revalidatePath(path);
+  });
+
+  return await response;
+};
+
+export const updateRole = async (id: string, payload: FieldValues) => {
+  const response = await apiRequest(`roles/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+    authRequired: true,
+  });
+
+  ["/", "/dashboard/role"].forEach((path) => {
+    revalidatePath(path);
+  });
+
+  return await response;
+};
+
+export const deleteRole = async (id: string | undefined) => {
+  const response = await apiRequest(`roles/${id}`, {
+    method: "DELETE",
+    authRequired: true,
+  });
+
+  ["/", "/dashboard/role"].forEach((path) => {
+    revalidatePath(path);
+  });
+
+  return await response;
+};
+
+export const getRoleDetails = async (id: string) => {
+  const response = await apiRequest(`roles/${id}`, {
+    method: "GET",
+    authRequired: true,
+  });
+
+  return await response;
+};

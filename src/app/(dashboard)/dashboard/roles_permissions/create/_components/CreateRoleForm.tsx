@@ -2,32 +2,36 @@
 
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Eye, EyeOff, Save, X, Upload } from "lucide-react";
+import { Eye, EyeOff, Save, X, Upload, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { register } from "@/services/auth";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { useRouter } from "next/navigation";
 
 interface RoleFormData {
-  name: string;
-  description: string;
+  fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
-  image: File | null;
+  profilePhoto: File | null;
+  status: boolean;
 }
 
 const CreateRoleForm = () => {
+  const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<RoleFormData>({
+  const { control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<RoleFormData>({
     defaultValues: {
-      name: "",
-      description: "",
+      fullName: "",
       email: "",
       password: "",
       confirmPassword: "",
-      image: null,
+      profilePhoto: null,
+      status: true,
     },
   });
 
@@ -36,7 +40,7 @@ const CreateRoleForm = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setValue("image", file);
+      setValue("profilePhoto", file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -45,13 +49,31 @@ const CreateRoleForm = () => {
     }
   };
 
-  const removeImage = () => {
-    setValue("image", null);
+  const handleRemoveImage = () => {
     setImagePreview(null);
+    setValue("profilePhoto", null);
   };
 
-  const onSubmit = (data: RoleFormData) => {
-    console.log("Role data:", data);
+  const onSubmit = async (data: RoleFormData) => {
+    const formData = new FormData();
+    formData.append("fullName", data.fullName);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("status", data.status ? "ACTIVE" : "INACTIVE");
+    if (data.profilePhoto) {
+      formData.append("profilePhoto", data.profilePhoto);
+    }
+    console.log("Form Data:", Object.fromEntries(formData));
+    const res = await register(formData);
+    console.log("see admin register res==>",res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      // router.push("/dashboard/roles_permissions");
+    } else {
+      showErrorToast(res.message);
+    }
+
     // Handle form submission
   };
 
@@ -62,7 +84,7 @@ const CreateRoleForm = () => {
         <div>
           <label className="block text-gray-700 mb-2">Name</label>
           <Controller
-            name="name"
+            name="fullName"
             control={control}
             rules={{ required: "Name is required" }}
             render={({ field }) => (
@@ -74,26 +96,7 @@ const CreateRoleForm = () => {
               />
             )}
           />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-gray-700 mb-2">Description</label>
-          <Controller
-            name="description"
-            control={control}
-            rules={{ required: "Description is required" }}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter description"
-                className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              />
-            )}
-          />
-          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
+          {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
         </div>
 
         {/* Email */}
@@ -184,40 +187,35 @@ const CreateRoleForm = () => {
         </div>
       </div>
 
-      {/* Upload Image */}
-      <div className="mt-6">
-        <label className="block text-gray-700 mb-2">Upload Image (Optional)</label>
-        <div className="flex items-start gap-4">
-          <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors">
-            <Upload className="w-8 h-8 text-gray-400" />
-            <span className="text-sm text-gray-500 mt-2">Upload</span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
-          </label>
-
-          {imagePreview && (
-            <div className="relative w-32 h-32">
-              <Image
-                src={imagePreview}
-                alt="Preview"
-                fill
-                className="object-cover rounded-lg"
-              />
-              <button
-                type="button"
-                onClick={removeImage}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+      {/* Image Upload Field */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+          <div className="w-28 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
+            {imagePreview ? (
+              <>
+                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </>
+            ) : (
+              <>
+                <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
+                <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+                <input
+                  type="file"
+                  accept="profilePhoto/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
       {/* Action Buttons */}
       <div className="flex gap-4 mt-8">

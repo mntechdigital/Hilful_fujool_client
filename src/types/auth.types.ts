@@ -1,12 +1,11 @@
 import { JwtPayload } from "jwt-decode";
-import { TDepartmentHead } from "./departmentHead.types";
 
 export interface TCustomJwtPayload extends JwtPayload {
   id?: string;
   email: string;
   role: string;
   status: string;
-  name: string;
+  fullName: string;
   profilePhoto?: string;
   iat: number;
   exp: number;
@@ -18,7 +17,7 @@ export type TRole = {
   isDeleted?: boolean;
   status: "ACTIVE" | "INACTIVE";
   roleFeature?: TRoleFeature[];
-  departmentHeads?: TDepartmentHead[];
+  adminUser?: TAdminUser[];
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -32,4 +31,28 @@ export type TRoleFeature = {
   roleId?: string;
 };
 
+export type TAdminDetails = {
+  id?: string;
+  fullName: string;
+  email: string;
+  isChecked?: boolean;
+  password?: string;
+  profilePhoto?: string | Blob | undefined;
+  roleId: string;
+  status?: "ACTIVE" | "INACTIVE";
+  createdAt?: Date;
+  updatedAt?: Date;
+  role: TRole;
+};
 
+export type TAdminUser = {
+  id: string;
+  fullName: string;
+  email: string;
+  profilePhoto?: string | Blob | undefined;
+  roleId: string;
+  status?: "ACTIVE" | "INACTIVE";
+  createdAt?: Date;
+  updatedAt?: Date;
+  role: TRole;
+};
