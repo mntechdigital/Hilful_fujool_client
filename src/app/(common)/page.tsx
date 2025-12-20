@@ -6,8 +6,7 @@ export const dynamic = "force-dynamic";
 const Home = async () => {
   return (
     <div>
-      <Topber/>
-      <Navber/>
+      <h1>This is homepage</h1>
     </div>
   );
 };

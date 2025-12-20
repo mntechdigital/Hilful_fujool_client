@@ -3,12 +3,12 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
-import { FieldValues } from "react-hook-form";
 
-export const createContacts = async (data: FieldValues) => {
+export const createContacts = async (payload: Record<string, any>) => {
     const response = await apiRequest("contacts", {
         method: "POST",
-        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
         authRequired: true,
     });
     revalidatePath("/dashboard/contacts");
