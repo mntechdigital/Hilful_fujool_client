@@ -2,10 +2,12 @@
 import { createPackages } from "@/services/package";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 import { ImageIcon, Save, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
 
 interface PackageFormData {
   title: string;
@@ -86,9 +88,9 @@ export default function CreatePackageForm() {
         formData.append("images", file);
       });
     }
-    console.log("Line 68==>",Object.fromEntries(formData));
+    console.log("Line 68==>", Object.fromEntries(formData));
     const res = await createPackages(formData);
-    console.log("create blog==>",res);
+    console.log("create blog==>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
@@ -218,12 +220,12 @@ export default function CreatePackageForm() {
             control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <textarea
-                {...field}
-                rows={5}
-                placeholder="Enter package description"
-                className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
-              />
+              <div className="border border-gray-200 rounded-lg bg-white">
+                <RichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </div>
             )}
           />
           {errors.description && (

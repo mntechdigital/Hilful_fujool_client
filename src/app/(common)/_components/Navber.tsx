@@ -15,6 +15,8 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 
+import siteLogo from "../../../../public/hilful_fujul.png"
+
 const menu = [
   { label: "Home", href: "/", icon: FaHome },
   { label: "About Us", href: "/about-us", icon: FaInfoCircle },
@@ -36,7 +38,7 @@ const Navber = () => {
           <Link href="/">
             <div className="w-12 h-12 rounded-full border-2 border-[#0E595C] overflow-hidden">
               <Image
-                src="/logo.png"
+                src={siteLogo}
                 alt="Logo"
                 width={48}
                 height={48}

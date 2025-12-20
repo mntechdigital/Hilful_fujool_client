@@ -24,6 +24,7 @@ import { Sidebar } from "./DashboardSidebar";
 import logo from "../../../../public/hilful_fujul.png";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRouter } from "next/navigation";
+import { logout } from "@/services/auth";
 
 interface NavbarProps {
   adminData: any;
@@ -34,7 +35,8 @@ export function Navbar({ adminData }: NavbarProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
-    // await logoutUser();
+    const res = await logout();
+    console.log("logout res==>",res);
     router.push("/login");
     router.refresh();
   };
