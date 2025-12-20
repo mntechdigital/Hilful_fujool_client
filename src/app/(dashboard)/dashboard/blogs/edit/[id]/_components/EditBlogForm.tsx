@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { ImageIcon, X } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { getBlogsById, updateBlogs } from "@/services/blog";
+import { sanitizeHtml } from '@/utils/sanitizeHtml';
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { ImageIcon, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 interface BlogFormData {
   author: string;
@@ -165,6 +166,7 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
           {errors.shortDescription && (
             <p className="text-red-500 text-sm">{errors.shortDescription.message}</p>
           )}
+          
         </div>
 
         {/* Description Field */}
@@ -188,6 +190,17 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
           {errors.description && (
             <p className="text-red-500 text-sm">{errors.description.message}</p>
           )}
+          {/* Preview rendered HTML for description */}
+          <div className="prose max-w-none bg-gray-50 rounded p-2 mt-2">
+            <label className="block text-xs text-gray-400 mb-1">Preview:</label>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(field.value || '') }} />
+              )}
+            />
+          </div>
         </div>
 
         {/* Image Upload Field */}
