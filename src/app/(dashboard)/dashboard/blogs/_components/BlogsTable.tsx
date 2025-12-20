@@ -1,12 +1,17 @@
 "use client";
 
-import { Pencil,} from "lucide-react";
-import Image from "next/image";
-import React from "react";
-import Link from "next/link";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { Pencil, } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
 import { updateBlogStatus } from "@/services/blog";
 import DeleteBlogDialog from "./DeleteBlogDialog";
+
+// Renders HTML safely for blog description
+const BlogDescriptionCell = ({ html }: { html: string }) => (
+  <div className="line-clamp-2 prose prose-sm prose-slate max-w-xs" dangerouslySetInnerHTML={{ __html: html }} />
+);
 
 interface Blog {
   id: string;
@@ -73,21 +78,19 @@ const BlogsTable = ({ blogs }: { blogs: Blog[] }) => {
                 </td>
                 <td className="py-4 px-6 text-gray-700">{blog.title}</td>
                 <td className="py-4 px-6 text-gray-600 max-w-xs">
-                  <p className="line-clamp-2">{blog.description}</p>
+                  <BlogDescriptionCell html={blog.description} />
                 </td>
                 <td className="py-4 px-6">
                   <button
                     onClick={() => handleStatusChange(blog)}
-                    className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${
-                      blog.status ? "bg-[#0f3d3e]" : "bg-gray-300"
-                    }`}
+                    className={`w-12 h-6 rounded-full relative transition-colors cursor-pointer ${blog.status ? "bg-[#0f3d3e]" : "bg-gray-300"
+                      }`}
                     aria-pressed={blog.status}
                     aria-label={blog.status ? "Active" : "Inactive"}
                   >
                     <span
-                      className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${
-                        blog.status ? "right-1" : "left-1"
-                      }`}
+                      className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${blog.status ? "right-1" : "left-1"
+                        }`}
                     />
                   </button>
                 </td>
@@ -103,7 +106,7 @@ const BlogsTable = ({ blogs }: { blogs: Blog[] }) => {
                   </div>
                 </td>
               </tr>
-            )): (
+            )) : (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-gray-500">No data found</td>
               </tr>

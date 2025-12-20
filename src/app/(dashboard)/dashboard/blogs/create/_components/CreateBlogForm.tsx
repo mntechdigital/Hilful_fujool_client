@@ -1,13 +1,17 @@
 "use client";
 
 
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
 import { ImageIcon, Save, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+
 import { createBlogs } from "@/services/blog";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+
+const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
 
 
 interface BlogFormData {
@@ -69,6 +73,7 @@ export default function CreateBlogForm() {
       formData.append("image", data.image);
     }
     const res = await createBlogs(formData);
+    console.log("create blog==>",res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
@@ -148,20 +153,17 @@ export default function CreateBlogForm() {
           )}
         </div>
 
-        {/* Description Field */}
+        {/* Description Field (Rich Text Editor) */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Discription</label>
+          <label className="block text-sm font-medium text-gray-700">Description</label>
           <Controller
             name="description"
             control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <textarea
-                {...field}
-                rows={5}
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
-              />
+              <div>
+                <RichTextEditor value={field.value} onChange={field.onChange} />
+              </div>
             )}
           />
           {errors.description && (
