@@ -55,7 +55,7 @@ const BlogsTable = ({ blogs }: { blogs: Blog[] }) => {
             </tr>
           </thead>
           <tbody className="text-sm">
-            {blogs.length > 0 ? blogs.map((blog, idx) => (
+            {blogs?.length > 0 ? blogs?.map((blog, idx) => (
               <tr
                 key={blog.id}
                 className="border-b border-gray-50 hover:bg-gray-50/50"
