@@ -1,17 +1,10 @@
-// Simple utility function
-export const createHTMLMarkup = (html: string) => {
-  return { __html: html };
-};
+// Renders HTML safely for blog description
+import React from "react";
 
-// Usage in your component:
-const BlogDescriptionCell = ({ html }: { html: string }) => (
-  <div 
-    className="line-clamp-2 prose prose-sm prose-slate max-w-xs" 
-    dangerouslySetInnerHTML={createHTMLMarkup(html)} 
-  />
-);
+const HtmlConverter = ({ html }: { html: string }) =>
+    React.createElement("div", {
+        className: "line-clamp-2 prose prose-sm prose-slate max-w-xs",
+        dangerouslySetInnerHTML: { __html: html }
+    });
 
-// Use it anywhere else:
-const OtherComponent = ({ content }: { content: string }) => (
-  <div dangerouslySetInnerHTML={createHTMLMarkup(content)} />
-);
+export default HtmlConverter;

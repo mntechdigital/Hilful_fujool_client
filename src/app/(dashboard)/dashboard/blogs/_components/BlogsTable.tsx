@@ -7,11 +7,8 @@ import Link from "next/link";
 
 import { updateBlogStatus } from "@/services/blog";
 import DeleteBlogDialog from "./DeleteBlogDialog";
+import HtmlConverter from "@/utils/htmlConverter";
 
-// Renders HTML safely for blog description
-const BlogDescriptionCell = ({ html }: { html: string }) => (
-  <div className="line-clamp-2 prose prose-sm prose-slate max-w-xs" dangerouslySetInnerHTML={{ __html: html }} />
-);
 
 interface Blog {
   id: string;
@@ -78,7 +75,7 @@ const BlogsTable = ({ blogs }: { blogs: Blog[] }) => {
                 </td>
                 <td className="py-4 px-6 text-gray-700">{blog.title}</td>
                 <td className="py-4 px-6 text-gray-600 max-w-xs">
-                  <BlogDescriptionCell html={blog.description} />
+                  <HtmlConverter html={blog.description} />
                 </td>
                 <td className="py-4 px-6">
                   <button
