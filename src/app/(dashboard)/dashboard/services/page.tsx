@@ -33,7 +33,6 @@ const ServicePage = async (props: {
         </Link>
       </div>
       <ServiceTable servicesData={servicesData?.data?.data} />
-      {/* Add PaginationWrapper if needed, similar to FivePillarsOfIslam */}
       {servicesData?.data?.meta?.totalPages > 1 && (
         <PaginationWrapper
           active={page}

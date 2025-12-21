@@ -20,9 +20,9 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, index = 0 }) => {
   return (
-    <div className="relative bg-white shadow-lg rounded-3xl px-8 py-12 flex flex-col items-center text-center max-w-md mx-auto min-h-[450px] hover:shadow-2xl transition-shadow duration-300">
+    <div className="relative shadow-lg bg-white rounded-3xl px-8 py-12 flex flex-col items-center text-center max-w-md mx-auto min-h-[450px] hover:shadow-2xl transition-shadow duration-300">
       {/* Badge */}
-      <span className="absolute top-8 right-8 w-16 h-16 rounded-full bg-[#F7ECD3] flex items-center justify-center text-[#0f3d3e] text-2xl font-bold select-none">
+      <span className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#F7ECD3] flex items-center justify-center text-slate-600 text-md font-bold select-none">
         {String(index + 1).padStart(2, '0')}
       </span>
       
@@ -50,7 +50,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, index = 0 }) => {
       {/* Read More Link */}
       <Link 
         href={`/services/${service.id}`}
-        className="w-full flex items-center justify-between bg-gradient-to-r from-[#C89A0C] to-[#D4A72C] hover:from-[#b08a0a] hover:to-[#C89A0C] text-xl font-semibold rounded-full px-8 py-5 transition-all duration-300 group shadow-md no-underline"
+        className="w-full flex items-center justify-between bg-gradient-to-r from-[#C89A0C] to-[#D4A72C] hover:from-[#b08a0a] hover:to-[#C89A0C] text-xl font-semibold rounded-full px-8 py-2 transition-all duration-300 group shadow-md no-underline"
       >
         <span className="text-white">Read More</span>
         <span className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-[#E5A50A] to-[#C89A0C] group-hover:scale-110 transition-transform duration-300">
