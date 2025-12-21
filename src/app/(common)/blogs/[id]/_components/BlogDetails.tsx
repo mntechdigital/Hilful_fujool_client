@@ -17,7 +17,7 @@ const BlogDetails = ({
     description,
 }: BlogDetailsProps) => {
     return (
-        <div className="bg-white rounded-2xl shadow p-6 max-w-7xl mx-auto border border-gray-100">
+        <div className="bg-white rounded-2xl shadow my-20 p-6 max-w-5xl mx-auto border border-gray-100">
             {/* Title */}
             <h1 className="text-2xl md:text-3xl font-bold text-[#0f3d3e] mb-4 leading-snug">
                 {title}
