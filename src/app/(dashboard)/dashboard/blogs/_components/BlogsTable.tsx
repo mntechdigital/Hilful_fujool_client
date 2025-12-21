@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { updateBlogStatus } from "@/services/blog";
 import DeleteBlogDialog from "./DeleteBlogDialog";
-import HtmlConverter from "@/utils/htmlConverter";
+import stripHtmlTags from "@/utils/stripHtmlTags";
 
 
 interface Blog {
@@ -75,7 +75,11 @@ const BlogsTable = ({ blogs }: { blogs: Blog[] }) => {
                 </td>
                 <td className="py-4 px-6 text-gray-700">{blog.title}</td>
                 <td className="py-4 px-6 text-gray-600 max-w-xs">
-                  <HtmlConverter html={blog.description} />
+                  {/* Show only first 30 letters of description, then ... */}
+                  {(() => {
+                    const text = stripHtmlTags(blog.description || "");
+                    return text.length > 30 ? text.slice(0, 30) + '...' : text;
+                  })()}
                 </td>
                 <td className="py-4 px-6">
                   <button
