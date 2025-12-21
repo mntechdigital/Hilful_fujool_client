@@ -69,15 +69,13 @@ const ServiceTable = ({ servicesData = [] }: { servicesData: Service[] }) => {
                     </div>
                   </td>
                   <td className="py-4 px-6 text-gray-700">{service.title}</td>
-                  <td className="py-4 px-6 text-gray-600 max-w-xs">
-                    <p>
-                      {(() => {
-                        const desc = service.shortDescription || service.description;
-                        if (!desc) return null;
-                        return desc.length > 20 ? desc.slice(0, 20) + "..." : desc;
-                      })()}
-                    </p>
-                  </td>
+                    <td className="py-4 px-6 text-gray-600 max-w-xs">
+                    <span className="line-clamp-2 break-words">
+                      {service.description
+                      ? service.description.replace(/<[^>]+>/g, "")
+                      : ""}
+                    </span>
+                    </td>
 
                   <td className="py-4 px-6">
                     <button

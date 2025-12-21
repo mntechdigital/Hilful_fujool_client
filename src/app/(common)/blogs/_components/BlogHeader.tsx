@@ -1,12 +1,10 @@
+import { Home } from "lucide-react";
 
 const BlogHeader = () => {
     return (
         <div className="flex flex-col items-center justify-center py-8">
             <div className="flex items-center gap-2 mb-2">
-                {/* Home icon SVG */}
-                <svg width="36" height="36" fill="#FFC107" viewBox="0 0 24 24">
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                </svg>
+                <Home size={24} color="#C89A0C" />
                 <span className="text-lg md:text-xl font-medium text-gray-700">
                     সাংস্কৃতিক ব্লগ
                 </span>

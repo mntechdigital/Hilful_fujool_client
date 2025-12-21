@@ -26,7 +26,7 @@ const GalleryPage = async (props: { searchParams: Promise<{ search: string; page
     },
     {
       key: "limit",
-      value: "10",
+      value: "4",
     },
   ];
   const galleryData = await getGallery(query);
@@ -43,11 +43,11 @@ const GalleryPage = async (props: { searchParams: Promise<{ search: string; page
         </Link>
       </div>
       <GalleryTable galleryData={galleryData?.data?.data} />
-      {galleryData?.meta?.totalPages > 1 && (
+      {galleryData?.data?.meta?.totalPages > 1 && (
         <PaginationWrapper
           active={page}
-          totalPages={galleryData?.meta?.totalPages || 1}
-          totalItems={galleryData?.meta?.totalItems || 0}
+          totalPages={galleryData?.data?.meta?.totalPages || 1}
+          totalItems={galleryData?.data?.meta?.totalItems || 0}
         />
       )}
     </DashboardWrapper>

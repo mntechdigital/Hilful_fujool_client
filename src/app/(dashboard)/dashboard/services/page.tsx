@@ -17,7 +17,7 @@ const ServicePage = async (props: {
     { key: "orderBy", value: JSON.stringify({ createdAt: "desc" }) },
     { key: "searchTerm", value: search },
     { key: "page", value: page.toString() },
-    { key: "limit", value: "10" },
+    { key: "limit", value: "4" },
   ];
   const servicesData = await getServices(query);
   return (
@@ -33,12 +33,11 @@ const ServicePage = async (props: {
         </Link>
       </div>
       <ServiceTable servicesData={servicesData?.data?.data} />
-      {/* Add PaginationWrapper if needed, similar to FivePillarsOfIslam */}
-      {servicesData?.meta?.totalPages > 1 && (
+      {servicesData?.data?.meta?.totalPages > 1 && (
         <PaginationWrapper
           active={page}
-          totalPages={servicesData?.meta?.totalPages || 1}
-          totalItems={servicesData?.meta?.totalItems || 0}
+          totalPages={servicesData?.data?.meta?.totalPages || 1}
+          totalItems={servicesData?.data?.meta?.totalItems || 0}
         />
       )}
     </DashboardWrapper>

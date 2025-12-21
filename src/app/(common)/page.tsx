@@ -1,5 +1,3 @@
-import Topber from "@/components/shared/menu/Topber";
-import Navber from "./_components/Navber";
 
 export const dynamic = "force-dynamic";
 

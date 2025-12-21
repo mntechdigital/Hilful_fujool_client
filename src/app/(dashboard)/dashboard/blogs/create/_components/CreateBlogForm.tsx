@@ -73,7 +73,6 @@ export default function CreateBlogForm() {
       formData.append("image", data.image);
     }
     const res = await createBlogs(formData);
-    console.log("create blog==>",res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
