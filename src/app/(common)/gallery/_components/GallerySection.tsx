@@ -62,12 +62,19 @@ const GallerySection: React.FC<GallerySectionProps> = ({ galleryData }) => {
               src={item.image}
               alt={`Gallery image ${idx + 1}`}
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:blur-sm"
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
               priority={idx < 4}
               unoptimized
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+            {/* Plus Icon on Hover */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-lg">
+                <circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)" />
+                <path d="M12 8v8M8 12h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
           </div>
         ))}
       </div>
