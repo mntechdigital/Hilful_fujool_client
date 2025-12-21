@@ -17,22 +17,24 @@ interface EditServiceFormProps {
   serviceId: string;
 }
 
-
 import { getServiceById, updateService } from "@/services/service";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import RichTextEditor from "@/components/shared/RichTextEditor";
+import HtmlConverter from "@/utils/htmlConverter";
 
 export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
   const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { control, handleSubmit, setValue, reset } = useForm<ServiceFormData>({
-    defaultValues: {
-      title: "",
-      shortDescription: "",
-      description: "",
-      image: null,
-    },
-  });
+  const { control, handleSubmit, setValue, reset, watch } =
+    useForm<ServiceFormData>({
+      defaultValues: {
+        title: "",
+        shortDescription: "",
+        description: "",
+        image: null,
+      },
+    });
 
   useEffect(() => {
     const fetchService = async () => {
@@ -104,7 +106,9 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Short Description</label>
+        <label className="text-sm font-medium text-gray-700">
+          Short Description
+        </label>
         <Controller
           name="shortDescription"
           control={control}
@@ -118,29 +122,38 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
           )}
         />
       </div>
-
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          Preview Description
+        </label>
+        <span className="">
+          <HtmlConverter html={watch("description") || ""} />
+        </span>
+      </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">Description</label>
         <Controller
           name="description"
           control={control}
           render={({ field }) => (
-            <textarea
-              {...field}
-              placeholder="write here..."
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e]/20 focus:border-[#0f3d3e] transition-colors resize-none"
-            />
+            <RichTextEditor value={field.value} onChange={field.onChange} />
           )}
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Upload Image</label>
+        <label className="text-sm font-medium text-gray-700">
+          Upload Image
+        </label>
         <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
           {imagePreview ? (
             <>
-              <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+              <Image
+                src={imagePreview}
+                alt="Preview"
+                fill
+                className="object-cover"
+              />
               <button
                 type="button"
                 onClick={handleRemoveImage}
@@ -152,7 +165,9 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
           ) : (
             <>
               <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
-              <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+              <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
+                Upload
+              </span>
               <input
                 type="file"
                 accept="image/*"

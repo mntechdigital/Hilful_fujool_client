@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { useForm, Controller } from "react-hook-form";
+const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
 import { useRouter } from "next/navigation";
 import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
@@ -103,18 +105,16 @@ export default function CreateServiceForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">Description</label>
-        <Controller
-          name="description"
-          control={control}
-          render={({ field }) => (
-            <textarea
-              {...field}
-              placeholder="write here..."
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e]/20 focus:border-[#0f3d3e] transition-colors resize-none"
-            />
-          )}
-        />
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <RichTextEditor
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
       </div>
 
       <div className="space-y-2">
