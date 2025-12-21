@@ -35,6 +35,7 @@ const BlogsPage = async (props: {
   ];
 
   const blogsData = await getBlogs(query);
+  console.log("get blog data==>", blogsData);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -48,11 +49,12 @@ const BlogsPage = async (props: {
         </Link>
       </div>
       <BlogsTable blogs={blogsData?.data?.data} />
-      {blogsData?.meta?.totalPages > 1 && (
+      {/* pagination */}
+      {blogsData?.data?.meta?.totalPages > 1 && (
         <PaginationWrapper
           active={page}
-          totalPages={blogsData?.meta?.totalPages || 1}
-          totalItems={blogsData?.meta?.totalItems || 0}
+          totalPages={blogsData?.data?.meta?.totalPages || 1}
+          totalItems={blogsData?.data?.meta?.totalItems || 0}
         />
       )}
     </DashboardWrapper>
