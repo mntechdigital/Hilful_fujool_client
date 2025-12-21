@@ -78,6 +78,7 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
       formData.append("image", data.image);
     }
     const res = await updateService(serviceId, formData);
+    console.log("see update info==>",res)
     if (res.statusCode === 200) {
       showSuccessToast(res.message);
       reset();
