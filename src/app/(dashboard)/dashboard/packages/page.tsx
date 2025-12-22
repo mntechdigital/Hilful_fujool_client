@@ -30,7 +30,7 @@ const PackagesPage = async (props: {
     },
     {
       key: "limit",
-      value: "10",
+      value: "5",
     },
   ];
   const packageData = await getPackages(query);
@@ -47,11 +47,12 @@ const PackagesPage = async (props: {
         </Link>
       </div>
       <PackageTable packages={packageData?.data?.data} />
-      {packageData?.meta?.totalPages > 1 && (
+
+      {packageData?.data?.meta?.totalPages > 1 && (
         <PaginationWrapper
           active={page}
-          totalPages={packageData?.meta?.totalPages || 1}
-          totalItems={packageData?.meta?.totalItems || 0}
+          totalPages={packageData?.data?.meta?.totalPages || 1}
+          totalItems={packageData?.data?.meta?.totalItems || 0}
         />
       )}
     </DashboardWrapper>

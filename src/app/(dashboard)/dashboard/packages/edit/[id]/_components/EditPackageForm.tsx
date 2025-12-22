@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {  getPackagesById, updatePackages } from "@/services/package";
@@ -7,21 +8,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import dynamic from "next/dynamic";
+import { EditPackageFormProps, PackageFormData } from "@/types/package.interface";
 
-interface PackageFormData {
-  title: string;
-  country: string;
-  maxTravelers: string;
-  minPax: string;
-  duration: string;
-  description: string;
-  status: boolean;
-  images: File[];
-}
+const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
 
-interface EditPackageFormProps {
-  packageId: string;
-}
 
 export default function EditPackageForm({ packageId }: EditPackageFormProps) {
   const router = useRouter();
@@ -46,6 +37,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
       description: "",
       status: true,
       images: [],
+      travellPlace: "",
     },
   });
 
@@ -71,6 +63,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
             description: packageData.description || "",
             status: packageData.status ?? true,
             images: [],
+            travellPlace: packageData.travellPlace || "",
           });
           
           // FIXED: Check for packageImages instead of images
@@ -165,6 +158,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
     formData.append("minPax", data.minPax);
     formData.append("duration", data.duration);
     formData.append("description", data.description);
+    formData.append("travellPlace", data.travellPlace);
     formData.append("status", String(data.status));
     
     // Append existing image URLs that weren't removed
@@ -240,6 +234,26 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
         </div>
 
         {/* Country Field */}
+                {/* Travell Place Field */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Travell Place</label>
+                  <Controller
+                    name="travellPlace"
+                    control={control}
+                    rules={{ required: "Travell place is required" }}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        type="text"
+                        placeholder="Enter travel place"
+                        className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                      />
+                    )}
+                  />
+                  {errors.travellPlace && (
+                    <p className="text-red-500 text-sm">{errors.travellPlace.message}</p>
+                  )}
+                </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">Country</label>
           <Controller
@@ -325,18 +339,19 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
 
         {/* Description Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Description</label>
+          <label className="block text-sm font-medium text-gray-700">Description <span className="text-red-500">*</span></label>
+          
           <Controller
             name="description"
             control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <textarea
-                {...field}
-                rows={5}
-                placeholder="Enter package description"
-                className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
-              />
+              <div className="border border-gray-200 rounded-lg bg-white">
+                <RichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </div>
             )}
           />
           {errors.description && (
