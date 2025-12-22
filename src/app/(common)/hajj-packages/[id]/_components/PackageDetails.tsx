@@ -1,15 +1,61 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import Preview from "@/components/shared/Preview";
 import { PackageApi } from "@/types/package.interface";
-import vector1 from "../../../../../../public/Vector.png"
-import vector2 from "../../../../../../public/Vector (1).png"
-import vector3 from "../../../../../../public/Vector (2).png"
-import vector4 from "../../../../../../public/Vector (3).png"
+import vector1 from "../../../../../../public/icons/Vector (1).svg"
+import vector2 from "../../../../../../public/icons/Vector.svg"
+import vector3 from "../../../../../../public/icons/Frame.svg"
+import vector4 from "../../../../../../public/icons/Frame (1).svg"
+import timeline from "../../../../../../public/timeline.png"
 
-const PackageDetails = (packageData: PackageApi) => {
+interface PackageDetailsProps extends PackageApi {
+  dynamicClassName?: string;
+}
+
+const PackageDetails = (props: PackageDetailsProps) => {
+  const { dynamicClassName, ...packageData } = props;
+  // DRY Info Cards
+  const infoCards = [
+    {
+      icon: vector1,
+      label: 'সময়কাল',
+      value: packageData.duration,
+      alt: 'duration',
+    },
+    {
+      icon: vector2,
+      label: <><span className="font-bold">Country</span><br/>{packageData.country}</>,
+      value: '',
+      alt: 'country',
+    },
+    {
+      icon: vector3,
+      label: <span className="font-bold">Maximum Traveller</span>,
+      value: packageData.maxTravelers,
+      alt: 'max traveller',
+    },
+    {
+      icon: vector4,
+      label: <span className="font-bold">Min Pax</span>,
+      value: packageData.minPax,
+      alt: 'min pax',
+    },
+  ];
+
+  const InfoCard = ({icon, label, value, alt}: {icon: any, label: React.ReactNode, value: React.ReactNode, alt: string}) => (
+    <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-4 min-h-[70px] w-full">
+      <span className="flex-shrink-0 flex items-center justify-center">
+        <Image src={icon} alt={alt} width={32} height={32} style={{ minWidth: 32, minHeight: 32, maxWidth: 32, maxHeight: 32 }} />
+      </span>
+      <span className="flex flex-col justify-center w-full">
+        <span className="block text-white font-semibold text-base leading-tight">{label}</span>
+        {value !== '' && <span className="block text-white text-md font-medium whitespace-nowrap truncate mt-1">{value}</span>}
+      </span>
+    </div>
+  );
+
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md max-w-4xl mx-auto">
+    <div className={`bg-white rounded-2xl p-6 shadow-md ${dynamicClassName ?? ''}`}>
       {/* Title */}
       <h2 className="text-2xl md:text-3xl font-bold text-[#0f3d3e] mb-4">{packageData.title}</h2>
 
@@ -35,91 +81,14 @@ const PackageDetails = (packageData: PackageApi) => {
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {/* Duration */}
-        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
-          <span className="flex-shrink-0">
-            <Image src={vector1} alt="duration" width={48} height={48} />
-          </span>
-          <span>
-            <span className="block text-white font-semibold text-lg leading-tight">সময়কাল</span>
-            <span className="block text-white text-xl font-medium">{packageData.duration}</span>
-          </span>
-        </div>
-        {/* Country */}
-        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
-          <span className="flex-shrink-0">
-            <Image src={vector2} alt="country" width={48} height={48} />
-          </span>
-          <span>
-            <span className="block text-white font-semibold text-lg leading-tight">Country</span>
-            <span className="block text-white text-xl font-medium">{packageData.country}</span>
-          </span>
-        </div>
-        {/* Maximum Traveller */}
-        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
-          <span className="flex-shrink-0">
-            <Image src={vector3} alt="max traveller" width={48} height={48} />
-          </span>
-          <span>
-            <span className="block text-white font-semibold text-lg leading-tight">Maximum Traveller</span>
-            <span className="block text-white text-xl font-medium">{packageData.maxTravelers}</span>
-          </span>
-        </div>
-        {/* Min Pax */}
-        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
-          <span className="flex-shrink-0">
-            <Image src={vector4} alt="min pax" width={48} height={48} />
-          </span>
-          <span>
-            <span className="block text-white font-semibold text-lg leading-tight">Min Pax</span>
-            <span className="block text-white text-xl font-medium">{packageData.minPax}</span>
-          </span>
-        </div>
+        {infoCards.map((card, idx) => (
+          <InfoCard key={idx} {...card} />
+        ))}
       </div>
 
       {/* Timeline/Steps (illustrative icons) */}
       <div className="flex items-center justify-between my-8 px-2">
-        <span className="flex flex-col items-center">
-          <span className="bg-[#eaf6f6] p-2 rounded-full mb-1">
-            <Image src="/icons/plane.svg" alt="plane" width={32} height={32} />
-          </span>
-        </span>
-        <span className="h-1 w-8 bg-gray-300 rounded" />
-        <span className="flex flex-col items-center">
-          <span className="bg-[#eaf6f6] p-2 rounded-full mb-1">
-            <Image src="/icons/hotel.svg" alt="hotel" width={32} height={32} />
-          </span>
-        </span>
-        <span className="h-1 w-8 bg-gray-300 rounded" />
-        <span className="flex flex-col items-center">
-          <span className="bg-[#eaf6f6] p-2 rounded-full mb-1">
-            <Image src="/icons/tent.svg" alt="tent" width={32} height={32} />
-          </span>
-        </span>
-        <span className="h-1 w-8 bg-gray-300 rounded" />
-        <span className="flex flex-col items-center">
-          <span className="bg-[#eaf6f6] p-2 rounded-full mb-1">
-            <Image src="/icons/hotel.svg" alt="hotel" width={32} height={32} />
-          </span>
-        </span>
-        <span className="h-1 w-8 bg-gray-300 rounded" />
-        <span className="flex flex-col items-center">
-          <span className="bg-[#eaf6f6] p-2 rounded-full mb-1">
-            <Image src="/icons/mosque.svg" alt="mosque" width={32} height={32} />
-          </span>
-        </span>
-        <span className="h-1 w-8 bg-gray-300 rounded" />
-        <span className="flex flex-col items-center">
-          <span className="bg-[#eaf6f6] p-2 rounded-full mb-1">
-            <Image src="/icons/green-dome.svg" alt="green dome" width={32} height={32} />
-          </span>
-        </span>
-        <span className="h-1 w-8 bg-gray-300 rounded" />
-        <span className="flex flex-col items-center">
-          <span className="bg-[#eaf6f6] p-2 rounded-full mb-1">
-            <Image src="/icons/plane.svg" alt="plane" width={32} height={32} />
-          </span>
-        </span>
+        <Image src={timeline} alt="timeline" width={600} height={100} className="w-full h-auto" />
       </div>
 
       {/* Description */}
