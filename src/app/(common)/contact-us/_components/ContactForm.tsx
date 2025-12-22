@@ -3,8 +3,18 @@
 import { createContacts } from "@/services/contacts";
 import { Controller, useForm } from "react-hook-form";
 
+
+interface ContactFormData {
+    fullName: string;
+    subject: string;
+    email: string;
+    phone: string;
+    country: string;
+    message: string;
+}
+
 const ContactForm = () => {
-    const { control, handleSubmit, reset, formState: { errors } } = useForm({
+    const { control, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>({
         defaultValues: {
             fullName: '',
             subject: '',
@@ -15,11 +25,11 @@ const ContactForm = () => {
         },
     });
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: ContactFormData) => {
         // handle form submission (e.g., send to API)
-        const payload = {
+        const payload: ContactFormData = {
             ...data
-        }
+        };
         const res = await createContacts(payload);
         console.log("contact page form == >", res);
         reset();

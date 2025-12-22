@@ -6,7 +6,6 @@ import { getGallery } from "@/services/gallery";
 
 const GalleryPage = async() => {
 const galleryData = await getGallery([]);
-console.log("gallery data in common gallery page==>",galleryData.data);
   return (
     <div>
       <HeroSection title="Gallery" subtitle="Gallery" />
