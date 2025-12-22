@@ -5,6 +5,9 @@ import { useForm, Controller } from "react-hook-form";
 import { Save, X, Upload } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { createContactUs } from "@/services/contactus";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { useRouter } from "next/navigation";
 
 interface ContactUsFormData {
   subTitle: string;
@@ -19,9 +22,16 @@ interface ContactUsFormData {
 }
 
 const ContactUsCRUD = () => {
+  const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const { control, handleSubmit, setValue, formState: { errors } } = useForm<ContactUsFormData>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<ContactUsFormData>({
     defaultValues: {
       subTitle: "",
       title: "",
@@ -54,13 +64,38 @@ const ContactUsCRUD = () => {
     setImagePreview(null);
   };
 
-  const onSubmit = (data: ContactUsFormData) => {
-    console.log("Contact Us Data:", data);
+  const onSubmit = async (data: ContactUsFormData) => {
+    // Use FormData and append all fields
+    const formData = new FormData();
+    formData.append("subTitle", data.subTitle);
+    formData.append("title", data.title);
+      formData.append("companyNumber", data.companyPhone);
+      formData.append("companyEmail", data.companyEmail);
+      formData.append("companyLocation", data.companyLocation);
+      formData.append("facebookUrl", data.facebookLink);
+      formData.append("instagramUrl", data.instagramLink);
+      formData.append("youtubeUrl", data.youtubeLink);
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    // Example: send form to API
+    const res = await createContactUs(formData);
+    console.log("Contact Us form submitted:==>", res);
+    if (res.statusCode === 201) {
+      showSuccessToast(res.message);
+      reset();
+      router.push("/dashboard/page-setting/contact-us");
+    } else {
+      showErrorToast(res.message);
+    }
     // Handle create/update logic here
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-6 shadow-sm">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="bg-white rounded-2xl p-6 shadow-sm"
+    >
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Sub Title</label>
         <Controller
@@ -73,11 +108,13 @@ const ContactUsCRUD = () => {
               type="text"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
-        {errors.subTitle && <p className="text-red-500 text-sm mt-1">{errors.subTitle.message}</p>}
+        {errors.subTitle && (
+          <p className="text-red-500 text-sm mt-1">{errors.subTitle.message}</p>
+        )}
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Title</label>
@@ -91,11 +128,13 @@ const ContactUsCRUD = () => {
               type="text"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
-        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
+        {errors.title && (
+          <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+        )}
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Company Phone</label>
@@ -108,7 +147,7 @@ const ContactUsCRUD = () => {
               type="text"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
@@ -124,7 +163,7 @@ const ContactUsCRUD = () => {
               type="email"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
@@ -140,7 +179,7 @@ const ContactUsCRUD = () => {
               type="text"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
@@ -156,7 +195,7 @@ const ContactUsCRUD = () => {
               type="text"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
@@ -172,7 +211,7 @@ const ContactUsCRUD = () => {
               type="text"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
@@ -188,7 +227,7 @@ const ContactUsCRUD = () => {
               type="text"
               placeholder="write here..."
               className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
             />
           )}
         />
@@ -197,7 +236,12 @@ const ContactUsCRUD = () => {
         <label className="block text-gray-700 mb-2">Upload Image</label>
         <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors">
           {imagePreview ? (
-            <Image src={imagePreview} alt="Preview" fill className="object-cover rounded-lg" />
+            <Image
+              src={imagePreview}
+              alt="Preview"
+              fill
+              className="object-cover rounded-lg"
+            />
           ) : (
             <Upload className="w-8 h-8 text-gray-400" />
           )}
