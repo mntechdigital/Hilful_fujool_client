@@ -6,6 +6,7 @@ export interface PackageImage {
 export interface PackageApi {
   id: string;
   title: string;
+  travellPlace: string;
   country: string;
   maxTravelers: string;
   minPax: string;

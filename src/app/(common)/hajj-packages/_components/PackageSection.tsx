@@ -1,17 +1,9 @@
 import React from 'react';
 import PackageCard from './PackageCard';
+import { PackageApi } from '@/types/package.interface';
 
-interface PackageCardProps {
-    id: string | number;
-    title: string;
-    image: string;
-    imageAlt?: string;
-    journey: string;
-    location: string;
-    duration: string;
-}
 
-const PackageSection = ({ packages = [] }: { packages: PackageCardProps[] }) => {
+const PackageSection = ({ packages = [] }: { packages: PackageApi[] }) => {
     return (
         <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {packages.length === 0 ? (

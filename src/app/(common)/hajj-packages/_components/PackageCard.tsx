@@ -1,24 +1,17 @@
-import { ArrowRight, Clock, Diamond, MapPin, Plane } from 'lucide-react';
+import { PackageApi } from '@/types/package.interface';
+import { ArrowRight, Clock, MapPin, Plane } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-interface PackageCardProps {
-    id: string | number;
-    title: string;
-    image: string;
-    imageAlt?: string;
-    journey: string;
-    location: string;
-    duration: string;
-}
+import diamond from "../../../../../public/diamon-icon.png"
 
-export default function PackageCard(item: PackageCardProps) {
+export default function PackageCard(item: PackageApi) {
     return (
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden max-w-md w-full">
             {/* Image Section */}
             <div className="relative h-64 overflow-hidden">
                 <Image
-                    src={item.image}
+                    src={item.packageImages && item.packageImages.length > 0 ? item.packageImages[0].image : ''}
                     alt={item.title}
                     fill
                     className="object-cover"
@@ -34,7 +27,7 @@ export default function PackageCard(item: PackageCardProps) {
                 <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2 whitespace-nowrap">
                     {item.title}
                     <span className="text-amber-500">
-                        <Diamond className="w-5 h-5" />
+                        <Image src={diamond} alt="Diamond" className="w-5 h-5" />
                     </span>
                 </h2>
 
@@ -43,13 +36,13 @@ export default function PackageCard(item: PackageCardProps) {
                     {/* Flight Info */}
                     <div className="flex items-center gap-3 text-gray-700">
                         <Plane className="w-5 h-5 text-amber-600" />
-                        <span className="text-base">{item.journey}</span>
+                        <span className="text-base">{item.travellPlace}</span>
                     </div>
 
                     {/* Location */}
                     <div className="flex items-center gap-3 text-gray-700">
                         <MapPin className="w-5 h-5 text-amber-600" />
-                        <span className="text-base">{item.location}</span>
+                        <span className="text-base">{item.country}</span>
                     </div>
 
                     {/* Duration */}
