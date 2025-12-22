@@ -69,12 +69,12 @@ const ContactUsCRUD = () => {
     const formData = new FormData();
     formData.append("subTitle", data.subTitle);
     formData.append("title", data.title);
-      formData.append("companyNumber", data.companyPhone);
-      formData.append("companyEmail", data.companyEmail);
-      formData.append("companyLocation", data.companyLocation);
-      formData.append("facebookUrl", data.facebookLink);
-      formData.append("instagramUrl", data.instagramLink);
-      formData.append("youtubeUrl", data.youtubeLink);
+    formData.append("companyNumber", data.companyPhone);
+    formData.append("companyEmail", data.companyEmail);
+    formData.append("companyLocation", data.companyLocation);
+    formData.append("facebookUrl", data.facebookLink);
+    formData.append("instagramUrl", data.instagramLink);
+    formData.append("youtubeUrl", data.youtubeLink);
     if (data.image) {
       formData.append("image", data.image);
     }
@@ -84,6 +84,7 @@ const ContactUsCRUD = () => {
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
+      setImagePreview(null);
       router.push("/dashboard/page-setting/contact-us");
     } else {
       showErrorToast(res.message);
@@ -234,25 +235,31 @@ const ContactUsCRUD = () => {
       </div>
       <div className="mb-4 flex flex-col items-center">
         <label className="block text-gray-700 mb-2">Upload Image</label>
-        <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors">
-          {imagePreview ? (
-            <Image
-              src={imagePreview}
-              alt="Preview"
-              fill
-              className="object-cover rounded-lg"
+        <div className="relative flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors">
+          <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer">
+            {imagePreview ? (
+              <div className="relative w-full h-full">
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
+            ) : (
+              <>
+                <Upload className="w-8 h-8 text-gray-400" />
+                <span className="text-sm text-gray-500 mt-2">Upload</span>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
             />
-          ) : (
-            <Upload className="w-8 h-8 text-gray-400" />
-          )}
-          <span className="text-sm text-gray-500 mt-2">Upload</span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="hidden"
-          />
-        </label>
+          </label>
+        </div>
         {imagePreview && (
           <button
             type="button"
