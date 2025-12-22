@@ -79,17 +79,18 @@ const ContactUsCRUD = () => {
       formData.append("image", data.image);
     }
     // Example: send form to API
-    const res = await createContactUs(formData);
-    console.log("Contact Us form submitted:==>", res);
-    if (res.statusCode === 201) {
-      showSuccessToast(res.message);
+    const createresponse = await createContactUs(formData);
+    console.log("Contact Us form submitted:==>", createresponse);
+    if (createresponse.statusCode === 201) {
+      showSuccessToast(createresponse.message);
       reset();
       setImagePreview(null);
       router.push("/dashboard/page-setting/contact-us");
     } else {
-      showErrorToast(res.message);
+      showErrorToast(createresponse.message);
     }
     // Handle create/update logic here
+
   };
 
   return (
