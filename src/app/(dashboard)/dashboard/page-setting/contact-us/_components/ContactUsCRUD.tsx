@@ -101,7 +101,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-2">Sub Title</label>
+              <label className="block text-gray-700 mb-2">Sub Title <span className="text-red-500">*</span></label>
             <Controller
               name="subTitle"
               control={control}
@@ -124,7 +124,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2">Title</label>
+              <label className="block text-gray-700 mb-2">Title <span className="text-red-500">*</span></label>
             <Controller
               name="title"
               control={control}
@@ -145,7 +145,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2">Company Phone</label>
+              <label className="block text-gray-700 mb-2">Company Phone <span className="text-red-500">*</span></label>
             <Controller
               name="companyNumber"
               control={control}
@@ -162,7 +162,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2">Company Email</label>
+              <label className="block text-gray-700 mb-2">Company Email <span className="text-red-500">*</span></label>
             <Controller
               name="companyEmail"
               control={control}
@@ -179,7 +179,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2">Company Location</label>
+              <label className="block text-gray-700 mb-2">Company Location <span className="text-red-500">*</span></label>
             <Controller
               name="companyLocation"
               control={control}
@@ -196,7 +196,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2">Facebook Link</label>
+              <label className="block text-gray-700 mb-2">Facebook Link <span className="text-red-500">*</span></label>
             <Controller
               name="facebookLink"
               control={control}
@@ -213,7 +213,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2">Instagram Link</label>
+              <label className="block text-gray-700 mb-2">Instagram Link <span className="text-red-500">*</span></label>
             <Controller
               name="instagramLink"
               control={control}
@@ -230,7 +230,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2">YouTube Link</label>
+              <label className="block text-gray-700 mb-2">YouTube Link <span className="text-red-500">*</span></label>
             <Controller
               name="youtubeLink"
               control={control}
