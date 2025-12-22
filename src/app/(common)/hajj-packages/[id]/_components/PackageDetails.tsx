@@ -1,10 +1,11 @@
-
 import React from "react";
 import Image from "next/image";
 import Preview from "@/components/shared/Preview";
 import { PackageApi } from "@/types/package.interface";
-
-
+import vector1 from "../../../../../../public/Vector.png"
+import vector2 from "../../../../../../public/Vector (1).png"
+import vector3 from "../../../../../../public/Vector (2).png"
+import vector4 from "../../../../../../public/Vector (3).png"
 
 const PackageDetails = (packageData: PackageApi) => {
   return (
@@ -33,22 +34,46 @@ const PackageDetails = (packageData: PackageApi) => {
       </div>
 
       {/* Info Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="flex flex-col items-center bg-[#eaf6f6] rounded-lg p-3">
-          <span className="text-[#0f3d3e] font-semibold">সময়কাল</span>
-          <span className="text-sm text-gray-700">{packageData.duration}</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {/* Duration */}
+        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
+          <span className="flex-shrink-0">
+            <Image src={vector1} alt="duration" width={48} height={48} />
+          </span>
+          <span>
+            <span className="block text-white font-semibold text-lg leading-tight">সময়কাল</span>
+            <span className="block text-white text-xl font-medium">{packageData.duration}</span>
+          </span>
         </div>
-        <div className="flex flex-col items-center bg-[#eaf6f6] rounded-lg p-3">
-          <span className="text-[#0f3d3e] font-semibold">Country</span>
-          <span className="text-sm text-gray-700">{packageData.country}</span>
+        {/* Country */}
+        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
+          <span className="flex-shrink-0">
+            <Image src={vector2} alt="country" width={48} height={48} />
+          </span>
+          <span>
+            <span className="block text-white font-semibold text-lg leading-tight">Country</span>
+            <span className="block text-white text-xl font-medium">{packageData.country}</span>
+          </span>
         </div>
-        <div className="flex flex-col items-center bg-[#eaf6f6] rounded-lg p-3">
-          <span className="text-[#0f3d3e] font-semibold">Maximum Traveller</span>
-          <span className="text-sm text-gray-700">{packageData.maxTravelers}</span>
+        {/* Maximum Traveller */}
+        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
+          <span className="flex-shrink-0">
+            <Image src={vector3} alt="max traveller" width={48} height={48} />
+          </span>
+          <span>
+            <span className="block text-white font-semibold text-lg leading-tight">Maximum Traveller</span>
+            <span className="block text-white text-xl font-medium">{packageData.maxTravelers}</span>
+          </span>
         </div>
-        <div className="flex flex-col items-center bg-[#eaf6f6] rounded-lg p-3">
-          <span className="text-[#0f3d3e] font-semibold">Min Pax</span>
-          <span className="text-sm text-gray-700">{packageData.minPax}</span>
+        {/* Min Pax */}
+        <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-5 min-h-[110px]">
+          <span className="flex-shrink-0">
+            <Image src={vector4} alt="min pax" width={48} height={48} />
+          </span>
+          <span>
+            <span className="block text-white font-semibold text-lg leading-tight">Min Pax</span>
+            <span className="block text-white text-xl font-medium">{packageData.minPax}</span>
+          </span>
         </div>
       </div>
 

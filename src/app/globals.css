@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital,wght@0,400;1,400&family=Poppins:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -232,7 +233,14 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+      @apply bg-background text-foreground;
+      font-family: var(--font-poppins), var(--font-tiro-bangla), sans-serif;
+  }
+  body, html {
+      font-family: var(--font-poppins), var(--font-tiro-bangla), sans-serif;
+  }
+  :lang(bn), .bangla, [lang="bn"] {
+      font-family: var(--font-tiro-bangla), var(--font-poppins), sans-serif;
   }
 }
 
