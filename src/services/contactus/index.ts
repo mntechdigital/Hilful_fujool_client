@@ -64,4 +64,3 @@ export const deleteContactUs = async (id: string | undefined) => {
 
   return await response;
 };
-
