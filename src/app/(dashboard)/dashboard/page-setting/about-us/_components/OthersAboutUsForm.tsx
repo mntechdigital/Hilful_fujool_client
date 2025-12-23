@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Save, Upload, X } from "lucide-react";
 import Image from "next/image";
@@ -28,9 +28,17 @@ const OthersAboutUsForm = ({ othersData }: OthersAboutUsFormProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!othersData?.id;
+  // Show backend image if present and no new file is selected
   const [imagePreview, setImagePreview] = useState<string | null>(
-    othersData?.imageUrl || null
+    othersData?.image && typeof othersData.image === "string" ? othersData.image : null
   );
+
+  // Update preview if othersData.image changes (e.g. on edit)
+  useEffect(() => {
+    if (othersData?.image && typeof othersData.image === "string") {
+      setImagePreview(othersData.image);
+    }
+  }, [othersData?.image]);
 
   const {
     control,
