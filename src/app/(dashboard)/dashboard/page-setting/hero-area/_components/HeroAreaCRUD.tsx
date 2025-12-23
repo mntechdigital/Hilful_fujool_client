@@ -27,11 +27,16 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
   const [isPending, startTransition] = useTransition();
   const isEditing = !!heroData?.id;
 
-  const [imagePreviews, setImagePreviews] = useState<string[]>(
-    heroData?.heroImages && Array.isArray(heroData.heroImages)
-      ? heroData.heroImages.map((img: any) => img.image)
-      : []
-  );
+  // Combine backend images and new uploads for preview
+  const [imagePreviews, setImagePreviews] = useState<string[]>(() => {
+    if (heroData && Array.isArray((heroData as any).images)) {
+      return (heroData as any).images.map((img: any) => img.image);
+    }
+    if (heroData?.heroImages && Array.isArray(heroData.heroImages)) {
+      return heroData.heroImages.map((img: any) => img.image);
+    }
+    return [];
+  });
 
   const {
     control,
@@ -71,10 +76,18 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
   };
 
   const handleRemoveImage = (index: number) => {
-    const updatedImages = (heroImages || []).filter((_: any, i: number) => i !== index);
+    // Remove from previews
     const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
-    setValue("heroImages", updatedImages);
     setImagePreviews(updatedPreviews);
+    // Remove from heroImages only if it's a new upload (not backend image)
+    let backendCount = 0;
+    if (heroData && Array.isArray((heroData as any).images)) {
+      backendCount = (heroData as any).images.length;
+    }
+    if (index >= backendCount) {
+      const updatedImages = (heroImages || []).filter((_: any, i: number) => i !== (index - backendCount));
+      setValue("heroImages", updatedImages);
+    }
   };
 
   const onSubmit = async (data: HeroSectionFormData) => {
