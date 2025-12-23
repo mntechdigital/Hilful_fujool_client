@@ -1,9 +1,12 @@
 import React from 'react';
+import HeroSection from '../_components/HeroSection';
+import AboutUs from './_components/AboutUs';
 
 const AbouUspage = () => {
     return (
         <div>
-            this is about us page
+            <HeroSection title="About Us" subtitle="About Us" />
+            <AboutUs/>
         </div>
     );
 };
