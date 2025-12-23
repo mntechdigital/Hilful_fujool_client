@@ -1,247 +1,287 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
+import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { Save, X, Upload } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createHeroSection, updateHeroSection } from "@/services/Hero-section";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 
-interface HeroAreaFormData {
-  subTitle: string;
+export interface HeroSectionFormData {
+  id?: string;
+  subtitle: string;
   title: string;
   description: string;
-  youtubeLink: string;
-  images: (File | null)[];
-  logo: File | null;
-  footerShortDescription: string;
+  youtubeUrl: string;
+  heroImages: File[];
 }
 
-const HeroAreaCRUD = () => {
-  const [imagePreviews, setImagePreviews] = useState<(string | null)[]>([null, null, null]);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+interface HeroAreaCRUDProps {
+  heroData?: Partial<HeroSectionFormData>;
+}
 
-  const { control, handleSubmit, setValue, formState: { errors } } = useForm<HeroAreaFormData>({
+const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const isEditing = !!heroData?.id;
+
+  const [imagePreviews, setImagePreviews] = useState<string[]>(
+    heroData?.heroImages && Array.isArray(heroData.heroImages)
+      ? heroData.heroImages.map((img: any) => img.image)
+      : []
+  );
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<HeroSectionFormData>({
     defaultValues: {
-      subTitle: "",
-      title: "",
-      description: "",
-      youtubeLink: "",
-      images: [null, null, null],
-      logo: null,
-      footerShortDescription: "",
+      subtitle: heroData?.subtitle || "",
+      title: heroData?.title || "",
+      description: heroData?.description || "",
+      youtubeUrl: heroData?.youtubeUrl || "",
+      heroImages: [],
     },
   });
 
-  const handleImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setValue(`images.${index}`, file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews((prev) => {
-          const updated = [...prev];
-          updated[index] = reader.result as string;
-          return updated;
-        });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreviews((prev) => {
-        const updated = [...prev];
-        updated[index] = null;
-        return updated;
+  const heroImages = watch("heroImages");
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files);
+      const updatedImages = [...(heroImages || []), ...newFiles];
+      setValue("heroImages", updatedImages);
+
+      // Generate previews for new files
+      newFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
       });
     }
+    e.target.value = "";
   };
 
-  const removeImage = (index: number) => {
-    setValue(`images.${index}`, null);
-    setImagePreviews((prev) => {
-      const updated = [...prev];
-      updated[index] = null;
-      return updated;
+  const handleRemoveImage = (index: number) => {
+    const updatedImages = (heroImages || []).filter((_: any, i: number) => i !== index);
+    const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
+    setValue("heroImages", updatedImages);
+    setImagePreviews(updatedPreviews);
+  };
+
+  const onSubmit = async (data: HeroSectionFormData) => {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("subtitle", data.subtitle);
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("youtubeUrl", data.youtubeUrl);
+
+      // Only append images if new files were selected
+      if (data.heroImages && data.heroImages.length > 0) {
+        data.heroImages.forEach((file) => {
+          if (file) formData.append("images", file);
+        });
+      }
+
+      // TODO: Uncomment when services are ready
+      let res;
+      if (isEditing && heroData?.id) {
+        formData.append("id", heroData.id);
+        res = await updateHeroSection(heroData.id, formData);
+      } else {
+        res = await createHeroSection(formData);
+      }
+      if (res.statusCode === (isEditing ? 200 : 201)) {
+        showSuccessToast(res.message);
+        router.refresh();
+      } else {
+        showErrorToast(res.message || "Something went wrong");
+      }
+
     });
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setValue("logo", file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setLogoPreview(null);
-    }
-  };
-
-  const removeLogo = () => {
-    setValue("logo", null);
-    setLogoPreview(null);
-  };
-
-  const onSubmit = (data: HeroAreaFormData) => {
-    console.log("Hero Area Data:", data);
-    // Handle create/update logic here
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl p-6 shadow-sm">
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Sub Title</label>
-        <Controller
-          name="subTitle"
-          control={control}
-          rules={{ required: "Sub Title is required" }}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              placeholder="write here..."
-              className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-            />
-          )}
-        />
-        {errors.subTitle && <p className="text-red-500 text-sm mt-1">{errors.subTitle.message}</p>}
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Title</label>
-        <Controller
-          name="title"
-          control={control}
-          rules={{ required: "Title is required" }}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              placeholder="write here..."
-              className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-            />
-          )}
-        />
-        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Description</label>
-        <Controller
-          name="description"
-          control={control}
-          rules={{ required: "Description is required" }}
-          render={({ field }) => (
-            <textarea
-              {...field}
-              placeholder="write here..."
-              className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e] min-h-[80px]"
-            />
-          )}
-        />
-        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">You Tube Link</label>
-        <Controller
-          name="youtubeLink"
-          control={control}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              placeholder="write here..."
-              className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-            />
-          )}
-        />
-      </div>
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[0, 1, 2].map((idx) => (
-          <div key={idx} className="flex flex-col items-center">
-            <label className="block text-gray-700 mb-2">Upload Image 0{idx + 1}</label>
-            <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors">
-              {imagePreviews[idx] ? (
-                <Image src={imagePreviews[idx]!} alt={`Preview ${idx + 1}`} fill className="object-cover rounded-lg" />
-              ) : (
-                <Upload className="w-8 h-8 text-gray-400" />
-              )}
-              <span className="text-sm text-gray-500 mt-2">Upload</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageChange(idx, e)}
-                className="hidden"
-              />
+    <div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white rounded-2xl p-6 shadow-sm"
+      >
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {isEditing ? "Edit Hero Section" : "Create Hero Section"}
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Subtitle */}
+          <div>
+            <label className="block text-gray-700 mb-2">
+              Subtitle <span className="text-red-500">*</span>
             </label>
-            {imagePreviews[idx] && (
-              <button
-                type="button"
-                onClick={() => removeImage(idx)}
-                className="mt-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
+            <Controller
+              name="subtitle"
+              control={control}
+              rules={{ required: "Subtitle is required" }}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  placeholder="write here..."
+                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+                  value={field.value ?? ""}
+                />
+              )}
+            />
+            {errors.subtitle && (
+              <p className="text-red-500 text-sm mt-1">{errors.subtitle.message}</p>
             )}
           </div>
-        ))}
-      </div>
-      <div className="mb-4 flex flex-col items-center">
-        <label className="block text-gray-700 mb-2">Upload Logo</label>
-        <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors">
-          {logoPreview ? (
-            <Image src={logoPreview} alt="Logo Preview" fill className="object-cover rounded-lg" />
-          ) : (
-            <Upload className="w-8 h-8 text-gray-400" />
-          )}
-          <span className="text-sm text-gray-500 mt-2">Upload</span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleLogoChange}
-            className="hidden"
-          />
-        </label>
-        {logoPreview && (
-          <button
-            type="button"
-            onClick={removeLogo}
-            className="mt-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Footer Short Description</label>
-        <Controller
-          name="footerShortDescription"
-          control={control}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              placeholder="write here..."
-              className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+
+          {/* Title */}
+          <div>
+            <label className="block text-gray-700 mb-2">
+              Title <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="title"
+              control={control}
+              rules={{ required: "Title is required" }}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  placeholder="write here..."
+                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+                  value={field.value ?? ""}
+                />
+              )}
             />
-          )}
-        />
-      </div>
-      <div className="flex gap-4 mt-8 justify-end">
-        <button
-          type="submit"
-          className="flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2 rounded-lg hover:bg-[#0f3d3e]/90 transition-colors cursor-pointer"
-        >
-          <Save className="w-4 h-4" />
-          Save
-        </button>
-        <Link
-          href="/dashboard/page-setting/hero-area"
-          className="flex items-center gap-2 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors"
-        >
-          <X className="w-4 h-4" />
-          Close
-        </Link>
-      </div>
-    </form>
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-gray-700 mb-2">
+              Description <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="description"
+              control={control}
+              rules={{ required: "Description is required" }}
+              render={({ field }) => (
+                <textarea
+                  {...field}
+                  placeholder="write here..."
+                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e] min-h-[80px]"
+                  value={field.value ?? ""}
+                />
+              )}
+            />
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
+            )}
+          </div>
+
+          {/* YouTube URL */}
+          <div>
+            <label className="block text-gray-700 mb-2">
+              YouTube URL <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="youtubeUrl"
+              control={control}
+              rules={{ 
+                required: "YouTube URL is required",
+                pattern: {
+                  value: /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
+                  message: "Please enter a valid YouTube URL"
+                }
+              }}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+                  value={field.value ?? ""}
+                />
+              )}
+            />
+            {errors.youtubeUrl && (
+              <p className="text-red-500 text-sm mt-1">{errors.youtubeUrl.message}</p>
+            )}
+          </div>
+
+          {/* Images */}
+          <div>
+            <label className="block text-gray-700 mb-2">Upload Images</label>
+            <div className="w-full border border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-[#0f3d3e] transition-colors">
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative aspect-square">
+                      <Image
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <label className="flex flex-col items-center justify-center cursor-pointer">
+                <Upload className="w-8 h-8 text-gray-400" />
+                <span className="text-sm text-gray-500 mt-2">Upload</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-8">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2 rounded-lg hover:bg-[#0f3d3e]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Save className="w-4 h-4" />
+            {isPending
+              ? isEditing
+                ? "Updating..."
+                : "Creating..."
+              : isEditing
+              ? "Update Hero Section"
+              : "Create Hero Section"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
