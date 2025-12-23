@@ -45,7 +45,6 @@ export const getAboutusById = async (id: string) => {
 };
 
 export const updateAboutus = async (id: string, payload: FormData) => {
-  console.log("see api comming id==>",id)
   const response = await apiRequest(`aboutus/${id}`, {
     method: "PUT",
     body: payload,
