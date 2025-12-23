@@ -7,7 +7,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
+const RichTextEditor = dynamic(
+  () => import("@/components/shared/RichTextEditor"),
+  { ssr: false }
+);
 
 interface PackageFormData {
   title: string;
@@ -20,7 +23,6 @@ interface PackageFormData {
   images: File[];
   travellPlace: string;
 }
-
 
 export default function CreatePackageForm() {
   const router = useRouter();
@@ -91,9 +93,7 @@ export default function CreatePackageForm() {
         formData.append("images", file);
       });
     }
-    console.log("Line 68==>", Object.fromEntries(formData));
     const res = await createPackages(formData);
-    console.log("create blog==>", res);
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
@@ -112,7 +112,9 @@ export default function CreatePackageForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Title Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Title <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-gray-700">
+            Title <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="title"
             control={control}
@@ -132,28 +134,34 @@ export default function CreatePackageForm() {
         </div>
 
         {/* Country Field */}
-                {/* Travell Place Field */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Travell Place <span className="text-red-500">*</span></label>
-                  <Controller
-                    name="travellPlace"
-                    control={control}
-                    rules={{ required: "Travell place is required" }}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        type="text"
-                        placeholder="Enter travel place"
-                        className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-                      />
-                    )}
-                  />
-                  {errors.travellPlace && (
-                    <p className="text-red-500 text-sm">{errors.travellPlace.message}</p>
-                  )}
-                </div>
+        {/* Travell Place Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Country <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-gray-700">
+            Travell Place <span className="text-red-500">*</span>
+          </label>
+          <Controller
+            name="travellPlace"
+            control={control}
+            rules={{ required: "Travell place is required" }}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder="Enter travel place"
+                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+              />
+            )}
+          />
+          {errors.travellPlace && (
+            <p className="text-red-500 text-sm">
+              {errors.travellPlace.message}
+            </p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Country <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="country"
             control={control}
@@ -174,7 +182,9 @@ export default function CreatePackageForm() {
 
         {/* Max Travelers Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Max Travelers <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-gray-700">
+            Max Travelers <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="maxTravelers"
             control={control}
@@ -189,13 +199,17 @@ export default function CreatePackageForm() {
             )}
           />
           {errors.maxTravelers && (
-            <p className="text-red-500 text-sm">{errors.maxTravelers.message}</p>
+            <p className="text-red-500 text-sm">
+              {errors.maxTravelers.message}
+            </p>
           )}
         </div>
 
         {/* Min Pax Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Min Pax <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-gray-700">
+            Min Pax <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="minPax"
             control={control}
@@ -216,7 +230,9 @@ export default function CreatePackageForm() {
 
         {/* Duration Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Duration <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-gray-700">
+            Duration <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="duration"
             control={control}
@@ -237,17 +253,16 @@ export default function CreatePackageForm() {
 
         {/* Description Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Description <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-gray-700">
+            Description <span className="text-red-500">*</span>
+          </label>
           <Controller
             name="description"
             control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
               <div className="border border-gray-200 rounded-lg bg-white">
-                <RichTextEditor
-                  value={field.value}
-                  onChange={field.onChange}
-                />
+                <RichTextEditor value={field.value} onChange={field.onChange} />
               </div>
             )}
           />
@@ -258,7 +273,9 @@ export default function CreatePackageForm() {
 
         {/* Image Upload Field */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Upload Images <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-gray-700">
+            Upload Images <span className="text-red-500">*</span>
+          </label>
           <div className="w-full border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative p-6">
             {imagePreviews.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 w-full">
@@ -291,7 +308,9 @@ export default function CreatePackageForm() {
             />
             <div className="flex flex-col items-center justify-center z-1 pointer-events-none">
               <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
+              <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">
+                Upload
+              </span>
             </div>
           </div>
         </div>

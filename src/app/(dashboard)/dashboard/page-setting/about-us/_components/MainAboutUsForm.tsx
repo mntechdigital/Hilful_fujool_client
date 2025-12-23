@@ -5,38 +5,37 @@ import React, { useState, useTransition } from "react";
 import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { Save, X, Upload } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { createHeroSection, updateHeroSection } from "@/services/Hero-section";
+import { createAboutus, updateAboutus } from "@/services/About-us";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { useRouter } from "next/navigation";
 
-export interface HeroSectionFormData {
-  id?: string;
-  subtitle: string;
+export interface AboutUsFormData {
+  id: string;
   title: string;
   description: string;
-  youtubeUrl: string;
-  heroImages: File[];
+  featureTitle1: string;
+  featureShortDesc1: string;
+  featureTitle2: string;
+  featureShortDesc2: string;
+  featureTitle3: string;
+  featureShortDesc3: string;
+  aboutUsImages: File[];
 }
 
-interface HeroAreaCRUDProps {
-  heroData?: Partial<HeroSectionFormData>;
+interface MainAboutUsFormProps {
+  aboutusData?: Partial<AboutUsFormData>;
 }
 
-const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
+const MainAboutUsForm: React.FC<MainAboutUsFormProps> = ({ aboutusData }) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const isEditing = !!heroData?.id;
+  const isEditing = !!aboutusData?.id;
 
-  // Combine backend images and new uploads for preview
-  const [imagePreviews, setImagePreviews] = useState<string[]>(() => {
-    if (heroData && Array.isArray((heroData as any).images)) {
-      return (heroData as any).images.map((img: any) => img.image);
-    }
-    if (heroData?.heroImages && Array.isArray(heroData.heroImages)) {
-      return heroData.heroImages.map((img: any) => img.image);
-    }
-    return [];
-  });
+  const [imagePreviews, setImagePreviews] = useState<string[]>(
+    aboutusData?.aboutUsImages && Array.isArray(aboutusData.aboutUsImages)
+      ? aboutusData.aboutUsImages.map((img: any) => img.image)
+      : []
+  );
 
   const {
     control,
@@ -44,24 +43,28 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<HeroSectionFormData>({
+  } = useForm<AboutUsFormData>({
     defaultValues: {
-      subtitle: heroData?.subtitle || "",
-      title: heroData?.title || "",
-      description: heroData?.description || "",
-      youtubeUrl: heroData?.youtubeUrl || "",
-      heroImages: [],
+      title: aboutusData?.title || "",
+      description: aboutusData?.description || "",
+      featureTitle1: aboutusData?.featureTitle1 || "",
+      featureShortDesc1: aboutusData?.featureShortDesc1 || "",
+      featureTitle2: aboutusData?.featureTitle2 || "",
+      featureShortDesc2: aboutusData?.featureShortDesc2 || "",
+      featureTitle3: aboutusData?.featureTitle3 || "",
+      featureShortDesc3: aboutusData?.featureShortDesc3 || "",
+      aboutUsImages: [],
     },
   });
 
-  const heroImages = watch("heroImages");
+  const aboutUsImages = watch("aboutUsImages");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const newFiles = Array.from(files);
-      const updatedImages = [...(heroImages || []), ...newFiles];
-      setValue("heroImages", updatedImages);
+      const updatedImages = [...(aboutUsImages || []), ...newFiles];
+      setValue("aboutUsImages", updatedImages);
 
       // Generate previews for new files
       newFiles.forEach((file) => {
@@ -76,42 +79,36 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
   };
 
   const handleRemoveImage = (index: number) => {
-    // Remove from previews
+    const updatedImages = (aboutUsImages || []).filter((_: any, i: number) => i !== index);
     const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
+    setValue("aboutUsImages", updatedImages);
     setImagePreviews(updatedPreviews);
-    // Remove from heroImages only if it's a new upload (not backend image)
-    let backendCount = 0;
-    if (heroData && Array.isArray((heroData as any).images)) {
-      backendCount = (heroData as any).images.length;
-    }
-    if (index >= backendCount) {
-      const updatedImages = (heroImages || []).filter((_: any, i: number) => i !== (index - backendCount));
-      setValue("heroImages", updatedImages);
-    }
   };
 
-  const onSubmit = async (data: HeroSectionFormData) => {
+  const onSubmit = async (data: AboutUsFormData) => {
     startTransition(async () => {
       const formData = new FormData();
-      formData.append("subtitle", data.subtitle);
       formData.append("title", data.title);
       formData.append("description", data.description);
-      formData.append("youtubeUrl", data.youtubeUrl);
+      formData.append("featureTitle1", data.featureTitle1);
+      formData.append("featureShortDesc1", data.featureShortDesc1);
+      formData.append("featureTitle2", data.featureTitle2);
+      formData.append("featureShortDesc2", data.featureShortDesc2);
+      formData.append("featureTitle3", data.featureTitle3);
+      formData.append("featureShortDesc3", data.featureShortDesc3);
 
       // Only append images if new files were selected
-      if (data.heroImages && data.heroImages.length > 0) {
-        data.heroImages.forEach((file) => {
+      if (data.aboutUsImages && data.aboutUsImages.length > 0) {
+        data.aboutUsImages.forEach((file) => {
           if (file) formData.append("images", file);
         });
       }
-
-      // TODO: Uncomment when services are ready
       let res;
-      if (isEditing && heroData?.id) {
-        formData.append("id", heroData.id);
-        res = await updateHeroSection(heroData.id, formData);
+      if (isEditing && aboutusData?.id) {
+        formData.append("id", aboutusData.id); // Ensure id is in the body for update
+        res = await updateAboutus(aboutusData.id, formData);
       } else {
-        res = await createHeroSection(formData);
+        res = await createAboutus(formData);
       }
       if (res.statusCode === (isEditing ? 200 : 201)) {
         showSuccessToast(res.message);
@@ -119,7 +116,6 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       } else {
         showErrorToast(res.message || "Something went wrong");
       }
-
     });
   };
 
@@ -131,35 +127,11 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       >
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800">
-            {isEditing ? "Edit Hero Section" : "Create Hero Section"}
+            {isEditing ? "Edit About Us" : "Create About Us"}
           </h2>
         </div>
 
         <div className="space-y-4">
-          {/* Subtitle */}
-          <div>
-            <label className="block text-gray-700 mb-2">
-              Subtitle <span className="text-red-500">*</span>
-            </label>
-            <Controller
-              name="subtitle"
-              control={control}
-              rules={{ required: "Subtitle is required" }}
-              render={({ field }) => (
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="write here..."
-                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
-                />
-              )}
-            />
-            {errors.subtitle && (
-              <p className="text-red-500 text-sm mt-1">{errors.subtitle.message}</p>
-            )}
-          </div>
-
           {/* Title */}
           <div>
             <label className="block text-gray-700 mb-2">
@@ -207,35 +179,51 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
             )}
           </div>
 
-          {/* YouTube URL */}
-          <div>
-            <label className="block text-gray-700 mb-2">
-              YouTube URL <span className="text-red-500">*</span>
-            </label>
-            <Controller
-              name="youtubeUrl"
-              control={control}
-              rules={{ 
-                required: "YouTube URL is required",
-                pattern: {
-                  value: /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
-                  message: "Please enter a valid YouTube URL"
-                }
-              }}
-              render={({ field }) => (
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
+          {/* Features */}
+          {[
+            { title: "featureTitle1", desc: "featureShortDesc1" },
+            { title: "featureTitle2", desc: "featureShortDesc2" },
+            { title: "featureTitle3", desc: "featureShortDesc3" },
+          ].map((field, idx) => (
+            <div key={field.title} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 mb-2">
+                  Feature Title {idx + 1}
+                </label>
+                <Controller
+                  name={field.title as "featureTitle1" | "featureTitle2" | "featureTitle3"}
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="write here..."
+                      className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+                      value={field.value ?? ""}
+                    />
+                  )}
                 />
-              )}
-            />
-            {errors.youtubeUrl && (
-              <p className="text-red-500 text-sm mt-1">{errors.youtubeUrl.message}</p>
-            )}
-          </div>
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2">
+                  Feature Short Description {idx + 1}
+                </label>
+                <Controller
+                  name={field.desc as "featureShortDesc1" | "featureShortDesc2" | "featureShortDesc3"}
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="write here..."
+                      className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+                      value={field.value ?? ""}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+          ))}
 
           {/* Images */}
           <div>
@@ -289,8 +277,8 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
                 ? "Updating..."
                 : "Creating..."
               : isEditing
-              ? "Update Hero Section"
-              : "Create Hero Section"}
+              ? "Update About Us"
+              : "Create About Us"}
           </button>
         </div>
       </form>
@@ -298,4 +286,4 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
   );
 };
 
-export default HeroAreaCRUD;
+export default MainAboutUsForm;
