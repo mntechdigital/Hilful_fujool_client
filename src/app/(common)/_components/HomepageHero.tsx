@@ -44,8 +44,6 @@ const HomepageHero = async ({ height = 'calc(100vh - 80px)' }: HomepageHeroProps
         />
       </div>
 
-      
-
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center h-full py-12">
           {/* Left Content */}
@@ -55,7 +53,7 @@ const HomepageHero = async ({ height = 'calc(100vh - 80px)' }: HomepageHeroProps
               <div className="w-8 h-8 flex items-center justify-center">
                 <Image src={mosque} alt="mosque icon" width={32} height={32} />
               </div>
-              <span className="text-sm font-medium">
+              <span className="text-lg font-medium">
                 হজ্জ অ্যাজেন্সী স্বাগতম!
               </span>
             </div>
