@@ -108,7 +108,7 @@ const HomepageHero = async () => {
 
               {/* Image Container */}
               <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-3xl p-1 border border-white/20">
-                <div className="bg-slate-800/50 rounded-3xl p-8 flex items-end justify-center min-h-[500px]">
+                <div className="bg-slate-800/50 rounded-3xl p-8 flex items-end justify-center min-h-[500px] w-full max-w-xl mx-auto">
                   {/* Couple in Ihram */}
                   <HeroSlider sliderItems={heroData.images}/>
                 </div>
