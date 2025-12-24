@@ -70,7 +70,7 @@ export function HeroSlider({ sliderItems }: HeroSliderProps) {
                   src={item.image} 
                   alt={`Slide ${index + 1}`} 
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   priority={index === 0}
                 />
               </div>
