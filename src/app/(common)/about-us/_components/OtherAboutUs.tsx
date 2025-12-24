@@ -51,15 +51,15 @@ const OtherAboutUs = async() => {
         {/* Right: Images */}
         <div className="flex-1 flex items-end justify-center lg:justify-end relative min-h-[450px] lg:min-h-[500px] mt-12 lg:mt-0 w-full">
           {/* Kaaba illustration - positioned between the two men */}
-          <div className="absolute left-[35%] lg:left-[40%] bottom-[140px] lg:bottom-[180px] z-10">
+          <div className="z-[15] absolute top-[50%] left-[-7%]">
             <Image src={kaba} alt="Kaaba" width={110} height={110} className="drop-shadow-lg" />
           </div>
           {/* Two men images */}
-          <div className="flex gap-2 items-end relative z-20">
+          <div className="flex gap-2 items-end relative z-[1]">
             <Image src={otherAboutData.image} alt="Men praying" width={500} height={450} className="object-contain" />
           </div>
           {/* Gold lantern SVG (right side) */}
-          <div className="absolute right-0 bottom-0 z-[5] opacity-80 hidden lg:block">
+          <div className="absolute right-0 top-0 opacity-80 hidden lg:block">
             <Image src={lantern} alt="Lantern" width={140} height={360} className="object-contain" />
           </div>
         </div>
