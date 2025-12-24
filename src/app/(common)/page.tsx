@@ -1,10 +1,11 @@
+import HomepageHero from "./_components/HomepageHero";
 
 export const dynamic = "force-dynamic";
 
 const Home = async () => {
   return (
     <div>
-      <h1>This is homepage</h1>
+      <HomepageHero/>
     </div>
   );
 };

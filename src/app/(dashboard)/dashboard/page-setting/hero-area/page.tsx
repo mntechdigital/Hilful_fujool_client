@@ -3,7 +3,6 @@ import HeroAreaCRUD from "./_components/HeroAreaCRUD";
 import { getHeroSection } from "@/services/Hero-section";
 const HeroAreaPage = async () => {
   const heroData = await getHeroSection([]);
-  console.log("see upcoming hero==>",heroData.data[0])
 
   return (
     <div className="p-6">
