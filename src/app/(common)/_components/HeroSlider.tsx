@@ -28,7 +28,7 @@ export function HeroSlider({ sliderItems }: HeroSliderProps) {
   )
 
   return (
-    <div className="w-full max-w-md md:max-w-sm mx-auto">
+    <div className="w-full max-w-md md:max-w-lg mx-auto">
       <Carousel 
         className="w-full"
         plugins={[plugin.current]}
@@ -42,7 +42,7 @@ export function HeroSlider({ sliderItems }: HeroSliderProps) {
         <CarouselContent>
           {sliderItems && sliderItems.length > 0 && sliderItems.map((item, index) => (
             <CarouselItem key={item.id}>
-              <div className="relative w-full h-[450px] md:h-[510px] overflow-hidden rounded-2xl shadow-2xl">
+              <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] overflow-hidden rounded-2xl shadow-2xl">
                 <Image 
                   src={item.image} 
                   alt={`Slide ${index + 1}`} 
