@@ -6,8 +6,7 @@ import PackageSection from "./hajj-packages/_components/PackageSection";
 import { TQuery } from "@/types/query.types";
 import FivePillarOfIslam from "./about-us/_components/FIvePillarOfIslam";
 import ServiceHeader from "./services/_components/ServiceHeader";
-import ServiceSection from "./services/_components/ServiceSection";
-import { getServices } from "@/services/service";
+import HomeService from "./_components/HomeService";
 
 export const dynamic = "force-dynamic";
 
@@ -38,13 +37,12 @@ const Home = async (props: {
     },
   ];
   const packages = await getPackages(query);
-  const servicesData = await getServices(query);
   return (
     <div>
       <HomepageHero />
       <AboutUs />
       <ServiceHeader />
-      <ServiceSection servicesData={servicesData?.data?.data} />
+      <HomeService searchParams={props.searchParams} />
       <PackageHeader />
       <PackageSection packages={packages?.data?.data} />
       <FivePillarOfIslam />
