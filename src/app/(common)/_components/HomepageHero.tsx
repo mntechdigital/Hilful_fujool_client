@@ -23,7 +23,7 @@ const HomepageHero = async () => {
     );
   }
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+    <div className="relative min-h-[50vh] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black/60 z-10"></div>
@@ -50,7 +50,7 @@ const HomepageHero = async () => {
         </svg>
       </div>
 
-      <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
+      <div className="relative z-20 max-w-6xl  mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
           {/* Left Content */}
           <div className="space-y-8">
@@ -66,7 +66,7 @@ const HomepageHero = async () => {
 
             {/* Main Heading */}
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
+              <h1 className="text-xl sm:text-5xl md:text-5xl font-bold text-white leading-tight">
                 {heroData.title}
               </h1>
             </div>
