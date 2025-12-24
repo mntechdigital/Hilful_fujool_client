@@ -11,8 +11,8 @@ import { HeroSlider } from "./HeroSlider";
 const HomepageHero = async () => {
   const heroDataResponse = await getHeroSection([]);
   const heroData = heroDataResponse?.data[0];
-  
-  console.log("hero data=>",heroData)
+
+  console.log("hero data=>", heroData);
   if (!heroData || heroData.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-white">
@@ -90,28 +90,18 @@ const HomepageHero = async () => {
                 Play Video
               </button>
             </div>
-
-            {/* Pagination Dots */}
-            <div className="flex gap-3 pt-8">
-              <div className="w-12 h-1 bg-white/30 rounded-full"></div>
-              <div className="w-12 h-1 bg-yellow-500 rounded-full"></div>
-              <div className="w-12 h-1 bg-white/30 rounded-full"></div>
-            </div>
           </div>
 
-          {/* Right Content - Couple Image */}
-          <div className="relative flex justify-center lg:justify-end">
-            <div className="relative">
+          {/* Right Content - Image Slider */}
+          <div className="relative flex justify-center lg:justify-end w-full">
+            <div className="relative w-full">
               {/* Decorative Elements */}
               <div className="absolute -top-4 -left-4 w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl"></div>
               <div className="absolute -bottom-4 -right-4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
 
               {/* Image Container */}
-              <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-3xl p-1 border border-white/20">
-                <div className="bg-slate-800/50 rounded-3xl p-8 flex items-end justify-center min-h-[500px] w-full max-w-xl mx-auto">
-                  {/* Couple in Ihram */}
-                  <HeroSlider sliderItems={heroData.images}/>
-                </div>
+              <div className="relative z-10 w-full">
+                <HeroSlider sliderItems={heroData.images} />
               </div>
             </div>
           </div>

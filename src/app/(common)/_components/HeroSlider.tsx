@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import Image from "next/image"
@@ -28,33 +29,35 @@ export function HeroSlider({ sliderItems }: HeroSliderProps) {
   )
 
   return (
-    <Carousel 
-      className="w-full max-w-xl mx-auto"
-      plugins={[plugin.current]}
-      opts={{
-        align: "start",
-        loop: true,
-      }}
-      onMouseEnter={plugin.current.stop}
-      onMouseLeave={plugin.current.reset}
-    >
-      <CarouselContent className="-ml-2 md:-ml-4">
-        {sliderItems && sliderItems.length > 0 && sliderItems.map((item, index) => (
-          <CarouselItem key={item.id} className="pl-2 md:pl-4">
-            <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-xl">
-              <Image 
-                src={item.image} 
-                alt={`Slide ${index + 1}`} 
-                fill
-                className="object-cover"
-                priority={index === 0}
-              />
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious className="left-4" />
-      <CarouselNext className="right-4" />
-    </Carousel>
+    <div className="w-full">
+      <Carousel 
+        className="w-full"
+        plugins={[plugin.current]}
+        opts={{
+          align: "center",
+          loop: true,
+        }}
+        onMouseEnter={plugin.current.stop}
+        onMouseLeave={plugin.current.reset}
+      >
+        <CarouselContent>
+          {sliderItems && sliderItems.length > 0 && sliderItems.map((item, index) => (
+            <CarouselItem key={item.id}>
+              <div className="relative w-full h-[450px] md:h-[550px] lg:h-[650px] overflow-hidden rounded-2xl shadow-2xl">
+                <Image 
+                  src={item.image} 
+                  alt={`Slide ${index + 1}`} 
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="left-2 md:left-4 bg-white/90 hover:bg-white" />
+        <CarouselNext className="right-2 md:right-4 bg-white/90 hover:bg-white" />
+      </Carousel>
+    </div>
   );
 }
