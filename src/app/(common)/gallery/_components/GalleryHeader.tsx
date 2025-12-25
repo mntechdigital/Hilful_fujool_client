@@ -1,12 +1,14 @@
-import { Home } from "lucide-react";
+
 import React from "react";
 
+import img2 from "../../../../../public/icons/about-us.png";
+import Image from "next/image";
 const GalleryHeader = () => {
   return (
     <div className="flex flex-col items-center justify-center mt-4 mb-8">
       {/* Icon and label */}
       <div className="flex items-center gap-2 mb-2">
-        <Home size={24} color="#C89A0C" />
+        <Image src={img2} alt="gallery icon" width={24} height={24} />
         <span className="text-lg font-medium text-gray-700" style={{ fontFamily: 'Noto Sans Bengali, sans-serif' }}>গ্যালারি</span>
       </div>
       {/* Main heading */}

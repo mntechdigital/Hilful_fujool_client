@@ -1,9 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Home, ChevronRight } from 'lucide-react';
+import {  ChevronRight } from 'lucide-react';
 import kabaimage from "../../../../public/BG (2).png";
-import mosque from "../../../../public/icons/mosque.svg";
+import mosque from "../../../../public/icons/about-us.png"
 
 interface HeroSectionProps {
   title: string;
@@ -39,7 +39,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
             className="text-yellow-400 flex items-center gap-1.5 hover:text-yellow-300 transition-colors duration-200"
           >
             {/* <Home size={18} /> */}
-            <Image src={mosque} alt="Home" width={18} height={18} />
+            <Image src={mosque} alt="Home" width={12} height={12} />
             <span>Home</span>
           </Link>
           

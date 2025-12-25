@@ -13,7 +13,6 @@ export interface HeroSectionFormData {
   id?: string;
   subtitle: string;
   title: string;
-  description: string;
   youtubeUrl: string;
   heroImages: File[];
 }
@@ -48,7 +47,6 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
     defaultValues: {
       subtitle: heroData?.subtitle || "",
       title: heroData?.title || "",
-      description: heroData?.description || "",
       youtubeUrl: heroData?.youtubeUrl || "",
       heroImages: [],
     },
@@ -95,7 +93,6 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       const formData = new FormData();
       formData.append("subtitle", data.subtitle);
       formData.append("title", data.title);
-      formData.append("description", data.description);
       formData.append("youtubeUrl", data.youtubeUrl);
 
       // Only append images if new files were selected
@@ -113,6 +110,7 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       } else {
         res = await createHeroSection(formData);
       }
+      
       if (res.statusCode === (isEditing ? 200 : 201)) {
         showSuccessToast(res.message);
         router.refresh();
@@ -135,31 +133,8 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
           </h2>
         </div>
 
-        <div className="space-y-4">
-          {/* Subtitle */}
-          <div>
-            <label className="block text-gray-700 mb-2">
-              Subtitle <span className="text-red-500">*</span>
-            </label>
-            <Controller
-              name="subtitle"
-              control={control}
-              rules={{ required: "Subtitle is required" }}
-              render={({ field }) => (
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="write here..."
-                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
-                />
-              )}
-            />
-            {errors.subtitle && (
-              <p className="text-red-500 text-sm mt-1">{errors.subtitle.message}</p>
-            )}
-          </div>
 
+        <div className="space-y-4">
           {/* Title */}
           <div>
             <label className="block text-gray-700 mb-2">
@@ -184,28 +159,31 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
             )}
           </div>
 
-          {/* Description */}
+          {/* Subtitle */}
           <div>
             <label className="block text-gray-700 mb-2">
-              Description <span className="text-red-500">*</span>
+              Subtitle <span className="text-red-500">*</span>
             </label>
             <Controller
-              name="description"
+              name="subtitle"
               control={control}
-              rules={{ required: "Description is required" }}
+              rules={{ required: "Subtitle is required" }}
               render={({ field }) => (
-                <textarea
+                <input
                   {...field}
+                  type="text"
                   placeholder="write here..."
-                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e] min-h-[80px]"
+                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
                   value={field.value ?? ""}
                 />
               )}
             />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
+            {errors.subtitle && (
+              <p className="text-red-500 text-sm mt-1">{errors.subtitle.message}</p>
             )}
           </div>
+
+
 
           {/* YouTube URL */}
           <div>
@@ -239,7 +217,7 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
 
           {/* Images */}
           <div>
-            <label className="block text-gray-700 mb-2">Upload Images</label>
+            <label className="block text-gray-700 mb-2">Upload Multiple Images <span className="text-red-500">*</span></label>
             <div className="w-full border border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-[#0f3d3e] transition-colors">
               {imagePreviews.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -281,7 +259,7 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
           <button
             type="submit"
             disabled={isPending}
-            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2 rounded-lg hover:bg-[#0f3d3e]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer flex items-center gap-2 bg-[#0f3d3e] text-white px-6 py-2 rounded-lg hover:bg-[#0f3d3e]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
             {isPending

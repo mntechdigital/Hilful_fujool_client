@@ -70,7 +70,7 @@ export default function CreateServiceForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Title</label>
+        <label className="text-sm font-medium text-gray-700">Title <span className="text-red-500">*</span></label>
         <Controller
           name="title"
           control={control}
@@ -87,7 +87,7 @@ export default function CreateServiceForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">
-          Short Description
+          Short Description <span className="text-red-500">*</span>
         </label>
         <Controller
           name="shortDescription"
@@ -104,7 +104,7 @@ export default function CreateServiceForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Description</label>
+        <label className="text-sm font-medium text-gray-700">Description <span className="text-red-500">*</span></label>
           <Controller
             name="description"
             control={control}
@@ -119,7 +119,7 @@ export default function CreateServiceForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">
-          Upload Image
+          Upload Image <span className="text-red-500">*</span>
         </label>
         <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
           {imagePreview ? (
