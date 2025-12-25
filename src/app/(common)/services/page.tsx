@@ -4,7 +4,7 @@ import HeroSection from "../_components/HeroSection";
 import ServiceSection from "./_components/ServiceSection";
 import { TQuery } from "@/types/query.types";
 import { getServices } from "@/services/service";
-import PaginationWrapper from "@/components/shared/PaginationWrapper";
+import UiPaginationWrapper from "@/components/shared/UiPaginationWrapper";
 
 const ServicePage = async (props: {
   searchParams: Promise<{ search: string; page: string }>;
@@ -16,7 +16,7 @@ const ServicePage = async (props: {
     { key: "orderBy", value: JSON.stringify({ createdAt: "desc" }) },
     { key: "searchTerm", value: search },
     { key: "page", value: page.toString() },
-    { key: "limit", value: "4" },
+    { key: "limit", value: "9" },
   ];
   const servicesData = await getServices(query);
 
@@ -26,7 +26,7 @@ const ServicePage = async (props: {
       <ServiceHeader />
       <ServiceSection servicesData={servicesData?.data?.data} />
       {servicesData?.data?.meta?.totalPages > 1 && (
-        <PaginationWrapper
+        <UiPaginationWrapper
           active={page}
           totalPages={servicesData?.data?.meta?.totalPages || 1}
           totalItems={servicesData?.data?.meta?.totalItems || 0}

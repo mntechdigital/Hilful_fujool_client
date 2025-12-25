@@ -1,11 +1,10 @@
 
-import React from 'react'
-import ServiceCard from '../services/_components/ServiceCard';
 import { getServices } from '@/services/service';
 import { TQuery } from '@/types/query.types';
-import serviceImage from "../../../../public/All Service view.png"
 import Image from 'next/image';
 import Link from 'next/link';
+import serviceImage from "../../../../public/All Service view.png";
+import ServiceCard from '../services/_components/ServiceCard';
 
 interface IService {
   id: string;
@@ -22,32 +21,32 @@ interface HomeServiceProps {
   centerHeight?: string; // e.g. 'calc(100vh - 32px)'
 }
 
-const HomeService = async(props: HomeServiceProps) => {
-    
+const HomeService = async (props: HomeServiceProps) => {
+
   const searchParams = await props.searchParams;
   const search = searchParams.search || "";
   const page = parseInt(searchParams.page) || 1;
   const query: TQuery[] = [
-      {
-        key: "orderBy",
-        value: JSON.stringify({
-          createdAt: "desc",
-        }),
-      },
-      {
-        key: "searchTerm",
-        value: search,
-      },
-      {
-        key: "page",
-        value: page.toString(),
-      },
-      {
-        key: "limit",
-        value: "10",
-      },
-    ];
-    const servicesData = await getServices(query);
+    {
+      key: "orderBy",
+      value: JSON.stringify({
+        createdAt: "desc",
+      }),
+    },
+    {
+      key: "searchTerm",
+      value: search,
+    },
+    {
+      key: "page",
+      value: page.toString(),
+    },
+    {
+      key: "limit",
+      value: "10",
+    },
+  ];
+  const servicesData = await getServices(query);
   // Prepare the first two and last two services
   const serviceList = servicesData?.data?.data?.slice(0, 4) || [];
   const leftServices = serviceList.slice(0, 2);
@@ -70,12 +69,12 @@ const HomeService = async(props: HomeServiceProps) => {
               <Image src={serviceImage} alt="All Service view" className="w-full h-full object-contain" />
             </div>
           </div>
-          <div className="relative z-10 mt-56 flex flex-col items-center w-full">
+          <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2 z-10 flex flex-col justify-center items-center w-full">
             <Link href="/services" passHref>
-              <button className="cursor-pointer mt-4 w-full bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-semibold rounded-full px-6 py-2 flex items-center justify-center gap-2 shadow-md hover:from-yellow-600 hover:to-yellow-500 transition-all">
+              <button className="cursor-pointer w-full bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-semibold rounded-full px-6 py-2 flex items-center justify-center gap-2 shadow-md hover:from-yellow-600 hover:to-yellow-500 transition-all">
                 View All Service
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="text-white"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="text-white"><path d="M7 17L17 7M7 7h10v10" /></svg>
                 </span>
               </button>
             </Link>
@@ -83,7 +82,7 @@ const HomeService = async(props: HomeServiceProps) => {
         </div>
       </div>
       {/* Right side: last two services, stacked vertically */}
-      <div className="flex flex-col gap- z-10">
+      <div className="flex flex-col gap-2 z-10">
         {rightServices.map((service: IService, idx: number) => (
           <ServiceCard key={service.id} service={service} index={idx + 2} />
         ))}

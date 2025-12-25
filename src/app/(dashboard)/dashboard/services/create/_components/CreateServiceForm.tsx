@@ -62,6 +62,7 @@ export default function CreateServiceForm() {
     if (res.statusCode === 201) {
       showSuccessToast(res.message);
       reset();
+      router.push("/dashboard/services");
     } else {
       showErrorToast(res.message || "Create failed");
     }
