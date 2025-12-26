@@ -101,7 +101,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
 
         <div className="space-y-4">
           <div>
-              <label className="block text-gray-700 mb-2">Sub Title <span className="text-red-500">*</span></label>
+              <label className="block text-gray-700 mb-2">Footer Message <span className="text-red-500">*</span></label>
             <Controller
               name="subTitle"
               control={control}
@@ -124,7 +124,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div>
-              <label className="block text-gray-700 mb-2">Title <span className="text-red-500">*</span></label>
+              <label className="block text-gray-700 mb-2">Copyright text <span className="text-red-500">*</span></label>
             <Controller
               name="title"
               control={control}
@@ -247,7 +247,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
           </div>
 
           <div className="flex flex-col items-center">
-            <label className="block text-gray-700 mb-2">Upload Image</label>
+            <label className="block text-gray-700 mb-2">Upload Logo<span className="text-red-500">*</span></label>
             <div className="relative flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors">
               <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer">
                 {imagePreview ? (

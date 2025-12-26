@@ -14,8 +14,6 @@ interface HomepageHeroProps {
 const HomepageHero = async ({ height = 'calc(100vh - 80px)' }: HomepageHeroProps) => {
   const heroDataResponse = await getHeroSection([]);
   const heroData = heroDataResponse?.data[0];
-
-  console.log("hero data=>", heroData);
   
   if (!heroData || heroData.length === 0) {
     return (
