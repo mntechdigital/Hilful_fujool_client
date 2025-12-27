@@ -1,35 +1,122 @@
-import { LayoutDashboard, Video, BarChart3, Settings2, ShieldCheck, Mail, Users, Settings, Palette, Grip, LayoutDashboardIcon, PanelBottom, Landmark, ImagePlus, MessageCircleMore, NotepadText, User2, Layers2 } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Grip, 
+  Package, 
+  Landmark, 
+  Users, 
+  ImagePlus, 
+  MessageCircleMore, 
+  FileText, 
+  Shield,
+  Settings, 
+  Layers2,
+  Mail,
+  User,
+  LogOut,
+  HelpCircle
+} from "lucide-react";
 
 export const NAV_ITEMS = [
-  { icon: LayoutDashboardIcon, label: "Dashboard", href: "/dashboard" },
-  { icon: Grip, label: "Services", href: "/services" },
-  { icon: PanelBottom, label: "Packages", href: "/packages" },
-  { icon: Landmark, label: "Five Pillars of Islam", href: "/fivePillarsOfIslam" },
-  { icon: Users, label: "Contacts", href: "/contacts" },
-  { icon: ImagePlus, label: "Gallery", href: "/gallery" },
-  { icon: MessageCircleMore, label: "Reviews", href: "/reviews" },
-  { icon: NotepadText, label: "Blogs", href: "/blogs" },
-  { icon: User2, label: "Roles & Permissions", href: "/roles_permissions" },
-  { icon: Video, label: "Video News", href: "/video-news" },
-  { icon: BarChart3, label: "Advertisement", href: "/advertisement" },
-  { icon: LayoutDashboard, label: "Categories", href: "/categories" },
-  { icon: Settings2, label: "Sub Categories", href: "/sub-categories" },
-  { icon: ShieldCheck, label: "Role Management", href: "/role-management" },
-  { icon: Users, label: "Admin Management", href: "/admin-management" },
-  { icon: Mail, label: "Contact", href: "/contact" },
-  { icon: Users, label: "Reporter", href: "/reporter" },
-  { icon: Mail, label: "News Poll", href: "/news-poll" },
-  { icon: Settings, label: "General Setting", href: "/general-setting" },
+  // Dashboard - always visible (not in roleFeature)
+  { 
+    icon: LayoutDashboard, 
+    label: "Dashboard", 
+    href: "/dashboard" 
+  },
+  
+  // Services - index: 6
+  { 
+    icon: Grip, 
+    label: "Services", 
+    href: "/services" 
+  },
+  
+  // Packages - index: 9
+  { 
+    icon: Package, 
+    label: "Packages", 
+    href: "/packages" 
+  },
+  
+  // Five pillars of islam - index: 4
+  { 
+    icon: Landmark, 
+    label: "Five pillars of islam", 
+    href: "/fivePillarsOfIslam" 
+  },
+  
+  // Contacts - index: 5
+  { 
+    icon: Users, 
+    label: "Contacts", 
+    href: "/contacts" 
+  },
+  
+  // Gallery - index: 10
+  { 
+    icon: ImagePlus, 
+    label: "Gallery", 
+    href: "/gallery" 
+  },
+  
+  // Reviews - index: 11
+  { 
+    icon: MessageCircleMore, 
+    label: "Reviews", 
+    href: "/reviews" 
+  },
+  
+  // Blogs - index: 3
+  { 
+    icon: FileText, 
+    label: "Blogs", 
+    href: "/blogs" 
+  },
+  
+  // Roles & Permissions - index: 2
+  { 
+    icon: Shield, 
+    label: "Roles", 
+    href: "/roles_permissions" 
+  },
+
+  
+  // Page Settings - index: 8 (with dropdown children)
   {
     icon: Settings,
-    label: "Page Setting",
+    label: "Page Settings",
     href: "/page-setting",
     children: [
-      { label: "Hero area", href: "/dashboard/page-setting/hero-area", icon: Layers2 },
-      { label: "About us", href: "/dashboard/page-setting/about-us", icon: NotepadText },
-      { label: "Contact us", href: "/dashboard/page-setting/contact-us", icon: Mail },
+      { 
+        label: "Hero Area", 
+        href: "/dashboard/page-setting/hero-area", 
+        icon: Layers2 
+      },
+      { 
+        label: "About Us", 
+        href: "/dashboard/page-setting/about-us", 
+        icon: FileText 
+      },
+      { 
+        label: "Contacts Us", 
+        href: "/dashboard/page-setting/contact-us", 
+        icon: Mail 
+      },
     ],
   },
-  { icon: User2, label: "Update Profile", href: "/update-profile" },
-  { icon: Palette, label: "Theme", href: "/theme" },
+  
+  // Update Profile - index: 7
+  { 
+    icon: User, 
+    label: "Update Profile", 
+    href: "/profile" 
+  },
+
+  // Auth/Logout - index: 1
+  { 
+    icon: LogOut, 
+    label: "Log Out", 
+    href: "/auth",
+    isLogout: true // Add this flag to identify logout
+  },
 ];

@@ -14,7 +14,7 @@ export const getRoles = async (query: TQuery[]) => {
     });
   }
 
-  const response = await apiRequest(`roles?${params.toString()}`, {
+  const response = await apiRequest(`roles_permissions?${params.toString()}`, {
     method: "GET",
     authRequired: true,
   });
@@ -23,7 +23,7 @@ export const getRoles = async (query: TQuery[]) => {
 };
 
 export const createRole = async (payload: FieldValues) => {
-  const response = await apiRequest("roles", {
+  const response = await apiRequest("roles_permissions", {
     method: "POST",
     body: JSON.stringify(payload),
     authRequired: true,
@@ -37,7 +37,7 @@ export const createRole = async (payload: FieldValues) => {
 };
 
 export const updateRole = async (id: string, payload: FieldValues) => {
-  const response = await apiRequest(`roles/${id}`, {
+  const response = await apiRequest(`roles_permissions/${id}`, {
     method: "PUT",
     body: JSON.stringify(payload),
     authRequired: true,
@@ -51,7 +51,7 @@ export const updateRole = async (id: string, payload: FieldValues) => {
 };
 
 export const deleteRole = async (id: string | undefined) => {
-  const response = await apiRequest(`roles/${id}`, {
+  const response = await apiRequest(`roles_permissions/${id}`, {
     method: "DELETE",
     authRequired: true,
   });
@@ -64,7 +64,7 @@ export const deleteRole = async (id: string | undefined) => {
 };
 
 export const getRoleDetails = async (id: string) => {
-  const response = await apiRequest(`roles/${id}`, {
+  const response = await apiRequest(`roles_permissions/${id}`, {
     method: "GET",
     authRequired: true,
   });
