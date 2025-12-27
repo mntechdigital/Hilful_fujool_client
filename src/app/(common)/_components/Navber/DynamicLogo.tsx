@@ -13,7 +13,7 @@ const DynamicLogo = async () => {
             <Link href="/">
                 <div className="w-12 h-12 rounded-full border-2 border-[#0E595C] overflow-hidden">
                     <Image
-                        src={topberData.image || siteLogo}
+                        src={topberData?.image || siteLogo}
                         alt="Logo"
                         width={48}
                         height={48}
