@@ -112,7 +112,8 @@ const CreateRole = () => {
             </Button>
           </div>
         </Link>
-        <div className="mx-auto max-w-5xl">
+        
+        <div className="mx-auto w-full">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
               <div className="rounded-lg bg-brand/20 p-8">

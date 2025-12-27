@@ -100,7 +100,7 @@ const RolesTable = ({ rolesData = [] }: RolesTableProps) => {
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Name</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Description</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-700">Status</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th>
+              {/* <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th> */}
             </tr>
           </thead>
           <tbody className="text-sm">
@@ -140,7 +140,9 @@ const RolesTable = ({ rolesData = [] }: RolesTableProps) => {
                       />
                     </button>
                   </td>
-                  <td className="py-4 px-6">
+
+                  {/* Action Column */}
+                  {/* <td className="py-4 px-6">
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/dashboard/roles_permissions/permissions/${role.id}`}
@@ -156,7 +158,8 @@ const RolesTable = ({ rolesData = [] }: RolesTableProps) => {
                       </Link>
                       <DeleteAdminUserDialog id={role.id} />
                     </div>
-                  </td>
+                  </td> */}
+
                 </tr>
               );
             })}
