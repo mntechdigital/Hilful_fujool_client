@@ -4,7 +4,7 @@ import { updateProfile } from "@/services/auth";
 import { Save, Upload, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 export interface UpdateProfileFormData {

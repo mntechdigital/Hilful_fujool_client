@@ -10,7 +10,7 @@ interface PaginationProps {
 export default function UiPagination({
   active = 1,
   totalPages = 21,
-  totalItems = 0,
+  // totalItems = 0,
   onPageChange = () => {},
 }: PaginationProps) {
   const renderPageNumbers = () => {

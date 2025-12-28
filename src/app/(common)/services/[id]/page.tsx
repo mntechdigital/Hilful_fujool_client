@@ -1,13 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import ServiceDetails from "./_components/ServiceDetails";
 import { getServiceById } from "@/services/service";
 import HeroSection from "../../_components/HeroSection";
 
-interface EditBlogPageProps {
-  params: { id: string };
+interface PageProps {
+  
+  params?: Promise<{ id: string }>;
+  searchParams?: Promise<any>;
 }
-const ServiceDetailspage = async ({ params }: EditBlogPageProps) => {
-  const { id } = params;
+const ServiceDetailspage = async ({ params }: PageProps) => {
+  const awaitedParams = params ? await params : { id: "" };
+  const { id } = awaitedParams;
   const serviceDetails = await getServiceById(id);
   const serviceData = serviceDetails?.data;
   return (
