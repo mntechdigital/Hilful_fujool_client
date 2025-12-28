@@ -2,7 +2,7 @@
 import { getRoles } from "@/services/role";
 import { useState, useEffect } from "react";
 
-export const useRoles = (query?: string) => {
+export const useRoles = (query?: any) => {
   const [roles, setRoles] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

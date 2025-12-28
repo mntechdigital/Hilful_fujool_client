@@ -1,11 +1,8 @@
 "use client";
 
-import DeleteModal from "@/components/shared/DeleteModal";
-import { ChevronLeft, ChevronRight, Eye, Pencil, User, X } from "lucide-react";
+import { User } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
-import DeleteAdminUserDialog from "./DeleteAdminUserDialog";
 
 interface AdminUser {
   id: string;
@@ -43,9 +40,7 @@ interface RolesTableProps {
 
 const RolesTable = ({ rolesData = [] }: RolesTableProps) => {
   const [roles, setRoles] = useState<Role[]>(rolesData);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
-
+  // Removed unused delete modal and related logic
   const toggleStatus = (id: string) => {
     setRoles((prev) =>
       prev.map((role) =>
@@ -54,24 +49,6 @@ const RolesTable = ({ rolesData = [] }: RolesTableProps) => {
           : role
       )
     );
-  };
-
-  const handleDeleteClick = (id: string) => {
-    setSelectedRoleId(id);
-    setDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (selectedRoleId !== null) {
-      setRoles((prev) => prev.filter((role) => role.id !== selectedRoleId));
-    }
-    setDeleteModalOpen(false);
-    setSelectedRoleId(null);
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteModalOpen(false);
-    setSelectedRoleId(null);
   };
 
   // Get the first admin user's profile photo if available

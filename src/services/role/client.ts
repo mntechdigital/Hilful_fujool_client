@@ -1,8 +1,10 @@
-import { clientApiRequest } from "@/lib/apiRequest";
 
-const response = await clientApiRequest("roles", {
-    method: "GET",
-    authRequired: true,
+// import { clientApiRequest } from "@/lib/apiRequest";
 
-    return response;
-});
+// export async function fetchRoles() {
+//     const response = await clientApiRequest("roles", {
+//         method: "GET",
+//         authRequired: true,
+//     });
+//     return response;
+// }

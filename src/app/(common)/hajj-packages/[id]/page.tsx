@@ -1,15 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+export interface PageProps {
+  params?: Promise<{ id: string }>;
+  searchParams?: Promise<any>;
+}
 import React from "react";
 import PackageDetails from "./_components/PackageDetails";
 import HeroSection from "../../_components/HeroSection";
 import { getPackagesById } from "@/services/package";
 import PackageContactForm from "./_components/PackageContactForm";
 
-interface EditBlogPageProps {
-  params: { id: string };
-}
-
-const PackageDetailspage = async ({ params }: EditBlogPageProps) => {
-  const { id } = params;
+const PackageDetailspage = async ({ params }: PageProps) => {
+  const awaitedParams = params ? await params : { id: "" };
+  const { id } = awaitedParams;
   const packageDetails = await getPackagesById(id);
   const packageData = packageDetails?.data;
   return (

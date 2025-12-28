@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 
-const buttonStyle = (active) => ({
+const buttonStyle = (active:any) => ({
     fontWeight: active ? 'bold' : 'normal',
     background: active ? '#f3f4f6' : 'transparent',
     border: 'none',
@@ -12,7 +13,11 @@ const buttonStyle = (active) => ({
     transition: 'background 0.2s',
 });
 
-const Toolbar = ({ editor }) => {
+interface ToolbarProps {
+    editor: any; // Replace 'any' with the correct type from your editor library if available
+}
+
+const Toolbar = ({ editor }: ToolbarProps) => {
     if (!editor) return null;
     return (
         <div style={{ borderBottom: '1px solid #eee', marginBottom: 8, padding: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>

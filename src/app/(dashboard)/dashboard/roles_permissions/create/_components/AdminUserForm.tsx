@@ -5,7 +5,7 @@ import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
 import { Eye, EyeOff, ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -29,7 +29,7 @@ interface RoleData {
 }
 
 const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
-  const router = useRouter();
+  // const router = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -46,8 +46,8 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
     },
   });
 
-  const password = watch("password");
-  const confirmPassword = watch("confirmPassword");
+  // const password = watch("password");
+  // const confirmPassword = watch("confirmPassword");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -153,7 +153,7 @@ const AdminUserForm = ({ roleData = [] }: { roleData: RoleData[] }) => {
                 className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
               >
                 <option value="">Select a role</option>
-                {roleData.map((role: any) => (
+                {roleData.map((role: { id: string; name: string }) => (
                   <option key={role.id} value={role.id}>{role.name}</option>
                 ))}
               </select>

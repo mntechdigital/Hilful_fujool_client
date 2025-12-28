@@ -13,7 +13,7 @@ import {
   Mail,
   User,
   LogOut,
-  HelpCircle
+  // HelpCircle
 } from "lucide-react";
 
 export const NAV_ITEMS = [
