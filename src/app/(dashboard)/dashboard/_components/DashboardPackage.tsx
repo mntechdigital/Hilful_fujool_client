@@ -1,66 +1,67 @@
 import React from "react";
 import Image from "next/image";
 import { Plane, MapPin, Clock, ArrowUpRight } from "lucide-react";
-import package1 from "../../../../../public/package-1.png"
-interface Package {
-  id: number;
-  title: string;
-  image: typeof package1;
-  route: string;
-  location: string;
-  duration: string;
-  isFeatured?: boolean;
+
+interface PackageImage {
+  id: string;
+  image: string;
+  packageId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const PACKAGES: Package[] = [
-  {
-    id: 1,
-    title: "হজ ভিআইপি প্যাকেজ",
-    image: package1,
-    route: "মক্কা, মদিনা ভ্রমণ",
-    location: "সৌদি আরব",
-    duration: "২৭ দিন ২৫ রাত",
-    isFeatured: false,
-  },
-  {
-    id: 2,
-    title: "হজ স্পেশাল প্যাকেজ",
-    image: package1,
-    route: "মক্কা, মদিনা ভ্রমণ",
-    location: "সৌদি আরব",
-    duration: "৪৪ দিন ৪২ রাত",
-    isFeatured: true,
-  },
-  {
-    id: 3,
-    title: "হজ 'এ' ক্যাটাগরি প্যাকেজ",
-    image: package1,
-    route: "মক্কা, মদিনা ভ্রমণ",
-    location: "সৌদি আরব",
-    duration: "৪৪ দিন ৪২ রাত",
-    isFeatured: false,
-  },
-];
+interface Package {
+  id: string;
+  title: string;
+  packageImages: PackageImage[];
+  travellPlace: string;
+  country: string;
+  duration: string;
+  description: string;
+  status: boolean;
+  maxTravelers: string;
+  minPax: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-const DashboardPackage = () => {
+interface DashboardPackageProps {
+  packagesData: Package[];
+}
+
+const DashboardPackage: React.FC<DashboardPackageProps> = ({ packagesData }) => {
+  // Filter only active packages and take first 3
+  const activePackages = packagesData.filter(pkg => pkg.status).slice(0, 3);
+
   return (
     <div className="bg-white rounded-3xl p-6 shadow-lg my-8">
       <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Latest Packages</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {PACKAGES.map((pkg) => (
-          <PackageCard key={pkg.id} package={pkg} />
+        {activePackages.map((pkg, index) => (
+          <PackageCard key={pkg.id} package={pkg} isFeatured={index === 1} />
         ))}
       </div>
     </div>
   );
 };
 
-const PackageCard = ({ package: pkg }: { package: Package }) => {
+const PackageCard = ({ package: pkg, isFeatured }: { package: Package; isFeatured?: boolean }) => {
+  // Get first image or use placeholder
+  const imageUrl = pkg.packageImages && pkg.packageImages.length > 0 
+    ? pkg.packageImages[0].image 
+    : "/package-1.png";
+
   return (
     <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
       <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4">
-        <Image src={pkg.image} alt={pkg.title} fill className="object-cover" unoptimized/>
+        <Image 
+          src={imageUrl} 
+          alt={pkg.title} 
+          fill 
+          className="object-cover" 
+          unoptimized
+        />
       </div>
 
       <div className="space-y-3">
@@ -72,11 +73,11 @@ const PackageCard = ({ package: pkg }: { package: Package }) => {
         <div className="flex items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-1">
             <Plane className="w-4 h-4 text-amber-500" />
-            <span>{pkg.route}</span>
+            <span>{pkg.travellPlace}</span>
           </div>
           <div className="flex items-center gap-1">
             <MapPin className="w-4 h-4 text-amber-500" />
-            <span>{pkg.location}</span>
+            <span>{pkg.country}</span>
           </div>
         </div>
 
@@ -86,7 +87,7 @@ const PackageCard = ({ package: pkg }: { package: Package }) => {
         </div>
 
         <div className="border-t border-dashed border-gray-300 pt-4">
-          {pkg.isFeatured ? (
+          {isFeatured ? (
             <button className="w-full flex items-center justify-between px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors cursor-pointer">
               <span>বিস্তারিত পড়ুন</span>
               <ArrowUpRight className="w-5 h-5" />
