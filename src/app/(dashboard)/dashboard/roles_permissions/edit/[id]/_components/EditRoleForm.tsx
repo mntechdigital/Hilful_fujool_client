@@ -221,6 +221,7 @@ const EditRoleForm = ({ initialData }: EditRoleFormProps) => {
                 alt="Existing"
                 fill
                 className="object-cover rounded-lg"
+                unoptimized
               />
               <button
                 type="button"
@@ -239,6 +240,7 @@ const EditRoleForm = ({ initialData }: EditRoleFormProps) => {
                 alt="New Preview"
                 fill
                 className="object-cover rounded-lg"
+                unoptimized
               />
               <button
                 type="button"

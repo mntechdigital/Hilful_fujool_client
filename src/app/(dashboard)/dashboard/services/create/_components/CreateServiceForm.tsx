@@ -130,6 +130,7 @@ export default function CreateServiceForm() {
                 alt="Preview"
                 fill
                 className="object-cover"
+                unoptimized
               />
               <button
                 type="button"

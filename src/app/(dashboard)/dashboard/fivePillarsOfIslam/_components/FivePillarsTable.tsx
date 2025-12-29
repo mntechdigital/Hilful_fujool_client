@@ -76,6 +76,7 @@ const FivePillarsTable = ({
                         alt={pillar.title}
                         fill
                         className="object-cover"
+                        unoptimized
                       />
                     </div>
                   </td>

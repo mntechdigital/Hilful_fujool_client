@@ -40,6 +40,7 @@ const ContactMainSection = () => {
                             height={320}
                             className="w-72 md:w-80 object-contain"
                             priority
+                            unoptimized
                         />
                     </div>
                 </div>

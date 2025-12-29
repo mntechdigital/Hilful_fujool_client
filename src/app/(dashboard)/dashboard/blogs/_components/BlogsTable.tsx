@@ -70,6 +70,7 @@ const BlogsTable = ({ blogs }: { blogs: Blog[] }) => {
                       alt={blog.title}
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                   </div>
                 </td>

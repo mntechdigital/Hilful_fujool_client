@@ -20,7 +20,7 @@ const OtherAboutUs = async() => {
         <div className="flex-1 flex flex-col justify-center gap-3 sm:gap-4 z-10 w-full lg:max-w-2xl">
           {/* Section label */}
           <div className="flex items-center gap-2 sm:gap-2.5 mb-1">
-            <Image src={mosque} alt="mosque icon" width={20} height={20} className="opacity-90 sm:w-6 sm:h-6" />
+            <Image src={mosque} alt="mosque icon" width={20} height={20} className="opacity-90 sm:w-6 sm:h-6" unoptimized/>
             <span className="text-white text-sm sm:text-base font-medium tracking-wide">আমাদের যাত্রা</span>
           </div>
           {/* Heading */}
@@ -52,7 +52,7 @@ const OtherAboutUs = async() => {
         <div className="flex-1 flex items-end justify-center lg:justify-end relative min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] mt-8 sm:mt-12 lg:mt-0 w-full">
           {/* Kaaba illustration - responsive positioning */}
           <div className="z-[15] absolute top-[45%] sm:top-[50%] left-[-5%] sm:left-[-7%] scale-75 sm:scale-90 lg:scale-100">
-            <Image src={kaba} alt="Kaaba" width={110} height={110} className="drop-shadow-lg" />
+            <Image src={kaba} alt="Kaaba" width={110} height={110} className="drop-shadow-lg" unoptimized/>
           </div>
           {/* Two men images - responsive sizing */}
           <div className="flex gap-2 items-end relative z-[1]">
@@ -61,7 +61,8 @@ const OtherAboutUs = async() => {
               alt="Men praying" 
               width={500} 
               height={450} 
-              className="object-contain w-[300px] sm:w-[400px] md:w-[450px] lg:w-[500px] h-auto" 
+              className="object-contain w-[300px] sm:w-[400px] md:w-[450px] lg:w-[500px] h-auto"
+              unoptimized 
             />
           </div>
           {/* Gold lantern SVG - responsive visibility and sizing */}
@@ -72,6 +73,7 @@ const OtherAboutUs = async() => {
               width={140} 
               height={360} 
               className="object-contain w-[100px] md:w-[120px] lg:w-[140px] h-auto" 
+              unoptimized
             />
           </div>
         </div>
@@ -83,7 +85,8 @@ const OtherAboutUs = async() => {
           alt="Mandala" 
           width={280} 
           height={280} 
-          className="object-contain w-[150px] sm:w-[200px] md:w-[240px] lg:w-[280px] h-auto" 
+          className="object-contain w-[150px] sm:w-[200px] md:w-[240px] lg:w-[280px] h-auto"
+          unoptimized 
         />
       </div>
     </section>

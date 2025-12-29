@@ -286,6 +286,7 @@ export default function CreatePackageForm() {
                       alt={`Preview ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
+                      unoptimized
                     />
                     <button
                       type="button"

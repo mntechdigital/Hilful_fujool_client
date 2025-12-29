@@ -257,6 +257,7 @@ const ContactUsCRUD = ({ contactUsData }: { contactUsData: ContactUsData }) => {
                       alt="Preview"
                       fill
                       className="object-cover rounded-lg"
+                      unoptimized
                     />
                   </div>
                 ) : (

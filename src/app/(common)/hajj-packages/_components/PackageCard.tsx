@@ -17,6 +17,7 @@ export default function PackageCard(item: PackageApi) {
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority
+                    unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
             </div>
@@ -27,7 +28,7 @@ export default function PackageCard(item: PackageApi) {
                 <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2 whitespace-nowrap">
                     {item.title}
                     <span className="text-amber-500">
-                        <Image src={diamond} alt="Diamond" className="w-5 h-5" />
+                        <Image src={diamond} alt="Diamond" className="w-5 h-5" unoptimized/>
                     </span>
                 </h2>
 

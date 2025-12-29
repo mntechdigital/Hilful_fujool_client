@@ -95,6 +95,7 @@ const RolesTable = ({ rolesData = [] }: RolesTableProps) => {
                           width={40}
                           height={40}
                           className="w-full h-full object-cover"
+                          unoptimized
                         />
                       ) : (
                         <User className="w-5 h-5 text-white" />

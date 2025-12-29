@@ -30,7 +30,7 @@ const FivePillarOfIslam = async () => {
       <div className="max-w-6xl mx-auto mb-12">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 flex items-center justify-center">
-            <Image src={mosque} alt="mosque icon" width={40} height={40} />
+            <Image src={mosque} alt="mosque icon" width={40} height={40} unoptimized/>
           </div>
           <h2 className="text-amber-800 text-lg font-semibold">
             ইসলামের পাঁচটি স্তম্ভ
@@ -59,6 +59,7 @@ const FivePillarOfIslam = async () => {
                 alt="pillar background"
                 fill
                 className="object-contain"
+                unoptimized
               />
             </div>
 
@@ -86,6 +87,7 @@ const FivePillarOfIslam = async () => {
                     alt={pillar.title}
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 </div>
               </div>

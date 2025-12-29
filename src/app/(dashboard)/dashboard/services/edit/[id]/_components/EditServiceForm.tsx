@@ -154,6 +154,7 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
                 alt="Preview"
                 fill
                 className="object-cover"
+                unoptimized
               />
               <button
                 type="button"

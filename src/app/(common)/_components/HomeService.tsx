@@ -66,7 +66,7 @@ const HomeService = async (props: HomeServiceProps) => {
           <div className="absolute inset-0 flex items-center justify-center h-full w-full">
             <div className="w-full h-full">
               {/* Replace with your static image or content */}
-              <Image src={serviceImage} alt="All Service view" className="w-full h-full object-contain" />
+              <Image src={serviceImage} alt="All Service view" className="w-full h-full object-contain" unoptimized/>
             </div>
           </div>
           <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2 z-10 flex flex-col justify-center items-center w-full">

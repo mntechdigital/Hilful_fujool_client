@@ -31,6 +31,7 @@ const AboutUs = async () => {
                 alt="about-1"
                 fill
                 className="object-cover"
+                unoptimized
               />
             </div>
             {/* Bottom left - smaller image */}
@@ -40,6 +41,7 @@ const AboutUs = async () => {
                 alt="about-2"
                 fill
                 className="object-cover"
+                unoptimized
               />
             </div>
           </div>
@@ -53,6 +55,7 @@ const AboutUs = async () => {
                 alt="about-3"
                 fill
                 className="object-cover"
+                unoptimized
               />
             </div>
             {/* Bottom right - larger image (Kaaba) */}
@@ -62,6 +65,7 @@ const AboutUs = async () => {
                 alt="about-4"
                 fill
                 className="object-cover"
+                unoptimized
               />
             </div>
           </div>
@@ -72,7 +76,7 @@ const AboutUs = async () => {
       <div className="flex flex-col gap-6">
         {/* Section label */}
         <div className="flex items-center gap-2 text-yellow-600 font-semibold text-lg">
-          <Image src={img2} alt="icon" width={24} height={24} />
+          <Image src={img2} alt="icon" width={24} height={24} unoptimized/>
           <span>আমাদের সম্পর্কে</span>
         </div>
 
@@ -92,7 +96,7 @@ const AboutUs = async () => {
           <div className="col-span-1 md:col-span-2 flex flex-col gap-4">
             {/* Feature Card 1 */}
             <div className="flex items-start gap-4 bg-[#F8F8F8] rounded-xl p-5 shadow-sm">
-              <Image src={img2} alt="icon" width={40} height={40} />
+              <Image src={img2} alt="icon" width={40} height={40} unoptimized/>
               <div>
                 <h3 className="font-bold text-lg text-[#184C43]">
                   {aboutUsData.featureTitle1}
@@ -105,7 +109,7 @@ const AboutUs = async () => {
 
             {/* Feature Card 2 */}
             <div className="flex items-start gap-4 bg-[#F8F8F8] rounded-xl p-5 shadow-sm">
-              <Image src={img3} alt="icon" width={40} height={40} />
+              <Image src={img3} alt="icon" width={40} height={40} unoptimized/>
               <div>
                 <h3 className="font-bold text-lg text-[#184C43]">
                   {aboutUsData.featureTitle2}
@@ -121,7 +125,7 @@ const AboutUs = async () => {
           <div className="md:col-span-1">
             <div className="flex flex-col gap-4 bg-[#F8F8F8] rounded-xl p-3 shadow-sm h-full justify-between items-center text-center">
               <span className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-yellow-600">
-                <Image src={img4} alt="icon" width={40} height={40} />
+                <Image src={img4} alt="icon" width={40} height={40} unoptimized/>
               </span>
               <div>
                 <h3 className="font-bold text-lg text-[#184C43]">

@@ -69,6 +69,7 @@ const PackageContactForm = ({
             alt="Contact"
             className="w-full h-auto rounded-none"
             style={{ maxWidth: 370, background: "none" }}
+            unoptimized
           />
         </div>
       </div>

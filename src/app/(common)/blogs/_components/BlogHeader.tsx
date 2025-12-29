@@ -4,7 +4,7 @@ const BlogHeader = () => {
     return (
         <div className="flex flex-col items-center justify-center py-8">
             <div className="flex items-center gap-2 mb-2">
-                <Image src={img2} alt="blog icon" width={24} height={24} />
+                <Image src={img2} alt="blog icon" width={24} height={24} unoptimized/>
                 <span className="text-lg md:text-xl font-medium text-gray-700">
                     সাংস্কৃতিক ব্লগ
                 </span>

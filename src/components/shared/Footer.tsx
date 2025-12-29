@@ -44,6 +44,7 @@ const LogoSection = ({ image, description }: { image: string; description: strin
       width={80} 
       height={80} 
       className="rounded-full bg-white p-1" 
+      unoptimized
     />
     <p className="text-center text-gray-200 text-sm mt-2">{description}</p>
   </div>
