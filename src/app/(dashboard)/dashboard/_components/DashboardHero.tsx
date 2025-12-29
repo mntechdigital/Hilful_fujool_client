@@ -7,7 +7,7 @@ import Image from "next/image";
 interface StatCard {
   id: number;
   title: string;
-  value: string;
+  value: number;
   icon: typeof img1;
   alt: string;
 }
@@ -23,31 +23,39 @@ const SHADOW_LINE_STYLES = {
   filter: "blur(1px)",
 };
 
-const STAT_CARDS: StatCard[] = [
-  {
-    id: 1,
-    title: "Total Package",
-    value: "24+",
-    icon: img3,
-    alt: "Total Package",
-  },
-  {
-    id: 2,
-    title: "Total Reviews",
-    value: "40+",
-    icon: img1,
-    alt: "Total Reviews",
-  },
-  {
-    id: 3,
-    title: "Total Service",
-    value: "20",
-    icon: img2,
-    alt: "Total Service",
-  },
-];
+export default function DashboardHero({ 
+  datapack 
+}: { 
+  datapack: { 
+    totalPackages: number; 
+    totalReviews: number; 
+    totalServices: number 
+  } 
+}) {
+  const STAT_CARDS: StatCard[] = [
+    {
+      id: 1,
+      title: "Total Package",
+      value: datapack.totalPackages,
+      icon: img3,
+      alt: "Total Package",
+    },
+    {
+      id: 2,
+      title: "Total Reviews",
+      value: datapack.totalReviews,
+      icon: img1,
+      alt: "Total Reviews",
+    },
+    {
+      id: 3,
+      title: "Total Service",
+      value: datapack.totalServices,
+      icon: img2,
+      alt: "Total Service",
+    },
+  ];
 
-export default function DashboardHero() {
   return (
     <main>
       <div>
