@@ -300,7 +300,7 @@ const UpdateProfileCRUD = ({ profileData }: { profileData: UpdateProfileFormData
         <label className="block text-gray-700 mb-2">Profile Photo</label>
         <label className="flex flex-col items-center justify-center w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#0f3d3e] transition-colors relative overflow-hidden">
           {imagePreview ? (
-            <Image src={imagePreview} alt="Preview" fill className="object-cover rounded-lg" />
+            <Image src={imagePreview} alt="Preview" fill className="object-cover rounded-lg" unoptimized />
           ) : (
             <>
               <Upload className="w-8 h-8 text-gray-400" />

@@ -216,6 +216,7 @@ export default function EditBlogForm({ blogId }: EditBlogFormProps) {
                   alt="Preview"
                   fill
                   className="object-cover"
+                  unoptimized
                 />
                 <button
                   type="button"

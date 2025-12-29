@@ -30,6 +30,7 @@ const BlogDetails = ({
                     width={800}
                     height={400}
                     className="rounded-xl w-full h-72 object-cover"
+                    unoptimized
                 />
             </div>
             {/* Author and Date */}

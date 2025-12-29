@@ -72,6 +72,7 @@ export function HeroSlider({ sliderItems }: HeroSliderProps) {
                   fill
                   className="object-contain"
                   priority={index === 0}
+                  unoptimized
                 />
               </div>
             </CarouselItem>

@@ -251,6 +251,7 @@ const OthersAboutUsForm = ({ othersData }: OthersAboutUsFormProps) => {
                       alt="Preview"
                       fill
                       className="object-cover rounded-lg"
+                      unoptimized
                     />
                   </div>
                 ) : (

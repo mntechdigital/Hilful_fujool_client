@@ -184,6 +184,7 @@ export default function EditFivePillarsForm({
                   alt="Preview"
                   fill
                   className="object-cover"
+                  unoptimized
                 />
                 <button
                   type="button"

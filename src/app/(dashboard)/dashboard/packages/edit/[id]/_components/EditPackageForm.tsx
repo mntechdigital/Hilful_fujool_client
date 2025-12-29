@@ -376,6 +376,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
                       alt={`Existing ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
+                      unoptimized
                     />
                     <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
                       Existing
@@ -397,6 +398,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
                       alt={`Preview ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
+                      unoptimized
                     />
                     <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
                       New

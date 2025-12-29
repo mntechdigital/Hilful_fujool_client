@@ -20,6 +20,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
         fill
         className="object-cover opacity-60"
         priority
+        unoptimized
       />
       
       {/* Overlay */}
@@ -39,7 +40,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
             className="text-yellow-400 flex items-center gap-1.5 hover:text-yellow-300 transition-colors duration-200"
           >
             {/* <Home size={18} /> */}
-            <Image src={mosque} alt="Home" width={12} height={12} />
+            <Image src={mosque} alt="Home" width={12} height={12} unoptimized/>
             <span>Home</span>
           </Link>
           

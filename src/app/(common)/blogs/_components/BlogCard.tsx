@@ -25,6 +25,7 @@ const BlogCard = (item: TblogItem) => {
                     width={400}
                     height={220}
                     className="rounded-xl w-full h-56 object-cover"
+                    unoptimized
                 />
             </div>
             {/* Author and Date */}

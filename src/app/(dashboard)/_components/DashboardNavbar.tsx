@@ -71,6 +71,7 @@ export function Navbar({ adminData }: NavbarProps) {
             height={40}
             className="lg:h-10 lg:w-auto"
             priority
+            unoptimized
           />
         </Link>
       </div>

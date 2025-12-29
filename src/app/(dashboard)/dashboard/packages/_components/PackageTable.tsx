@@ -50,6 +50,7 @@ const PackageTable = ({ packages }: { packages: PackageApi[] }) => {
                           alt={pkg.title}
                           fill
                           className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">

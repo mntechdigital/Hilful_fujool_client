@@ -93,6 +93,7 @@ export default function EditGalleryForm({ galleryId }: EditGalleryFormProps) {
                 alt="Preview"
                 fill
                 className="object-cover"
+                unoptimized
               />
               <button
                 type="button"

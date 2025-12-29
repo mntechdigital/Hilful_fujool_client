@@ -179,7 +179,7 @@ export default function CreateReviewForm() {
           <div className="w-24 h-24 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
             {imagePreview ? (
               <>
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized/>
                 <button
                   type="button"
                   onClick={handleRemoveImage}

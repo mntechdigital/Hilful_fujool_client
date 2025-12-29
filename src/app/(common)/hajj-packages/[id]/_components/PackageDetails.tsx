@@ -45,7 +45,7 @@ const PackageDetails = (props: PackageDetailsProps) => {
   const InfoCard = ({icon, label, value, alt}: {icon: any, label: React.ReactNode, value: React.ReactNode, alt: string}) => (
     <div className="flex items-center gap-4 bg-gradient-to-tr from-[#23b2b2] to-[#144141] rounded-xl px-6 py-4 min-h-[70px] w-full">
       <span className="flex-shrink-0 flex items-center justify-center">
-        <Image src={icon} alt={alt} width={32} height={32} style={{ minWidth: 32, minHeight: 32, maxWidth: 32, maxHeight: 32 }} />
+        <Image src={icon} alt={alt} width={32} height={32} style={{ minWidth: 32, minHeight: 32, maxWidth: 32, maxHeight: 32 }} unoptimized/>
       </span>
       <span className="flex flex-col justify-center w-full">
         <span className="block text-white font-semibold text-base leading-tight">{label}</span>
@@ -67,6 +67,7 @@ const PackageDetails = (props: PackageDetailsProps) => {
           width={900}
           height={400}
           className="w-full h-64 object-cover"
+          unoptimized
         />
       </div>
 
@@ -74,7 +75,7 @@ const PackageDetails = (props: PackageDetailsProps) => {
       <div className="flex gap-2 mb-6">
         {packageData.packageImages.map((img, idx) => (
           <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 w-24 h-16 relative">
-            <Image src={img.image} alt={`thumb-${idx}`} fill className="object-cover" />
+            <Image src={img.image} alt={`thumb-${idx}`} fill className="object-cover" unoptimized/>
           </div>
         ))}
       </div>
@@ -88,7 +89,7 @@ const PackageDetails = (props: PackageDetailsProps) => {
 
       {/* Timeline/Steps (illustrative icons) */}
       <div className="flex items-center justify-between my-8 px-2">
-        <Image src={timeline} alt="timeline" width={600} height={100} className="w-full h-auto" />
+        <Image src={timeline} alt="timeline" width={600} height={100} className="w-full h-auto" unoptimized/>
       </div>
 
       {/* Description */}

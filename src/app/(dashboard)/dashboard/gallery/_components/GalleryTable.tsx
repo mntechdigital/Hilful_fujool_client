@@ -48,7 +48,7 @@ const GalleryTable = ({ galleryData = [] }: { galleryData?: GalleryItem[] }) => 
                   <td className="py-4 px-6 text-gray-600">{idx + 1}</td>
                   <td className="py-4 px-6">
                     <div className="w-14 h-14 rounded-lg overflow-hidden relative">
-                      <Image src={item.image} alt="Gallery" fill className="object-cover" />
+                      <Image src={item.image} alt="Gallery" fill className="object-cover" unoptimized/>
                     </div>
                   </td>
                   <td className="py-4 px-6 text-gray-600">{item.createdAt}</td>

@@ -39,6 +39,7 @@ const HomepageHero = async ({ height = 'calc(100vh - 80px)' }: HomepageHeroProps
           fill
           className="object-cover opacity-40"
           priority
+          unoptimized
         />
       </div>
 
@@ -49,7 +50,7 @@ const HomepageHero = async ({ height = 'calc(100vh - 80px)' }: HomepageHeroProps
             {/* Icon with Text */}
             <div className="flex items-center gap-3 text-yellow-500">
               <div className="w-8 h-8 flex items-center justify-center">
-                <Image src={mosque} alt="mosque icon" width={32} height={32} />
+                <Image src={mosque} alt="mosque icon" width={32} height={32} unoptimized/>
               </div>
               <span className="text-lg font-medium">
                 হজ্জ অ্যাজেন্সী স্বাগতম!

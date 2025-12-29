@@ -238,6 +238,7 @@ const MainAboutUsForm: React.FC<MainAboutUsFormProps> = ({ aboutusData }) => {
                         alt={`Preview ${index + 1}`}
                         fill
                         className="object-cover rounded-lg"
+                        unoptimized
                       />
                       <button
                         type="button"

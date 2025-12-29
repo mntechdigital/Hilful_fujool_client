@@ -60,7 +60,7 @@ const PackageCard = ({ package: pkg }: { package: Package }) => {
   return (
     <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
       <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4">
-        <Image src={pkg.image} alt={pkg.title} fill className="object-cover" />
+        <Image src={pkg.image} alt={pkg.title} fill className="object-cover" unoptimized/>
       </div>
 
       <div className="space-y-3">

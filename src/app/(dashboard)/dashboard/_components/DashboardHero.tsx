@@ -99,7 +99,7 @@ function StatisticsCard({ card }: { card: StatCard }) {
 
         <div
           className="w-[74px] h-[74px] rounded-lg flex items-center justify-center flex-shrink-0">
-          <Image src={card.icon} alt={card.alt} width={74} height={74} />
+          <Image src={card.icon} alt={card.alt} width={74} height={74} unoptimized/>
         </div>
       </div>
     </div>

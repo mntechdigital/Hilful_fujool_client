@@ -85,6 +85,7 @@ export default function CreateGalleryForm() {
                   alt="Preview"
                   fill
                   className="object-cover"
+                  unoptimized
                 />
                 <button
                   type="button"

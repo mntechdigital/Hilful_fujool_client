@@ -164,6 +164,7 @@ export default function CreateFivePillarsForm() {
                   alt="Preview"
                   fill
                   className="object-cover"
+                  unoptimized
                 />
                 <button
                   type="button"
