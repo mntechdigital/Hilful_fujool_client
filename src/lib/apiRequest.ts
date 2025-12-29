@@ -43,6 +43,7 @@ export const apiRequest = async (
   const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
     ...options,
     headers,
+    cache: "no-store",
   });
 
   // Handle token expiration only if auth was required
