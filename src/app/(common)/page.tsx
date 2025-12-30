@@ -7,6 +7,11 @@ import { TQuery } from "@/types/query.types";
 import FivePillarOfIslam from "./about-us/_components/FIvePillarOfIslam";
 import ServiceHeader from "./services/_components/ServiceHeader";
 import HomeService from "./_components/HomeService";
+import TestimonialSlider from "./_components/Reviews/TestimonialSlider";
+import { getReviews } from "@/services/review";
+import BlogHeader from "./blogs/_components/BlogHeader";
+import BlogSection from "./blogs/_components/BlogSection";
+import { getBlogs } from "@/services/blog";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +42,10 @@ const Home = async (props: {
     },
   ];
   const packages = await getPackages(query);
+  const reviewResponse = await getReviews([]);
+  const reviews = reviewResponse?.data?.data || [];
+  const blogResponse = await getBlogs([]);
+  const blogsData = (blogResponse?.data?.data || []).slice(0, 3);
   return (
     <div>
       <HomepageHero />
@@ -46,6 +55,9 @@ const Home = async (props: {
       <PackageHeader />
       <PackageSection packages={packages?.data?.data} />
       <FivePillarOfIslam />
+      <TestimonialSlider reviews={reviews} />
+      <BlogHeader />
+      <BlogSection blogs={blogsData} />
     </div>
   );
 };

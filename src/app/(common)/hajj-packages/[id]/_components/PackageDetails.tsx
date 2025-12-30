@@ -36,9 +36,9 @@ const PackageDetails = (props: PackageDetailsProps) => {
     },
     {
       icon: vector4,
-      label: <span className="font-bold">Min Pax</span>,
+      label: <span className="font-bold">Min Pack</span>,
       value: packageData.minPax,
-      alt: 'min pax',
+      alt: 'min pack',
     },
   ];
 
