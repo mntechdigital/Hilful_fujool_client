@@ -15,8 +15,8 @@ export interface HeroSectionFormData {
   title: string;
   youtubeUrl: string;
   heroImages: File[];
-  packageTile?: string;
-  serviceTile?: string;
+  // packageTile?: string;
+  // serviceTile?: string;
 }
 
 interface HeroAreaCRUDProps {
@@ -51,8 +51,8 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       title: heroData?.title || "",
       youtubeUrl: heroData?.youtubeUrl || "",
       heroImages: [],
-      packageTile: heroData?.packageTile || "",
-      serviceTile: heroData?.serviceTile || "",
+      // packageTile: heroData?.packageTile || "",
+      // serviceTile: heroData?.serviceTile || "",
     },
   });
 
@@ -108,8 +108,8 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       }
 
       // Append new fields if present
-      if (data.packageTile) formData.append("packageTile", data.packageTile);
-      if (data.serviceTile) formData.append("serviceTile", data.serviceTile);
+      // if (data.packageTile) formData.append("packageTile", data.packageTile);
+      // if (data.serviceTile) formData.append("serviceTile", data.serviceTile);
 
       // TODO: Uncomment when services are ready
       let res;
@@ -145,7 +145,7 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
 
         <div className="space-y-4">
           {/* Package Tile */}
-          <div>
+          {/* <div>
             <label className="block text-gray-700 mb-2">
               Package Tile <span className="text-red-500">*</span>
             </label>
@@ -166,10 +166,10 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
             {errors.packageTile && (
               <p className="text-red-500 text-sm mt-1">{errors.packageTile.message}</p>
             )}
-          </div>
+          </div> */}
 
           {/* Service Tile */}
-          <div>
+          {/* <div>
             <label className="block text-gray-700 mb-2">
               Service Tile <span className="text-red-500">*</span>
             </label>
@@ -190,7 +190,8 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
             {errors.serviceTile && (
               <p className="text-red-500 text-sm mt-1">{errors.serviceTile.message}</p>
             )}
-          </div>
+          </div> */}
+          
           {/* Title */}
           <div>
             <label className="block text-gray-700 mb-2">
