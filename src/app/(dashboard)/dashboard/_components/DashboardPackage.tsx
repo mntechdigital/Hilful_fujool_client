@@ -36,12 +36,15 @@ const DashboardPackage: React.FC<DashboardPackageProps> = ({ packagesData }) => 
   return (
     <div className="bg-white rounded-3xl p-6 shadow-lg my-8">
       <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Latest Packages</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {activePackages.map((pkg, index) => (
-          <PackageCard key={pkg.id} package={pkg} isFeatured={index === 1} />
-        ))}
-      </div>
+      {activePackages.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">no data found</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {activePackages.map((pkg, index) => (
+            <PackageCard key={pkg.id} package={pkg} isFeatured={index === 1} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
