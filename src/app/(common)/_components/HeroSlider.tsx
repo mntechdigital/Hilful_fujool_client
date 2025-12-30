@@ -27,7 +27,7 @@ export function HeroSlider({ sliderItems }: HeroSliderProps) {
   const [current, setCurrent] = React.useState(0)
 
   const plugin = React.useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true })
+    Autoplay({ delay: 2000, stopOnInteraction: true })
   )
 
   React.useEffect(() => {
