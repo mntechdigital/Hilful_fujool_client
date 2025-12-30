@@ -13,9 +13,10 @@ interface HomepageHeroProps {
 
 const HomepageHero = async ({ height = 'calc(100vh - 80px)' }: HomepageHeroProps) => {
   const heroDataResponse = await getHeroSection([]);
-  const heroData = heroDataResponse?.data[0];
-  
-  if (!heroData || heroData.length === 0) {
+  const heroDataArr = Array.isArray(heroDataResponse?.data) ? heroDataResponse.data : [];
+  const heroData = heroDataArr[0];
+
+  if (!heroData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-white">
         <div className="text-center">
