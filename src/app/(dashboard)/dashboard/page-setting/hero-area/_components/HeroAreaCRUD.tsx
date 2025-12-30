@@ -15,6 +15,8 @@ export interface HeroSectionFormData {
   title: string;
   youtubeUrl: string;
   heroImages: File[];
+  packageTile?: string;
+  serviceTile?: string;
 }
 
 interface HeroAreaCRUDProps {
@@ -49,6 +51,8 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       title: heroData?.title || "",
       youtubeUrl: heroData?.youtubeUrl || "",
       heroImages: [],
+      packageTile: heroData?.packageTile || "",
+      serviceTile: heroData?.serviceTile || "",
     },
   });
 
@@ -95,12 +99,17 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       formData.append("title", data.title);
       formData.append("youtubeUrl", data.youtubeUrl);
 
+
       // Only append images if new files were selected
       if (data.heroImages && data.heroImages.length > 0) {
         data.heroImages.forEach((file) => {
           if (file) formData.append("images", file);
         });
       }
+
+      // Append new fields if present
+      if (data.packageTile) formData.append("packageTile", data.packageTile);
+      if (data.serviceTile) formData.append("serviceTile", data.serviceTile);
 
       // TODO: Uncomment when services are ready
       let res;
@@ -135,6 +144,53 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
 
 
         <div className="space-y-4">
+          {/* Package Tile */}
+          <div>
+            <label className="block text-gray-700 mb-2">
+              Package Tile <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="packageTile"
+              control={control}
+              rules={{ required: "Package Tile is required" }}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  placeholder="Enter package tile..."
+                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+                  value={field.value ?? ""}
+                />
+              )}
+            />
+            {errors.packageTile && (
+              <p className="text-red-500 text-sm mt-1">{errors.packageTile.message}</p>
+            )}
+          </div>
+
+          {/* Service Tile */}
+          <div>
+            <label className="block text-gray-700 mb-2">
+              Service Tile <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="serviceTile"
+              control={control}
+              rules={{ required: "Service Tile is required" }}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  placeholder="Enter service tile..."
+                  className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
+                  value={field.value ?? ""}
+                />
+              )}
+            />
+            {errors.serviceTile && (
+              <p className="text-red-500 text-sm mt-1">{errors.serviceTile.message}</p>
+            )}
+          </div>
           {/* Title */}
           <div>
             <label className="block text-gray-700 mb-2">
