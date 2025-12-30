@@ -109,7 +109,7 @@ export const NAV_ITEMS = [
   { 
     icon: User, 
     label: "Update Profile", 
-    href: "/profile" 
+    href: "/update-profile" 
   },
 
   // Auth/Logout - index: 1
