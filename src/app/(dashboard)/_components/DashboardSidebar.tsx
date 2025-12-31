@@ -26,8 +26,8 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
       return path;
     }) ?? [];
 
-  console.log("Allowed Paths:", allowedPaths);
-  console.log("Admin Data:", adminData);
+  // console.log("Allowed Paths:", allowedPaths);
+  // console.log("Admin Data:", adminData);
 
   // Helper function to normalize href for comparison
   const normalizeHref = (href: string) => {
@@ -55,7 +55,7 @@ export function Sidebar({ adminData, isMobile, onNavItemClick }: SidebarProps) {
     return false;
   });
 
-  console.log("Filtered Nav Items:", filteredNavItems);
+  // console.log("Filtered Nav Items:", filteredNavItems);
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
