@@ -15,8 +15,8 @@ export interface HeroSectionFormData {
   title: string;
   youtubeUrl: string;
   heroImages: File[];
-  // packageTile?: string;
-  // serviceTile?: string;
+  packageTitle?: string;
+  serviceTitle?: string;
 }
 
 interface HeroAreaCRUDProps {
@@ -51,8 +51,8 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       title: heroData?.title || "",
       youtubeUrl: heroData?.youtubeUrl || "",
       heroImages: [],
-      // packageTile: heroData?.packageTile || "",
-      // serviceTile: heroData?.serviceTile || "",
+      packageTitle: heroData?.packageTitle || "",
+      serviceTitle: heroData?.serviceTitle || "",
     },
   });
 
@@ -98,7 +98,14 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
       formData.append("subtitle", data.subtitle);
       formData.append("title", data.title);
       formData.append("youtubeUrl", data.youtubeUrl);
-
+      
+      // Append new fields if they have values
+      if (data.packageTitle) {
+        formData.append("packageTitle", data.packageTitle);
+      }
+      if (data.serviceTitle) {
+        formData.append("serviceTitle", data.serviceTitle);
+      }
 
       // Only append images if new files were selected
       if (data.heroImages && data.heroImages.length > 0) {
@@ -106,12 +113,7 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
           if (file) formData.append("images", file);
         });
       }
-
-      // Append new fields if present
-      // if (data.packageTile) formData.append("packageTile", data.packageTile);
-      // if (data.serviceTile) formData.append("serviceTile", data.serviceTile);
-
-      // TODO: Uncomment when services are ready
+      
       let res;
       if (isEditing && heroData?.id) {
         formData.append("id", heroData.id);
@@ -142,55 +144,52 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
           </h2>
         </div>
 
-
         <div className="space-y-4">
-          {/* Package Tile */}
-          {/* <div>
+          {/* Package Title */}
+          <div>
             <label className="block text-gray-700 mb-2">
-              Package Tile <span className="text-red-500">*</span>
+              Package Title <span className="text-red-500">*</span>
             </label>
             <Controller
-              name="packageTile"
+              name="packageTitle"
               control={control}
-              rules={{ required: "Package Tile is required" }}
+              rules={{ required: "Package Title is required" }}
               render={({ field }) => (
                 <input
                   {...field}
                   type="text"
-                  placeholder="Enter package tile..."
+                  placeholder="Enter package title..."
                   className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
                 />
               )}
             />
-            {errors.packageTile && (
-              <p className="text-red-500 text-sm mt-1">{errors.packageTile.message}</p>
+            {errors.packageTitle && (
+              <p className="text-red-500 text-sm mt-1">{errors.packageTitle.message}</p>
             )}
-          </div> */}
+          </div>
 
-          {/* Service Tile */}
-          {/* <div>
+          {/* Service Title */}
+          <div>
             <label className="block text-gray-700 mb-2">
-              Service Tile <span className="text-red-500">*</span>
+              Service Title <span className="text-red-500">*</span>
             </label>
             <Controller
-              name="serviceTile"
+              name="serviceTitle"
               control={control}
-              rules={{ required: "Service Tile is required" }}
+              rules={{ required: "Service Title is required" }}
               render={({ field }) => (
                 <input
                   {...field}
                   type="text"
-                  placeholder="Enter service tile..."
+                  placeholder="Enter service title..."
                   className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
                 />
               )}
             />
-            {errors.serviceTile && (
-              <p className="text-red-500 text-sm mt-1">{errors.serviceTile.message}</p>
+            {errors.serviceTitle && (
+              <p className="text-red-500 text-sm mt-1">{errors.serviceTitle.message}</p>
             )}
-          </div> */}
+          </div>
           
           {/* Title */}
           <div>
@@ -200,14 +199,19 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
             <Controller
               name="title"
               control={control}
-              rules={{ required: "Title is required" }}
+              rules={{ 
+                required: "Title is required",
+                minLength: {
+                  value: 3,
+                  message: "Title must be at least 3 characters"
+                }
+              }}
               render={({ field }) => (
                 <input
                   {...field}
                   type="text"
                   placeholder="write here..."
                   className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
                 />
               )}
             />
@@ -224,14 +228,19 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
             <Controller
               name="subtitle"
               control={control}
-              rules={{ required: "Subtitle is required" }}
+              rules={{ 
+                required: "Subtitle is required",
+                minLength: {
+                  value: 3,
+                  message: "Subtitle must be at least 3 characters"
+                }
+              }}
               render={({ field }) => (
                 <input
                   {...field}
                   type="text"
                   placeholder="write here..."
                   className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
                 />
               )}
             />
@@ -239,8 +248,6 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
               <p className="text-red-500 text-sm mt-1">{errors.subtitle.message}</p>
             )}
           </div>
-
-
 
           {/* YouTube URL */}
           <div>
@@ -263,7 +270,6 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
                   type="text"
                   placeholder="https://www.youtube.com/watch?v=..."
                   className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#0f3d3e]"
-                  value={field.value ?? ""}
                 />
               )}
             />
