@@ -30,61 +30,52 @@ export default function CreateGalleryForm() {
   });
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    try {
-      setIsUploading(true);
+    setIsUploading(true);
 
-      let thumbnailUrl = data.image;
+    let thumbnailUrl = data.image;
 
-      // Upload image to Cloudinary if a file is selected
-      if (selectedFile) {
-        showSuccessToast("Uploading image...");
-        const uploadResult = await uploadImageToCloudinary(selectedFile);
+    // Upload image to Cloudinary if a file is selected
+    if (selectedFile) {
+      showSuccessToast("Uploading image...");
+      const uploadResult = await uploadImageToCloudinary(selectedFile);
 
-        if (!uploadResult) {
-          showErrorToast("Failed to upload image. Please try again.");
-          setIsUploading(false);
-          return;
-        }
-
-        thumbnailUrl = uploadResult.secure_url;
-        showSuccessToast("Image uploaded successfully!");
+      if (!uploadResult) {
+        showErrorToast("Failed to upload image. Please try again.");
+        setIsUploading(false);
+        return;
       }
 
-      // Prepare final gallery data
-      const galleryData = {
-        thumbnail: thumbnailUrl,
-        status: data.status,
-      };
+      thumbnailUrl = uploadResult.secure_url;
+      showSuccessToast("Image uploaded successfully!");
+    }
 
-      const response = await createGallery(galleryData);
-      console.log("see gallery res==>",response)
+    // Prepare final gallery data
+    const galleryData = {
+      thumbnail: thumbnailUrl,
+      status: data.status,
+    };
 
-      if (response.statusCode === 201) {
-        showSuccessToast(response.message || "Gallery image created successfully!");
-        form.reset();
-        setSelectedFile(null);
-        router.push("/dashboard/gallery");
-      } else {
-        showErrorToast(response.message || "Failed to create gallery image");
-      }
-    } catch (error) {
-      console.error("Error creating gallery:", error);
-      showErrorToast("Failed to create gallery image. Please try again.");
-    } finally {
-      setIsUploading(false);
+    const response = await createGallery(galleryData);
+
+    if (response.statusCode === 201) {
+      showSuccessToast(
+        response.message || "Gallery image created successfully!",
+      );
+      form.reset();
+      setSelectedFile(null);
+      router.push("/dashboard/gallery");
+    } else {
+      showErrorToast(response.message || "Failed to create gallery image");
     }
   };
+
   const handleClose = () => {
     router.push("/dashboard/gallery");
   };
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="mt-8 space-y-6"
-      >
-
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
         <FormField
           control={form.control}
           name="image"
@@ -112,6 +103,7 @@ export default function CreateGalleryForm() {
           <button
             type="submit"
             className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+            disabled={isUploading}
           >
             <Save className="w-4 h-4" />
             <span className="font-medium">Save</span>
@@ -120,6 +112,7 @@ export default function CreateGalleryForm() {
             type="button"
             onClick={handleClose}
             className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+            disabled={isUploading}
           >
             <X className="w-4 h-4" />
             <span className="font-medium">Close</span>
