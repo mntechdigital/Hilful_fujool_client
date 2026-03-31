@@ -69,8 +69,11 @@ const TestimonialSlider = ({ reviews }: { reviews: any[] }) => {
   const scrollPrev = () => api?.scrollPrev();
   const scrollNext = () => api?.scrollNext();
 
+  // Filter reviews to show only the ones with status: true
+  const activeReviews = reviews?.filter((review) => review.status === true) || [];
+
   // Check if reviews exist and have data
-  const hasReviews = reviews && reviews.length > 0;
+  const hasReviews = activeReviews.length > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
@@ -102,7 +105,7 @@ const TestimonialSlider = ({ reviews }: { reviews: any[] }) => {
               className="w-full mb-8"
             >
               <CarouselContent className="-ml-2 md:-ml-4">
-                {reviews.map((review) => (
+                {activeReviews.map((review) => (
                   <CarouselItem
                     key={review.id}
                     className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
