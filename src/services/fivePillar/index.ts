@@ -3,18 +3,31 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createFivePillars = async (payload: FormData) => {
+export const createFivePillars = async (data: FieldValues) => {
   const response = await apiRequest("fivepillars", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(data),
     authRequired: true,
   });
-
-  revalidatePath("/dashboard/fivepillar");
-
+  ["/", "/dashboard/fivepillars"].forEach((path) => {
+    revalidatePath(path);
+  });
   return await response;
 };
+
+// export const createFivePillars = async (payload: FormData) => {
+//   const response = await apiRequest("fivepillars", {
+//     method: "POST",
+//     body: payload,
+//     authRequired: true,
+//   });
+
+//   revalidatePath("/dashboard/fivepillar");
+
+//   return await response;
+// };
 
 export const getFivePillars = async (query: TQuery[]) => {
   const params = new URLSearchParams();
