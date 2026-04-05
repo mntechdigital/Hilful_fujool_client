@@ -3,15 +3,19 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createService = async (payload: FormData) => {
-	const response = await apiRequest("services", {
-		method: "POST",
-		body: payload,
-		authRequired: true,
-	});
-	revalidatePath("/dashboard/services");
-	return await response;
+
+export const createService = async (data: FieldValues) => {
+  const response = await apiRequest("services", {
+	method: "POST",
+	body: JSON.stringify(data),
+	authRequired: true,
+  });
+  ["/", "/dashboard/services"].forEach((path) => {
+	revalidatePath(path);
+  });
+  return await response;
 };
 
 
@@ -38,14 +42,22 @@ export const getServiceById = async (id: string) => {
 	return await response;
 };
 
-export const updateService = async (id: string, payload: FormData) => {
-	const response = await apiRequest(`services/${id}`, {
-		method: "PUT",
-		body: payload,
-		authRequired: true,
-	});
-	revalidatePath("/dashboard/services");
-	return await response;
+
+export const updateService = async (
+  id: string,
+  payload: FieldValues | FormData,
+) => {
+  const response = await apiRequest(`services/${id}`, {
+    method: "PUT",
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
+    authRequired: true,
+  });
+
+  ["/", "/dashboard/services"].forEach((path) => {
+    revalidatePath(path);
+  });
+
+  return await response;
 };
 
 export const deleteService = async (id: string | undefined) => {
