@@ -425,7 +425,7 @@ const HeroAreaCRUD: React.FC<HeroAreaCRUDProps> = ({ heroData }) => {
                  </p>
               )}
               {totalImages === 0 && (
-                  <p className="text-[0.8rem] font-medium text-destructive text-red-500">
+                  <p className="text-[0.8rem] font-medium text-red-500">
                     Images are required
                   </p>
               )}

@@ -5,11 +5,16 @@ import { getContactUs } from "@/services/contactus";
 
 const ContactUsPage = async() => {
   const contactUsData = await getContactUs([]);
-  console.log("seee contactus data==>",contactUsData.data.data)
+  
+  // Safely extract the first item if it exists, handling both { data: [...] } and { data: { data: [...] } } shapes
+  const firstContactUs = Array.isArray(contactUsData?.data) 
+    ? contactUsData.data[0] 
+    : contactUsData?.data?.data?.[0];
+
   return (
     <DashboardWrapper>
       <h1 className="text-2xl font-semibold text-[#0f3d3e] mb-6">Contact Us</h1>
-      <ContactUsCRUD contactUsData={contactUsData?.data?.data[0]} />
+      <ContactUsCRUD contactUsData={firstContactUs} />
     </DashboardWrapper>
   );
 };

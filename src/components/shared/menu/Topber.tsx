@@ -6,7 +6,9 @@ import { FaEnvelope, FaFacebookF, FaInstagram, FaPhoneAlt } from "react-icons/fa
 
 const Topber = async () => {
   const topberResponse = await getContactUs([]);
-  const topberData = topberResponse?.data?.data[0];
+  const topberData = Array.isArray(topberResponse?.data) 
+    ? topberResponse.data[0] 
+    : topberResponse?.data?.data?.[0];
   // Fallback if no data
   if (!topberData) return null;
 

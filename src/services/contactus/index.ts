@@ -3,18 +3,22 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createContactUs = async (payload: FormData) => {
+export const createContactUs = async (data: FieldValues) => {
   const response = await apiRequest("contactus", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(data),
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/page-setting/contactus");
+  ["/", "/dashboard/page-setting/contactus"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
+
 
 export const getContactUs = async (query: TQuery[]) => {
   const params = new URLSearchParams();
@@ -42,17 +46,23 @@ export const getContactUsById = async (id: string) => {
   return await response;
 };
 
-export const updateContactUs = async (id: string, payload: FormData) => {
+export const updateContactUs = async (id: string,
+  payload: FieldValues | FormData,
+) => {
   const response = await apiRequest(`contactus/${id}`, {
     method: "PUT",
-    body: payload,
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
     authRequired: true,
   });
 
   revalidatePath("/dashboard/page-setting/contactus");
+    ["/", "/about-us", "/dashboard/page-setting/contactus"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
+
 
 export const deleteContactUs = async (id: string | undefined) => {
   const response = await apiRequest(`contactus/${id}`, {

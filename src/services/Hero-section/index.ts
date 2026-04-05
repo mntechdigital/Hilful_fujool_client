@@ -37,8 +37,8 @@ export const getHeroSection = async (query: TQuery[]) => {
   return await response;
 };
 
-export const getAboutusById = async (id: string) => {
-  const response = await apiRequest(`aboutus/${id}`, {
+export const getHeroSectionById = async (id: string) => {
+  const response = await apiRequest(`hero-section/${id}`, {
     method: "GET",
     authRequired: true,
   });
@@ -55,7 +55,7 @@ export const updateHeroSection = async (id: string,
     authRequired: true,
   });
 
-  ["/", "/about-us", "/dashboard/page-setting/about-us"].forEach((path) => {
+  ["/", "/hero-area", "/dashboard/page-setting/hero-area"].forEach((path) => {
     revalidatePath(path);
   });
 
