@@ -3,11 +3,12 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createHeroSection = async (payload: FormData) => {
+export const createHeroSection = async (data: FieldValues) => {
   const response = await apiRequest("hero-section", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(data),
     authRequired: true,
   });
 
@@ -17,6 +18,7 @@ export const createHeroSection = async (payload: FormData) => {
 
   return await response;
 };
+
 
 export const getHeroSection = async (query: TQuery[]) => {
   const params = new URLSearchParams();
@@ -44,10 +46,12 @@ export const getAboutusById = async (id: string) => {
   return await response;
 };
 
-export const updateHeroSection = async (id: string, payload: FormData) => {
+export const updateHeroSection = async (id: string,
+  payload: FieldValues | FormData,
+) => {
   const response = await apiRequest(`hero-section/${id}`, {
     method: "PUT",
-    body: payload,
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
     authRequired: true,
   });
 
