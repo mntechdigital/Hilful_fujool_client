@@ -3,18 +3,23 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createBlogs = async (payload: FormData) => {
+export const createBlogs = async (data: FieldValues) => {
   const response = await apiRequest("blogs", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(data),
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/blogs");
+  ["/", "/dashboard/blogs"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
+
+
 
 export const getBlogs = async (query: TQuery[]) => {
   const params = new URLSearchParams();
@@ -42,17 +47,24 @@ export const getBlogsById = async (id: string) => {
   return await response;
 };
 
-export const updateBlogs = async (id: string, payload: FormData) => {
+export const updateBlogs = async (
+  id: string,
+  payload: FieldValues | FormData,
+) => {
   const response = await apiRequest(`blogs/${id}`, {
     method: "PUT",
-    body: payload,
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
     authRequired: true,
   });
 
   revalidatePath("/dashboard/blogs");
+  ["/", "/dashboard/blogs"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
+
 
 export const deleteBlogs = async (id: string | undefined) => {
   const response = await apiRequest(`blogs/${id}`, {
