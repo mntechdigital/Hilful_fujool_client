@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { apiRequest } from "@/lib/apiRequest";
@@ -11,7 +12,7 @@ export const createPackages = async (data: FieldValues) => {
     body: JSON.stringify(data),
     authRequired: true,
   });
-  
+
   ["/", "/dashboard/packages"].forEach((path) => {
     revalidatePath(path);
   });
@@ -47,7 +48,7 @@ export const getPackagesById = async (id: string) => {
   return await response;
 };
 
-export const updatePackages = async (id: string, payload: FormData) => {
+export const updatePackages = async (id: string, payload: any) => {
   const response = await apiRequest(`packages/${id}`, {
     method: "PUT",
     body: payload instanceof FormData ? payload : JSON.stringify(payload),

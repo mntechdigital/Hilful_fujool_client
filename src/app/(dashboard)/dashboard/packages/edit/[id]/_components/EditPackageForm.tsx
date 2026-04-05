@@ -7,9 +7,18 @@ import { ImageIcon, Save, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import dynamic from "next/dynamic";
 import { EditPackageFormProps, PackageFormData } from "@/types/package.interface";
+import { uploadImageToCloudinary } from "@/utils/cloudinary/cloudinaryUpload";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
 
@@ -17,17 +26,12 @@ const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"
 export default function EditPackageForm({ packageId }: EditPackageFormProps) {
   const router = useRouter();
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<PackageFormData>({
+  const form = useForm<PackageFormData>({
     defaultValues: {
       title: "",
       country: "",
@@ -36,12 +40,11 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
       duration: "",
       description: "",
       status: true,
-      images: [],
       travellPlace: "",
     },
   });
 
-  const images = watch("images");
+  const { reset } = form;
 
   // Fetch package data on component mount
   useEffect(() => {
@@ -62,7 +65,6 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
             duration: packageData.duration || "",
             description: packageData.description || "",
             status: packageData.status ?? true,
-            images: [],
             travellPlace: packageData.travellPlace || "",
           });
           
@@ -122,8 +124,7 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
     const files = e.target.files;
     if (files && files.length > 0) {
       const newFiles = Array.from(files);
-      const updatedImages = [...images, ...newFiles];
-      setValue("images", updatedImages);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
 
       // Generate previews for new files
       newFiles.forEach((file) => {
@@ -143,43 +144,50 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
   };
 
   const handleRemoveImage = (index: number) => {
-    const updatedImages = images.filter((_, i) => i !== index);
-    const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
-    setValue("images", updatedImages);
-    setImagePreviews(updatedPreviews);
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const onSubmit = async (data: PackageFormData) => {
-    
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("country", data.country);
-    formData.append("maxTravelers", data.maxTravelers);
-    formData.append("minPax", data.minPax);
-    formData.append("duration", data.duration);
-    formData.append("description", data.description);
-    formData.append("travellPlace", data.travellPlace);
-    formData.append("status", String(data.status));
-    
-    // Append existing image URLs that weren't removed
-    if (existingImageUrls.length > 0) {
-      existingImageUrls.forEach((url) => {
-        formData.append("existingImages", url);
-      });
-    }
-    
-    // Append new images
-    if (data.images && data.images.length > 0) {
-      data.images.forEach((file) => {
-        formData.append("images", file);
-      });
-    }
-
-
+  const onSubmit: SubmitHandler<PackageFormData> = async (data) => {
     try {
-      const res = await updatePackages(packageId, formData);
+      if (selectedFiles.length === 0 && existingImageUrls.length === 0) {
+        showErrorToast("Please provide at least one image.");
+        return;
+      }
+
+      setIsUploading(true);
+
+      const imageUrls: string[] = [...existingImageUrls];
+
+      if (selectedFiles.length > 0) {
+        showSuccessToast("Uploading new images...");
+        for (const file of selectedFiles) {
+          const uploadResult = await uploadImageToCloudinary(file);
+          if (!uploadResult) {
+            showErrorToast(`Failed to upload image: ${file.name}. Please try again.`);
+            setIsUploading(false);
+            return;
+          }
+          imageUrls.push(uploadResult.secure_url);
+        }
+        showSuccessToast("New images uploaded successfully!");
+      }
+
+      const payload = {
+        title: data.title,
+        country: data.country,
+        maxTravelers: data.maxTravelers,
+        minPax: data.minPax,
+        duration: data.duration,
+        description: data.description,
+        travellPlace: data.travellPlace,
+        status: String(data.status),
+        images: imageUrls,
+      };
+
+      const res = await updatePackages(packageId, payload);
       
-      if (res.statusCode === 200 || res.statusCode === 201) {
+      if (res.statusCode === 200 || res.statusCode === 201 || res.success) {
         showSuccessToast(res.message || "Package updated successfully");
         reset();
         router.push("/dashboard/packages");
@@ -189,6 +197,8 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
     } catch (error) {
       console.error("Error updating package:", error);
       showErrorToast("An error occurred while updating the package");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -206,256 +216,307 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
     );
   }
 
-  // Calculate total images for better UI feedback
   const totalImages = existingImageUrls.length + imagePreviews.length;
 
   return (
-    <div className="bg-[#f8f9fa] rounded-2xl p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Title Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Title</label>
-          <Controller
+    <div className="bg-[#f8f9fa] rounded-2xl p-6 shadow-sm">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Title Field */}
+          <FormField
+            control={form.control}
             name="title"
-            control={control}
             rules={{ required: "Title is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter package title"
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Title <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter package title"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title.message}</p>
-          )}
-        </div>
 
-        {/* Country Field */}
-                {/* Travell Place Field */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Travell Place</label>
-                  <Controller
-                    name="travellPlace"
-                    control={control}
-                    rules={{ required: "Travell place is required" }}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        type="text"
-                        placeholder="Enter travel place"
-                        className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-                      />
-                    )}
+          {/* Travell Place Field */}
+          <FormField
+            control={form.control}
+            name="travellPlace"
+            rules={{ required: "Travel place is required" }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Travel Place <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter travel place"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
                   />
-                  {errors.travellPlace && (
-                    <p className="text-red-500 text-sm">{errors.travellPlace.message}</p>
-                  )}
-                </div>
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Country</label>
-          <Controller
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Country Field */}
+          <FormField
+            control={form.control}
             name="country"
-            control={control}
             rules={{ required: "Country is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter country"
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Country <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter country"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.country && (
-            <p className="text-red-500 text-sm">{errors.country.message}</p>
-          )}
-        </div>
 
-        {/* Max Travelers Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Max Travelers</label>
-          <Controller
+          {/* Max Travelers Field */}
+          <FormField
+            control={form.control}
             name="maxTravelers"
-            control={control}
             rules={{ required: "Max travelers is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter maximum number of travelers"
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Max Travelers <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter maximum number of travelers"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.maxTravelers && (
-            <p className="text-red-500 text-sm">{errors.maxTravelers.message}</p>
-          )}
-        </div>
 
-        {/* Min Pax Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Min Pax</label>
-          <Controller
+          {/* Min Pax Field */}
+          <FormField
+            control={form.control}
             name="minPax"
-            control={control}
             rules={{ required: "Min pax is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter minimum pax"
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Min Pax <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter minimum pax"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.minPax && (
-            <p className="text-red-500 text-sm">{errors.minPax.message}</p>
-          )}
-        </div>
 
-        {/* Duration Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Duration</label>
-          <Controller
+          {/* Duration Field */}
+          <FormField
+            control={form.control}
             name="duration"
-            control={control}
             rules={{ required: "Duration is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter package duration (e.g., 15 days)"
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Duration <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter package duration (e.g., 15 days)"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.duration && (
-            <p className="text-red-500 text-sm">{errors.duration.message}</p>
-          )}
-        </div>
 
-        {/* Description Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Description <span className="text-red-500">*</span></label>
-          
-          <Controller
+          {/* Description Field */}
+          <FormField
+            control={form.control}
             name="description"
-            control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <div className="border border-gray-200 rounded-lg bg-white">
-                <RichTextEditor
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              </div>
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Description <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <div className="border border-gray-200 rounded-lg bg-white">
+                    <RichTextEditor value={field.value} onChange={field.onChange} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
-          )}
-        </div>
 
-        {/* Image Upload Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Upload Images {totalImages > 0 && <span className="text-gray-500">({totalImages} image{totalImages !== 1 ? 's' : ''})</span>}
-          </label>
-          <div className="w-full border border-dashed border-gray-300 rounded-lg p-6 hover:border-[#0f3d3e] transition-colors">
-            {/* Image Grid - Always visible when there are images */}
-            {totalImages > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                {/* Existing Images from Server */}
-                {existingImageUrls.map((url, index) => (
-                  <div key={`existing-${index}`} className="relative aspect-square group">
-                    <Image
-                      src={url}
-                      alt={`Existing ${index + 1}`}
-                      fill
-                      className="object-cover rounded-lg"
-                      unoptimized
-                    />
-                    <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                      Existing
+          {/* Multiple Image Upload Field */}
+          <div className="space-y-4">
+            <label className="text-sm font-medium text-gray-700">
+              Upload Images {totalImages > 0 && <span className="text-gray-500">({totalImages} image{totalImages !== 1 ? 's' : ''})</span>} <span className="text-red-500">*</span>
+            </label>
+            <div className={`w-full border-2 border-dashed ${isUploading ? 'border-gray-200 bg-gray-50' : 'border-[#0f3d3e]/30 bg-[#0f3d3e]/5'} rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative min-h-[160px] p-6`}>
+              {totalImages > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full h-full relative z-10 mb-4">
+                  {/* Existing Images from Server */}
+                  {existingImageUrls.map((url, index) => (
+                    <div key={`existing-${index}`} className="relative aspect-square w-full">
+                      <Image
+                        src={url}
+                        alt={`Existing ${index + 1}`}
+                        fill
+                        className="object-cover rounded-xl shadow-sm"
+                        unoptimized
+                      />
+                      <div className="absolute top-2 left-2 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded shadow-sm opacity-90">
+                        Existing
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveExistingImage(index);
+                        }}
+                        disabled={isUploading}
+                        className="absolute -top-2 -right-2 w-8 h-8 bg-white text-red-500 rounded-full flex items-center justify-center hover:bg-red-50 hover:scale-110 transition-all shadow-md z-20 border border-red-100 disabled:opacity-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveExistingImage(index)}
-                      className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg opacity-0 group-hover:opacity-100"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-                {/* New Images (Previews) */}
-                {imagePreviews.map((preview, index) => (
-                  <div key={`new-${index}`} className="relative aspect-square group">
-                    <Image
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      fill
-                      className="object-cover rounded-lg"
-                      unoptimized
-                    />
-                    <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                      New
+                  ))}
+
+                  {/* New Images (Previews) */}
+                  {imagePreviews.map((preview, index) => (
+                    <div key={`new-${index}`} className="relative aspect-square w-full">
+                      <Image
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        className="object-cover rounded-xl shadow-sm"
+                        unoptimized
+                      />
+                      <div className="absolute top-2 left-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded shadow-sm opacity-90">
+                        New
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveImage(index);
+                        }}
+                        disabled={isUploading}
+                        className="absolute -top-2 -right-2 w-8 h-8 bg-white text-red-500 rounded-full flex items-center justify-center hover:bg-red-50 hover:scale-110 transition-all shadow-md z-20 border border-red-100 disabled:opacity-50"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(index)}
-                      className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg opacity-0 group-hover:opacity-100"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                  ))}
+                  
+                  {/* Add more placeholder */}
+                  {!isUploading && (
+                    <div className="relative aspect-square w-full border-2 border-dashed border-[#0f3d3e]/30 rounded-xl flex items-center justify-center hover:bg-[#0f3d3e]/5 transition-colors cursor-pointer">
+                      <ImageIcon className="w-8 h-8 text-[#0f3d3e]/50" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageChange}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 border border-gray-100">
+                    <ImageIcon className="w-8 h-8 text-[#0f3d3e]" />
                   </div>
-                ))}
-              </div>
-            )}
-            
-            {/* Upload Area */}
-            <div className="relative flex flex-col items-center justify-center cursor-pointer">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-              <div className="flex flex-col items-center justify-center pointer-events-none py-4">
-                <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600 mb-1">Click to upload more images</span>
-                <span className="text-xs text-gray-500">or drag and drop</span>
-                <span className="text-xs text-gray-500 mt-2 border border-gray-300 rounded px-3 py-1">Choose Files</span>
-              </div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                    Click to upload images
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    SVG, PNG, JPG or GIF (max. 5MB)
+                  </p>
+                </div>
+              )}
+              
+              {totalImages === 0 && !isUploading && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  style={{ zIndex: 2 }}
+                />
+              )}
             </div>
+            {totalImages > 0 && !isUploading && (
+               <p className="text-xs text-gray-500 mt-1">
+                 💡 You can remove existing images by clicking the X button
+               </p>
+            )}
+            {totalImages === 0 && (
+                <p className="text-[0.8rem] font-medium text-destructive">
+                  Images are required
+                </p>
+            )}
           </div>
-          <p className="text-xs text-gray-500 mt-1">
-            💡 You can remove existing images by clicking the X button when hovering over them
-          </p>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            type="submit"
-            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            <span className="font-medium">Update</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-            <span className="font-medium">Close</span>
-          </button>
-        </div>
-      </form>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="submit"
+              disabled={isUploading}
+              className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer disabled:opacity-70"
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium">{isUploading ? 'Uploading...' : 'Update'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isUploading}
+              className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-70"
+            >
+              <X className="w-4 h-4" />
+              <span className="font-medium">Close</span>
+            </button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }
