@@ -6,10 +6,8 @@ import { getContactUs } from "@/services/contactus";
 const ContactUsPage = async() => {
   const contactUsData = await getContactUs([]);
   
-  // Safely extract the first item if it exists, handling both { data: [...] } and { data: { data: [...] } } shapes
-  const firstContactUs = Array.isArray(contactUsData?.data) 
-    ? contactUsData.data[0] 
-    : contactUsData?.data?.data?.[0];
+  const topberList = contactUsData?.data?.data || contactUsData?.data || [];
+  const firstContactUs = Array.isArray(topberList) ? topberList[0] : topberList;
 
   return (
     <DashboardWrapper>

@@ -141,9 +141,8 @@ const SocialLinks = ({
 // Main Footer component
 const Footer = async () => {
   const topberResponse = await getContactUs([]);
-  const topberData = Array.isArray(topberResponse?.data) 
-    ? topberResponse.data[0] 
-    : topberResponse?.data?.data?.[0];
+  const topberList = topberResponse?.data?.data || topberResponse?.data || [];
+  const topberData = Array.isArray(topberList) ? topberList[0] : topberList;
 
   if (!topberData) return null;
 

@@ -6,11 +6,10 @@ import siteLogo from "../../../../../public/hilful_fujul.png";
 
 const DynamicLogo = async () => {
   const topberResponse = await getContactUs([]);
-  const topberData = Array.isArray(topberResponse?.data) 
-    ? topberResponse.data[0] 
-    : topberResponse?.data?.data?.[0];
+  const topberList = topberResponse?.data?.data || topberResponse?.data || [];
+  const topberData = Array.isArray(topberList) ? topberList[0] : topberList;
   
-  if (!topberResponse) return null;
+  if (!topberData) return null;
   
   const imageUrl = topberData?.image || siteLogo.src; // Use .src for static imports
 
