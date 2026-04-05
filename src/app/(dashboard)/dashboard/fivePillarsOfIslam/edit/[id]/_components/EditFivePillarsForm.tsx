@@ -1,44 +1,40 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { ImageIcon, X } from "lucide-react";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-
-interface FivePillarsFormData {
-  title: string;
-  description: string;
-  order: number;
-  image: File | null;
-}
+import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
+import { Save, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { getFivePillarsById, updateFivePillars } from "@/services/fivePillar";
+import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { ImageUpload } from "@/components/shared/common/ImageUpload";
+import { uploadImageToCloudinary } from "@/utils/cloudinary/cloudinaryUpload";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface EditFivePillarsFormProps {
   pillarId: string;
 }
 
-import { getFivePillarsById, updateFivePillars } from "@/services/fivePillar";
-import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { useRouter } from "next/navigation";
-
 export default function EditFivePillarsForm({
   pillarId,
 }: EditFivePillarsFormProps) {
   const router = useRouter();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<FivePillarsFormData>({
+  const form = useForm({
     defaultValues: {
       title: "",
       description: "",
       order: 1,
-      image: null,
+      image: "",
+      status: true,
     },
   });
 
@@ -47,180 +43,201 @@ export default function EditFivePillarsForm({
     const fetchPillar = async () => {
       const res = await getFivePillarsById(pillarId);
       if (res?.data) {
-        reset({
+        form.reset({
           title: res.data.title || "",
           description: res.data.description || "",
           order: res.data.order || 1,
-          image: null,
+          image: res.data.image || "",
+          status: res.data.status ?? true,
         });
-        setImagePreview(res.data.image || null);
       }
     };
     fetchPillar();
-  }, [pillarId, reset]);
+  }, [pillarId, form]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    try {
+      setIsUploading(true);
+
+      // Initialize image URL with existing/current value
+      let imageUrl = data.image;
+
+      // Upload new file only when user selects a new one
+      if (selectedFile) {
+        showSuccessToast("Uploading image...");
+        const uploadResult = await uploadImageToCloudinary(selectedFile);
+
+        if (!uploadResult) {
+          showErrorToast("Failed to upload image. Please try again.");
+          setIsUploading(false);
+          return;
+        }
+
+        imageUrl = uploadResult.secure_url;
+        showSuccessToast("Image uploaded successfully!");
+      }
+
+      // Prepare final payload
+      const payload = {
+        title: data.title,
+        description: data.description,
+        order: Number(data.order),
+        status: String(data.status),
+        image: imageUrl, // Use the image URL (new or existing)
       };
-      reader.readAsDataURL(file);
+
+      const res = await updateFivePillars(pillarId, payload);
+
+      if (res.statusCode === 200 || res.success) {
+        showSuccessToast(res.message || "Pillar updated successfully!");
+        form.reset({
+          title: data.title,
+          description: data.description,
+          order: data.order,
+          image: imageUrl, // Keep the updated image
+          status: data.status,
+        });
+        setSelectedFile(null);
+        router.push("/dashboard/fivePillarsOfIslam");
+      } else {
+        showErrorToast(res.message || "Failed to update pillar");
+      }
+    } catch (error) {
+      console.error("Error updating pillar:", error);
+      showErrorToast("Failed to update pillar. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setValue("image", null);
-  };
-
-  const onSubmit = async (data: FivePillarsFormData) => {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("order", String(data.order));
-    if (data.image) {
-      formData.append("image", data.image);
-    }
-    const res = await updateFivePillars(pillarId, formData);
-    if (res.statusCode === 200) {
-      showSuccessToast(res.message);
-      reset();
-      router.push("/dashboard/fivePillarsOfIslam");
-    } else {
-      showErrorToast(res.message);
-    }
+  const handleClose = () => {
+    router.push("/dashboard/fivePillarsOfIslam");
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Title Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Title <span className="text-red-500">*</span>
-          </label>
-          <Controller
+    <div className="bg-[#f8f9fa] rounded-2xl p-6 shadow-sm">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Title Field */}
+          <FormField
+            control={form.control}
             name="title"
-            control={control}
             rules={{ required: "Title is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter pillar title"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Title <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter pillar title"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title.message}</p>
-          )}
-        </div>
 
-        {/* Description Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Description <span className="text-red-500">*</span>
-          </label>
-          <Controller
+          {/* Description Field */}
+          <FormField
+            control={form.control}
             name="description"
-            control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <textarea
-                {...field}
-                rows={5}
-                placeholder="Enter pillar description"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent resize-none"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Description <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <textarea
+                    {...field}
+                    rows={5}
+                    placeholder="Enter pillar description"
+                    className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
-          )}
-        </div>
 
-        {/* Order Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Order <span className="text-red-500">*</span>
-          </label>
-          <Controller
+          {/* Order Field */}
+          <FormField
+            control={form.control}
             name="order"
-            control={control}
             rules={{
               required: "Order is required",
-              min: { value: 1, message: "Order must be at least 1" },
+              min: { value: 1, message: "Order must be between 1 and 5" },
+              max: { value: 5, message: "Order must be between 1 and 5" },
             }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="number"
-                min={1}
-                placeholder="Enter order number"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
-                onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Order <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="number"
+                    min={1}
+                    placeholder="Enter order number"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.order && (
-            <p className="text-red-500 text-sm">{errors.order.message}</p>
-          )}
-        </div>
 
-        {/* Image Upload Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Image <span className="text-red-500">*</span>
-          </label>
-          <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
-            {imagePreview ? (
-              <>
-                <Image
-                  src={imagePreview}
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
-                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
-                  Upload
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </>
+          {/* Image Upload Field */}
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Upload Image
+                </FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    onFileSelect={setSelectedFile}
+                    disabled={isUploading}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-        </div>
+          />
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            className="bg-[#0f3d3e] hover:bg-[#0f3d3e]/90 text-white px-8 py-3 rounded-full"
-          >
-            Update Pillar
-          </Button>
-        </div>
-      </form>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium">Update</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <X className="w-4 h-4" />
+              <span className="font-medium">Close</span>
+            </button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

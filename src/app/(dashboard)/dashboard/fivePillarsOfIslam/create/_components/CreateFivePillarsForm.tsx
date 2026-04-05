@@ -133,7 +133,8 @@ export default function CreateFivePillarsForm() {
             name="order"
             rules={{
               required: "Order is required",
-              min: { value: 1, message: "Order must be at least 1" },
+              min: { value: 1, message: "Order must be between 1 and 5" },
+              max: { value: 5, message: "Order must be between 1 and 5" },
             }}
             render={({ field }) => (
               <FormItem>
@@ -145,6 +146,7 @@ export default function CreateFivePillarsForm() {
                     {...field}
                     type="number"
                     min={1}
+                    max={5}
                     placeholder="Enter order number"
                     className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
                     onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
