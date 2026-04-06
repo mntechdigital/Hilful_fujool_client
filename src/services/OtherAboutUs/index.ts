@@ -3,11 +3,12 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createOtherAboutus = async (payload: FormData) => {
+export const createOtherAboutus = async (data: FieldValues) => {
   const response = await apiRequest("other-about-us", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(data),
     authRequired: true,
   });
 
@@ -44,10 +45,11 @@ export const getOtherAboutusById = async (id: string) => {
   return await response;
 };
 
-export const updateOtherAboutus = async (id: string, payload: FormData) => {
+export const updateOtherAboutus = async (id: string,
+  payload: FieldValues | FormData,) => {
   const response = await apiRequest(`other-about-us/${id}`, {
     method: "PUT",
-    body: payload,
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
     authRequired: true,
   });
 

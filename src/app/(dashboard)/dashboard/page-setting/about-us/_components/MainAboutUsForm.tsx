@@ -155,10 +155,8 @@ const MainAboutUsForm: React.FC<MainAboutUsFormProps> = ({ aboutusData }) => {
         let res;
         if (isEditing && aboutusData?.id) {
           res = await updateAboutus(aboutusData.id, payload);
-          console.log("see update res for aboutusform==>", res);
         } else {
           res = await createAboutus(payload);
-          console.log("see create res for aboutusform==>", res);
         }
 
         if (res.statusCode === (isEditing ? 200 : 201) || res.success) {
@@ -276,7 +274,7 @@ const MainAboutUsForm: React.FC<MainAboutUsFormProps> = ({ aboutusData }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-700">
-                        Feature Title {feature.labelNum}
+                        Feature Title {feature.labelNum} <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <input
@@ -302,7 +300,7 @@ const MainAboutUsForm: React.FC<MainAboutUsFormProps> = ({ aboutusData }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-700">
-                        Feature Short Description {feature.labelNum}
+                        Feature Short Description {feature.labelNum} <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <input
@@ -322,7 +320,7 @@ const MainAboutUsForm: React.FC<MainAboutUsFormProps> = ({ aboutusData }) => {
             {/* Images */}
             <div className="space-y-4 pt-4">
               <label className="text-sm font-medium text-gray-700">
-                Upload Images
+                Upload Images <span className="text-red-500">*</span>
               </label>
               <div
                 className={`w-full border-2 border-dashed ${isUploading ? "border-gray-200 bg-gray-50" : "border-gray-300 hover:border-[#0f3d3e]"} rounded-xl p-6 transition-colors relative min-h-[160px]`}
