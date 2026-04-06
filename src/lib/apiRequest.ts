@@ -36,7 +36,10 @@ export const apiRequest = async (
   if (options.authRequired) {
     const token = await getAuthToken();
     if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
+      const cleanToken = token.replace(/^[\"\']|[\"\']$/g, "");
+      if (cleanToken && cleanToken !== "undefined" && cleanToken !== "null") {
+      headers.set("Authorization", `Bearer ${cleanToken}`);
+      }
     }
   }
 

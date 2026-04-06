@@ -20,10 +20,10 @@ export const loggedUser = async () => {
   return decoded;
 };
 
-export const register = async (data: FormData) => {
+export const register = async (data: FieldValues | FormData) => {
   const response = await apiRequest(`auth/register`, {
     method: "POST",
-    body: data as FormData,
+    body: data instanceof FormData ? data : JSON.stringify(data),
     authRequired: true,
   });
 
@@ -36,7 +36,7 @@ export const register = async (data: FormData) => {
     revalidatePath(path);
   });
 
-  return await response;
+  return response;
 };
 
 export const login = async (data: FieldValues) => {
@@ -54,58 +54,37 @@ export const login = async (data: FieldValues) => {
 
     const result = await response.json();
 
-    console.log(result, 'from middleware')
-
-    if (result.statusCode === 200) {
-      const cookie = await cookies();
-
-      cookie.set("accessToken", result.data.accessToken, {
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      });
-      cookie.set("refreshToken", result.data.refreshToken, {
-        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      });
+    // Set cookies on successful login
+    if (result.statusCode === 200 && result.data) {
+      const cookieStore = await cookies();
+      
+      if (result.data.accessToken) {
+        cookieStore.set("accessToken", result.data.accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+        });
+      }
+      
+      if (result.data.refreshToken) {
+        cookieStore.set("refreshToken", result.data.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+        });
+      }
     }
 
     return result;
   } catch (error) {
-    console.error("Login error:", error);
-    throw new Error("Login failed. Please try again.");
-  }
-};
-
-export const logout = async () => {
-  try {
-    const cookie = await cookies();
-    cookie.delete("accessToken");
-    cookie.delete("refreshToken");
-  } catch (error) {
-    console.error("Logout error:", error);
-    throw new Error("Logout failed. Please try again.");
+    return error;
   }
 };
 
 export const forgetPassword = async (data: FieldValues) => {
-  const response = await apiRequest("auth/forget-password", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-
-  return await response;
-};
-
-export const changePassword = async (data: FieldValues) => {
-  const response = await apiRequest("auth/change-password", {
-    method: "POST",
-    body: JSON.stringify(data),
-    authRequired: true,
-  });
-
-  return await response;
-};
-
-export const resetPassword = async (data: FieldValues) => {
-  const response = await apiRequest("auth/reset-password", {
+  const response = await apiRequest(`auth/forget`, {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -113,45 +92,47 @@ export const resetPassword = async (data: FieldValues) => {
   return response;
 };
 
-export const updateProfile = async (data: FormData) => {
-  const response = await apiRequest(`auth/update-profile`, {
+export const resetPassword = async (data: FieldValues, token: string) => {
+  return await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+};
+
+export const logout = async () => {
+  const cookie = await cookies();
+  cookie.delete("accessToken");
+  cookie.delete("refreshToken");
+  
+  [
+    "/",
+    "/dashboard",
+    "/dashboard/admin-user",
+    "/dashboard/profile",
+    "/dashboard/role",
+  ].forEach((path) => {
+    revalidatePath(path);
+  });
+};
+
+export const updateProfile = async (id: string, data: FieldValues | FormData) => {
+  const response = await apiRequest(`auth/profile/${id}`, {
     method: "PUT",
-    body: data as FormData,
+    body: data instanceof FormData ? data : JSON.stringify(data),
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/profile");
-
-  return await response;
-};
-
-export const updateAdminUserStatus = async (id: string) => {
-  const response = await apiRequest(`auth/admin-users/${id}/status`, {
-    method: "PUT",
-    authRequired: true,
+  [
+    "/",
+    "/dashboard/profile",
+    "/dashboard/update-profile"
+  ].forEach((path) => {
+    revalidatePath(path);
   });
 
-  revalidatePath("/dashboard/admin-user");
-
-  return await response;
-};
-
-export const deleteAdminUser = async (id: string | undefined) => {
-  const response = await apiRequest(`auth/admin-users/${id}`, {
-    method: "DELETE",
-    authRequired: true,
-  });
-
-  revalidatePath("/dashboard/admin-user");
-
-  return await response;
-};
-
-export const dashboardOverview = async () => {
-  const response = await apiRequest(`auth/overview-dashboard`, {
-    method: "GET",
-    authRequired: true,
-  });
-
-  return await response;
+  return response;
 };
