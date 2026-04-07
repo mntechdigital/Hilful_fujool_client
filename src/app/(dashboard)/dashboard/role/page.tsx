@@ -17,6 +17,10 @@ const RoleManagement = async (props: {
             key: "page",
             value: page.toString(),
         },
+        {
+            key: "limit",
+            value: "100", // Fetch up to 100 roles per page
+        },
     ];
     const roleData = await getRoles(query);
     return (
