@@ -1,20 +1,26 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createPackages = async (payload: FormData) => {
+export const createPackages = async (data: FieldValues) => {
   const response = await apiRequest("packages", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(data),
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/packages");
+  ["/", "/dashboard/packages"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
+
+
 
 export const getPackages = async (query: TQuery[]) => {
   const params = new URLSearchParams();
@@ -42,17 +48,20 @@ export const getPackagesById = async (id: string) => {
   return await response;
 };
 
-export const updatePackages = async (id: string, payload: FormData) => {
+export const updatePackages = async (id: string, payload: any) => {
   const response = await apiRequest(`packages/${id}`, {
     method: "PUT",
-    body: payload,
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/packages");
+  ["/", "/dashboard/packages"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
+
 
 export const deletePackages = async (id: string | undefined) => {
   const response = await apiRequest(`packages/${id}`, {

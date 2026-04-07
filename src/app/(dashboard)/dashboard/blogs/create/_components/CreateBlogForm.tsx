@@ -1,84 +1,81 @@
 "use client";
 
-
-import { ImageIcon, Save, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
 
 import { createBlogs } from "@/services/blog";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
+import { ImageUpload } from "@/components/shared/common/ImageUpload";
+import { uploadImageToCloudinary } from "@/utils/cloudinary/cloudinaryUpload";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
 
-
-interface BlogFormData {
-  author: string;
-  title: string;
-  shortDescription: string;
-  description: string;
-  image: File | null;
-  status: boolean;
-}
-
-
 export default function CreateBlogForm() {
   const router = useRouter();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<BlogFormData>({
+  const form = useForm({
     defaultValues: {
       author: "",
       title: "",
       shortDescription: "",
       description: "",
-      image: null,
+      image: "",
       status: true,
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    setIsUploading(true);
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setValue("image", null);
-  };
+    let imageUrl = data.image;
 
-  const onSubmit = async (data: BlogFormData) => {
-    const formData = new FormData();
-    formData.append("author", data.author);
-    formData.append("title", data.title);
-    formData.append("shortDescription", data.shortDescription);
-    formData.append("description", data.description);
-    formData.append("status", String(data.status));
-    if (data.image) {
-      formData.append("image", data.image);
+    // Upload image to Cloudinary if a file is selected
+    if (selectedFile) {
+      showSuccessToast("Uploading image...");
+      const uploadResult = await uploadImageToCloudinary(selectedFile);
+
+      if (!uploadResult) {
+        showErrorToast("Failed to upload image. Please try again.");
+        setIsUploading(false);
+        return;
+      }
+
+      imageUrl = uploadResult.secure_url;
+      showSuccessToast("Image uploaded successfully!");
     }
-    const res = await createBlogs(formData);
-    if (res.statusCode === 201) {
-      showSuccessToast(res.message);
-      reset();
+
+    // Prepare final data
+    const payload = {
+      author: data.author,
+      title: data.title,
+      shortDescription: data.shortDescription,
+      description: data.description,
+      status: String(data.status),
+      image: imageUrl,
+    };
+
+    const res = await createBlogs(payload);
+    if (res.statusCode === 201 || res.success) {
+      showSuccessToast(res.message || "Blog created successfully!");
+      form.reset();
+      setSelectedFile(null);
       router.push("/dashboard/blogs");
     } else {
-      showErrorToast(res.message);
+      showErrorToast(res.message || "Failed to create blog");
+      setIsUploading(false);
     }
   };
 
@@ -87,139 +84,143 @@ export default function CreateBlogForm() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] rounded-2xl p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Author Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Author</label>
-          <Controller
+    <div className="bg-[#f8f9fa] rounded-2xl p-6 shadow-sm">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Author Field */}
+          <FormField
+            control={form.control}
             name="author"
-            control={control}
             rules={{ required: "Author is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter author name"
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Author <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter author name"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.author && (
-            <p className="text-red-500 text-sm">{errors.author.message}</p>
-          )}
-        </div>
 
-        {/* Title Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Title</label>
-          <Controller
+          {/* Title Field */}
+          <FormField
+            control={form.control}
             name="title"
-            control={control}
             rules={{ required: "Title is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Title <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter blog title"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title.message}</p>
-          )}
-        </div>
 
-        {/* Short Description Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Short Description</label>
-          <Controller
+          {/* Short Description Field */}
+          <FormField
+            control={form.control}
             name="shortDescription"
-            control={control}
-            rules={{ required: "Short description is required" }}
+            rules={{ required: "Short Description is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Short Description <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter short description"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.shortDescription && (
-            <p className="text-red-500 text-sm">{errors.shortDescription.message}</p>
-          )}
-        </div>
 
-        {/* Description Field (Rich Text Editor) */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Description</label>
-          <Controller
+          {/* Description Field (Rich Text Editor) */}
+          <FormField
+            control={form.control}
             name="description"
-            control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <div>
-                <RichTextEditor value={field.value} onChange={field.onChange} />
-              </div>
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Description <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden focus-within:border-[#0f3d3e] transition-colors bg-white">
+                    <RichTextEditor value={field.value} onChange={field.onChange} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
-          )}
-        </div>
 
-        {/* Image Upload Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-          <div className="w-28 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
-            {imagePreview ? (
-              <>
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized/>
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
-                <span className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1">Upload</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </>
+          {/* Image Upload Field */}
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Upload Image <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    onFileSelect={setSelectedFile}
+                    disabled={isUploading}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
+          />
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium">Save</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <X className="w-4 h-4" />
+              <span className="font-medium">Close</span>
+            </button>
           </div>
-        </div>
-
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            type="submit"
-            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            <span className="font-medium">Save</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-            <span className="font-medium">Close</span>
-          </button>
-        </div>
-      </form>
+        </form>
+      </Form>
     </div>
   );
 }

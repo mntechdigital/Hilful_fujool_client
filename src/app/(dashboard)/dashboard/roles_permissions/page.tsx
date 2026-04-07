@@ -16,10 +16,21 @@ const RolesandPermissionPage = async (props: {
     { key: "orderBy", value: JSON.stringify({ createdAt: "desc" }) },
     { key: "searchTerm", value: search },
     { key: "page", value: page.toString() },
-    { key: "limit", value: "10" },
+    { key: "limit", value: "100" },
   ];
-  const adminUsers = await getRoles(query);
-  console.log("see admin data==>",adminUsers.data);
+  
+  // Fetch roles with their admin users
+  const rolesData = await getRoles(query);
+  
+  // Flatten admin users from all roles
+  const allAdminUsers = rolesData.data?.flatMap((role: any) => 
+    (role.adminUser || []).map((user: any) => ({
+      ...user,
+      role: { id: role.id, name: role.name, status: role.status }
+    }))
+  ) || [];
+  
+  console.log("see all admin users==>", allAdminUsers);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
@@ -38,7 +49,7 @@ const RolesandPermissionPage = async (props: {
           <span className="font-medium">Create Admin User</span>
         </Link>
       </div>
-      <RolesTable rolesData={adminUsers.data} />
+      <RolesTable rolesData={allAdminUsers} />
     </DashboardWrapper>
   );
 };

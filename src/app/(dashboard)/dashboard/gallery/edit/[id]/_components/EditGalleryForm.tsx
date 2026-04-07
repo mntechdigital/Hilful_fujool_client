@@ -1,76 +1,92 @@
 "use client";
+
 import { getGalleryById, updateGallery } from "@/services/gallery";
+import { ImageUpload } from "@/components/shared/common/ImageUpload";
+import { uploadImageToCloudinary } from "@/utils/cloudinary/cloudinaryUpload";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { Save, Trash2, X } from "lucide-react";
-import Image from "next/image";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
 
 interface EditGalleryFormProps {
   galleryId: string;
 }
 
-interface GalleryFormData {
-  image: File | null;
-}
-
 export default function EditGalleryForm({ galleryId }: EditGalleryFormProps) {
   const router = useRouter();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-  } = useForm<GalleryFormData>({
+  const form = useForm({
     defaultValues: {
-      image: null,
+      image: "",
+      status: true,
     },
   });
 
-  // Load gallery image on component mount
   useEffect(() => {
     const fetchGallery = async () => {
       const res = await getGalleryById(galleryId);
       if (res?.data) {
-        reset({ image: null });
-        setImagePreview(res.data.image || null);
+        form.reset({
+          image: res.data.thumbnail || res.data.image || "",
+          status: res.data.status ?? true,
+        });
       }
     };
+
     fetchGallery();
-  }, [galleryId, reset]);
+  }, [galleryId, form]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    try {
+      setIsUploading(true);
+
+      let thumbnailUrl = data.image;
+
+      // Upload new file only when user selects a new one.
+      if (selectedFile) {
+        showSuccessToast("Uploading image...");
+        const uploadResult = await uploadImageToCloudinary(selectedFile);
+
+        if (!uploadResult) {
+          showErrorToast("Failed to upload image. Please try again.");
+          setIsUploading(false);
+          return;
+        }
+
+        thumbnailUrl = uploadResult.secure_url;
+        showSuccessToast("Image uploaded successfully!");
+      }
+
+      const payload = {
+        thumbnail: thumbnailUrl,
+        status: data.status,
       };
-      reader.readAsDataURL(file);
-    }
-  };
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setValue("image", null);
-  };
-
-  const onSubmit = async (data: GalleryFormData) => {
-    const formData = new FormData();
-    if (data.image) {
-      formData.append("image", data.image);
-    }
-    const res = await updateGallery(galleryId, formData);
-    if (res.statusCode === 200) {
-      showSuccessToast(res.message);
-      reset();
-      router.push("/dashboard/gallery");
-    } else {
-      showErrorToast(res.message);
+      const res = await updateGallery(galleryId, payload);
+      if (res.statusCode === 200) {
+        showSuccessToast(res.message || "Gallery image updated successfully!");
+        form.reset({ image: "", status: true });
+        setSelectedFile(null);
+        router.push("/dashboard/gallery");
+      } else {
+        showErrorToast(res.message || "Failed to update gallery image");
+      }
+    } catch (error) {
+      console.error("Error updating gallery:", error);
+      showErrorToast("Failed to update gallery image. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -79,60 +95,38 @@ export default function EditGalleryForm({ galleryId }: EditGalleryFormProps) {
   };
 
   return (
-    <div className="bg-[#f8f9fa] rounded-2xl p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Upload Image Label */}
-        <p className="text-sm text-gray-600 mb-3">Upload Image</p>
-
-        {/* Image Upload Area */}
-        <div className="mb-6">
-          {imagePreview ? (
-            <div className="relative w-32 h-24 rounded-lg overflow-hidden">
-              <Image
-                src={imagePreview}
-                alt="Preview"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-              <button
-                type="button"
-                onClick={handleRemoveImage}
-                className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity"
-              >
-                <Trash2 className="w-6 h-6 text-red-500" />
-              </button>
-            </div>
-          ) : (
-            <Controller
-              name="image"
-              control={control}
-              render={({ field }) => (
-                <label className="w-32 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors">
-                  <span className="text-gray-400 text-2xl">+</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      handleImageChange(e);
-                      field.onChange(e);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
+        <FormField
+          control={form.control}
+          name="image"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-lg font-semibold text-gray-700">
+                Upload Image
+              </FormLabel>
+              <FormControl>
+                <ImageUpload
+                  value={field.value}
+                  onChange={field.onChange}
+                  onFileSelect={setSelectedFile}
+                  disabled={isUploading}
+                  className="w-full"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
+        />
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 pt-4">
           <button
             type="submit"
             className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+            disabled={isUploading}
           >
             <Save className="w-4 h-4" />
-            <span className="font-medium">Save</span>
+            <span className="font-medium">{isUploading ? "Saving..." : "Save"}</span>
           </button>
           <button
             type="button"
@@ -144,6 +138,6 @@ export default function EditGalleryForm({ galleryId }: EditGalleryFormProps) {
           </button>
         </div>
       </form>
-    </div>
+    </Form>
   );
 }

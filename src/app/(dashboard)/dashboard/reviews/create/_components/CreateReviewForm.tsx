@@ -1,80 +1,82 @@
 "use client";
 
-
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { ImageIcon, Save, Star, X } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { ImageUpload } from "@/components/shared/common/ImageUpload";
+import { uploadImageToCloudinary } from "@/utils/cloudinary/cloudinaryUpload";
+import { showSuccessToast, showErrorToast } from "@/utils/toastMessage";
 import { createReview } from "@/services/review";
-import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-
-interface ReviewFormData {
-  name: string;
-  designation: string;
-  rating: number;
-  description: string;
-  image: File | null;
-  status: boolean;
-}
+import { useRouter } from "next/navigation";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { Save, Star, X } from "lucide-react";
 
 export default function CreateReviewForm() {
   const router = useRouter();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
 
-  const { control, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm<ReviewFormData>({
+  const form = useForm({
     defaultValues: {
       name: "",
       designation: "",
       rating: 4,
       description: "",
-      image: null,
+      image: "",
       status: true,
     },
   });
 
-  const currentRating = watch("rating");
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    setIsUploading(true);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    let imageUrl = data.image;
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setValue("image", null);
-  };
+    // Upload image to Cloudinary if a file is selected
+    if (selectedFile) {
+      showSuccessToast("Uploading image...");
+      const uploadResult = await uploadImageToCloudinary(selectedFile);
 
-  const handleRatingClick = (rating: number) => {
-    setValue("rating", rating);
-  };
+      if (!uploadResult) {
+        showErrorToast("Failed to upload image. Please try again.");
+        setIsUploading(false);
+        return;
+      }
 
-  const onSubmit = async (data: ReviewFormData) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("designation", data.designation);
-    formData.append("rating", String(data.rating));
-    formData.append("description", data.description);
-    formData.append("status", String(data.status));
-    if (data.image) {
-      formData.append("image", data.image);
+      imageUrl = uploadResult.secure_url;
+      console.log("see cloudenary link-->",imageUrl)
+      showSuccessToast("Image uploaded successfully!");
     }
 
-    const res = await createReview(formData);
-    if (res.statusCode === 201) {
-      showSuccessToast(res.message);
-      reset();
+    // Prepare final review data
+    const reviewData = {
+      name: data.name,
+      designation: data.designation,
+      rating: String(data.rating),
+      description: data.description,
+      image: imageUrl,
+      status: String(data.status),
+    };
+
+    const response = await createReview(reviewData);
+
+    if (response.statusCode === 201 || response.success) {
+      showSuccessToast(
+        response.message || "Review created successfully!",
+      );
+      form.reset();
+      setSelectedFile(null);
       router.push("/dashboard/reviews");
     } else {
-      showErrorToast(res.message || "Create failed");
+      showErrorToast(response.message || "Failed to create review");
+      setIsUploading(false);
     }
   };
 
@@ -84,144 +86,150 @@ export default function CreateReviewForm() {
 
   return (
     <div className="bg-[#f8f9fa] rounded-2xl p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Name Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Name</label>
-          <Controller
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Name Field */}
+          <FormField
+            control={form.control}
             name="name"
-            control={control}
             rules={{ required: "Name is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">Name</FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="write here..."
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.name && (
-            <p className="text-red-500 text-sm">{errors.name.message}</p>
-          )}
-        </div>
 
-        {/* Designation Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Designation</label>
-          <Controller
+          {/* Designation Field */}
+          <FormField
+            control={form.control}
             name="designation"
-            control={control}
             rules={{ required: "Designation is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">Designation</FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="write here..."
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.designation && (
-            <p className="text-red-500 text-sm">{errors.designation.message}</p>
-          )}
-        </div>
 
-        {/* Rating Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Add Rating</label>
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => handleRatingClick(star)}
-                onMouseEnter={() => setHoverRating(star)}
-                onMouseLeave={() => setHoverRating(0)}
-                className="cursor-pointer"
-              >
-                <Star
-                  className={`w-6 h-6 transition-colors ${
-                    star <= (hoverRating || currentRating)
-                      ? "fill-orange-400 text-orange-400"
-                      : "fill-gray-200 text-gray-200"
-                  }`}
-                />
-              </button>
-            ))}
-          </div>
-        </div>
+          {/* Rating Field */}
+          <FormField
+            control={form.control}
+            name="rating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">Add Rating</FormLabel>
+                <FormControl>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => field.onChange(star)}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        className="cursor-pointer"
+                      >
+                        <Star
+                          className={`w-6 h-6 transition-colors ${
+                            star <= (hoverRating || field.value)
+                              ? "fill-orange-400 text-orange-400"
+                              : "fill-gray-200 text-gray-200"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Description Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Discription</label>
-          <Controller
+          {/* Description Field */}
+          <FormField
+            control={form.control}
             name="description"
-            control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <textarea
-                {...field}
-                rows={4}
-                placeholder="write here..."
-                className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">Description</FormLabel>
+                <FormControl>
+                  <textarea
+                    {...field}
+                    rows={4}
+                    placeholder="write here..."
+                    className="w-full px-4 py-3 bg-transparent border border-gray-200 rounded-lg focus:outline-none focus:border-[#0f3d3e] transition-colors resize-none"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
-          )}
-        </div>
 
-        {/* Image Upload Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-          <div className="w-24 h-24 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
-            {imagePreview ? (
-              <>
-                <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized/>
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
-                <span className="text-xs text-gray-500 border border-gray-300 rounded px-2 py-0.5">Upload</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </>
+          {/* Image Upload Field */}
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Upload Image
+                </FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    onFileSelect={setSelectedFile}
+                    disabled={isUploading}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-        </div>
+          />
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            type="submit"
-            className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            <span className="font-medium">Save</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-            <span className="font-medium">Close</span>
-          </button>
-        </div>
-      </form>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium">Save</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <X className="w-4 h-4" />
+              <span className="font-medium">Close</span>
+            </button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

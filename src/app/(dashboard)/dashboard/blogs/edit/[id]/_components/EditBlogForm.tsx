@@ -1,22 +1,26 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Save, X } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
+
 import { getBlogsById, updateBlogs } from "@/services/blog";
 import { sanitizeHtml } from '@/utils/sanitizeHtml';
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { ImageIcon, X } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { ImageUpload } from "@/components/shared/common/ImageUpload";
+import { uploadImageToCloudinary } from "@/utils/cloudinary/cloudinaryUpload";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
-interface BlogFormData {
-  author: string;
-  title: string;
-  shortDescription: string;
-  description: string;
-  image: File | null;
-}
+const RichTextEditor = dynamic(() => import("@/components/shared/RichTextEditor"), { ssr: false });
 
 interface EditBlogFormProps {
   blogId: string;
@@ -24,235 +28,246 @@ interface EditBlogFormProps {
 
 export default function EditBlogForm({ blogId }: EditBlogFormProps) {
   const router = useRouter();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<BlogFormData>({
+  const form = useForm({
     defaultValues: {
       author: "",
       title: "",
       shortDescription: "",
       description: "",
-      image: null,
+      image: "",
+      status: true,
     },
   });
+
+  const { watch } = form;
 
   useEffect(() => {
     const fetchBlog = async () => {
       const res = await getBlogsById(blogId);
       if (res?.data) {
-        reset({
+        form.reset({
           author: res.data.author || "",
           title: res.data.title || "",
           shortDescription: res.data.shortDescription || "",
           description: res.data.description || "",
-          image: null,
+          image: res.data.image || "",
+          status: res.data.status ?? true,
         });
-        setImagePreview(res.data.image || null);
       }
     };
     fetchBlog();
-  }, [blogId, reset]);
+  }, [blogId, form]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    try {
+      setIsUploading(true);
+
+      let imageUrl = data.image;
+
+      if (selectedFile) {
+        showSuccessToast("Uploading image...");
+        const uploadResult = await uploadImageToCloudinary(selectedFile);
+
+        if (!uploadResult) {
+          showErrorToast("Failed to upload image. Please try again.");
+          setIsUploading(false);
+          return;
+        }
+
+        imageUrl = uploadResult.secure_url;
+        showSuccessToast("Image uploaded successfully!");
+      }
+
+      const payload = {
+        author: data.author,
+        title: data.title,
+        shortDescription: data.shortDescription,
+        description: data.description,
+        status: String(data.status),
+        image: imageUrl,
       };
-      reader.readAsDataURL(file);
+
+      const res = await updateBlogs(blogId, payload);
+      
+      if (res.statusCode === 200 || res.success) {
+        showSuccessToast(res.message || "Blog updated successfully!");
+        form.reset({
+          author: data.author,
+          title: data.title,
+          shortDescription: data.shortDescription,
+          description: data.description,
+          image: imageUrl,
+          status: data.status,
+        });
+        setSelectedFile(null);
+        router.push("/dashboard/blogs");
+      } else {
+        showErrorToast(res.message || "Failed to update blog");
+      }
+    } catch (error) {
+      console.error("Error updating blog:", error);
+      showErrorToast("Failed to update blog. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setValue("image", null);
-  };
-
-  const onSubmit = async (data: BlogFormData) => {
-    const formData = new FormData();
-    formData.append("author", data.author);
-    formData.append("title", data.title);
-    formData.append("shortDescription", data.shortDescription);
-    formData.append("description", data.description);
-    formData.append("status", "true");
-    if (data.image) {
-      formData.append("image", data.image);
-    }
-    const res = await updateBlogs(blogId, formData);
-    if (res.statusCode === 200) {
-      showSuccessToast(res.message);
-      reset();
-      router.push("/dashboard/blogs");
-    } else {
-      showErrorToast(res.message);
-    }
+  const handleClose = () => {
+    router.push("/dashboard/blogs");
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Author Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Author <span className="text-red-500">*</span>
-          </label>
-          <Controller
+    <div className="bg-[#f8f9fa] rounded-2xl p-6 shadow-sm">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Author Field */}
+          <FormField
+            control={form.control}
             name="author"
-            control={control}
             rules={{ required: "Author is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter author name"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Author <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter author name"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.author && (
-            <p className="text-red-500 text-sm">{errors.author.message}</p>
-          )}
-        </div>
 
-        {/* Title Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Title <span className="text-red-500">*</span>
-          </label>
-          <Controller
+          {/* Title Field */}
+          <FormField
+            control={form.control}
             name="title"
-            control={control}
             rules={{ required: "Title is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter blog title"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Title <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter blog title"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title.message}</p>
-          )}
-        </div>
 
-        {/* Short Description Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Short Description <span className="text-red-500">*</span>
-          </label>
-          <Controller
+          {/* Short Description Field */}
+          <FormField
+            control={form.control}
             name="shortDescription"
-            control={control}
-            rules={{ required: "Short description is required" }}
+            rules={{ required: "Short Description is required" }}
             render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder="Enter short description"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Short Description <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Enter short description"
+                    className="w-full px-4 py-3 bg-transparent border-b border-gray-200 focus:outline-none focus:border-[#0f3d3e] transition-colors"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.shortDescription && (
-            <p className="text-red-500 text-sm">{errors.shortDescription.message}</p>
-          )}
-          
-        </div>
 
-        {/* Description Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Description <span className="text-red-500">*</span>
-          </label>
-          <Controller
+          {/* Preview Output */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Preview Description
+            </label>
+            <div className="prose max-w-none bg-gray-50 rounded p-2 mt-2">
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(watch("description") || "") }} />
+            </div>
+          </div>
+
+          {/* Description Field */}
+          <FormField
+            control={form.control}
             name="description"
-            control={control}
             rules={{ required: "Description is required" }}
             render={({ field }) => (
-              <textarea
-                {...field}
-                rows={5}
-                placeholder="Enter blog description"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3d3e] focus:border-transparent resize-none"
-              />
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Description <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
-          {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
-          )}
-          {/* Preview rendered HTML for description */}
-          <div className="prose max-w-none bg-gray-50 rounded p-2 mt-2">
-            <label className="block text-xs text-gray-400 mb-1">Preview:</label>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(field.value || '') }} />
-              )}
-            />
-          </div>
-        </div>
 
-        {/* Image Upload Field */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Image <span className="text-red-500">*</span>
-          </label>
-          <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
-            {imagePreview ? (
-              <>
-                <Image
-                  src={imagePreview}
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
-                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
-                  Upload
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </>
+          {/* Image Upload Field */}
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Upload Image
+                </FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    onFileSelect={setSelectedFile}
+                    disabled={isUploading}
+                    className="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-        </div>
+          />
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            className="bg-[#0f3d3e] hover:bg-[#0f3d3e]/90 text-white px-8 py-3 rounded-full"
-          >
-            Update Blog
-          </Button>
-        </div>
-      </form>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium">Update</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <X className="w-4 h-4" />
+              <span className="font-medium">Close</span>
+            </button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

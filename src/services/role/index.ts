@@ -78,9 +78,63 @@ export const deleteAdminUser = async (id: string | undefined) => {
     authRequired: true,
   });
 
-  ["/", "/dashboard/role"].forEach((path) => {
+  ["/", "/dashboard/role", "/dashboard/roles_permissions"].forEach((path) => {
     revalidatePath(path);
   });
 
-  return await response;
+  return response;
+};
+
+export const getAdminUsers = async (query: TQuery[]) => {
+  const params = new URLSearchParams();
+
+  if (query && query.length > 0) {
+    query.forEach((q) => {
+      params.append(q.key, q.value);
+    });
+  }
+
+  const response = await apiRequest(`admin-users?${params.toString()}`, {
+    method: "GET",
+    authRequired: true,
+  });
+
+  return response;
+};
+
+export const getAdminUserById = async (id: string) => {
+  const response = await apiRequest(`admin-users/${id}`, {
+    method: "GET",
+    authRequired: true,
+  });
+
+  return response;
+};
+
+export const createAdminUser = async (payload: FieldValues | FormData) => {
+  const response = await apiRequest("admin-users", {
+    method: "POST",
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
+    authRequired: true,
+  });
+
+  ["/", "/dashboard/role", "/dashboard/roles_permissions"].forEach((path) => {
+    revalidatePath(path);
+  });
+
+  return response;
+};
+
+export const updateAdminUser = async (id: string, payload: FieldValues | FormData) => {
+  const response = await apiRequest(`admin-users/${id}`, {
+    method: "PUT",
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
+    authRequired: true,
+  });
+
+  ["/", "/dashboard/role", "/dashboard/roles_permissions"].forEach((path) => {
+    revalidatePath(path);
+  });
+
+  return response;
 };

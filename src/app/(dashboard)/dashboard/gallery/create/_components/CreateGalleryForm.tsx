@@ -1,68 +1,71 @@
 "use client";
 
+import { useState } from "react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { ImageUpload } from "@/components/shared/common/ImageUpload";
+import { uploadImageToCloudinary } from "@/utils/cloudinary/cloudinaryUpload";
+import { showSuccessToast, showErrorToast } from "@/utils/toastMessage";
 import { createGallery } from "@/services/gallery";
-import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { ImageIcon, Save, X } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import {  useForm } from "react-hook-form";
-
-interface GalleryFormData {
-  image: File | null;
-  status?: boolean;
-}
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { Save, X } from "lucide-react";
 
 export default function CreateGalleryForm() {
   const router = useRouter();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const {
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<GalleryFormData>({
+  const form = useForm({
     defaultValues: {
-      image: null,
+      image: "",
       status: true,
     },
   });
 
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    setIsUploading(true);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setValue("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    let thumbnailUrl = data.image;
 
- 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setValue("image", null);
-  };
+    // Upload image to Cloudinary if a file is selected
+    if (selectedFile) {
+      showSuccessToast("Uploading image...");
+      const uploadResult = await uploadImageToCloudinary(selectedFile);
 
-  const onSubmit = async (data: GalleryFormData) => {
-    const formData = new FormData();
-    // Ensure status is a boolean string, default to true if undefined
-    formData.append("status", String(data.status === undefined ? true : data.status));
-    if (data.image) {
-      formData.append("image", data.image);
+      if (!uploadResult) {
+        showErrorToast("Failed to upload image. Please try again.");
+        setIsUploading(false);
+        return;
+      }
+
+      thumbnailUrl = uploadResult.secure_url;
+      showSuccessToast("Image uploaded successfully!");
     }
 
-    const res = await createGallery(formData);
-    if (res.statusCode === 201) {
-      showSuccessToast(res.message);
-      reset();
+    // Prepare final gallery data
+    const galleryData = {
+      thumbnail: thumbnailUrl,
+      status: data.status,
+    };
+
+    const response = await createGallery(galleryData);
+
+    if (response.statusCode === 201) {
+      showSuccessToast(
+        response.message || "Gallery image created successfully!",
+      );
+      form.reset();
+      setSelectedFile(null);
       router.push("/dashboard/gallery");
     } else {
-      showErrorToast(res.message);
+      showErrorToast(response.message || "Failed to create gallery image");
     }
   };
 
@@ -71,70 +74,36 @@ export default function CreateGalleryForm() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] rounded-2xl p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Upload Image <span className="text-red-500">*</span>
-          </label>
-          <div className="w-32 h-28 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#0f3d3e] transition-colors overflow-hidden relative">
-            {imagePreview ? (
-              <>
-                <Image
-                  src={imagePreview}
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
+        <FormField
+          control={form.control}
+          name="image"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-lg font-semibold text-gray-700">
+                Upload Image
+              </FormLabel>
+              <FormControl>
+                <ImageUpload
+                  value={field.value}
+                  onChange={field.onChange}
+                  onFileSelect={setSelectedFile}
+                  disabled={isUploading}
+                  className="w-full"
                 />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </>
-            ) : (
-              <>
-                <ImageIcon className="w-8 h-8 text-gray-400 mb-1" />
-                <span className="text-sm text-gray-500 border border-gray-300 rounded px-3 py-1">
-                  Upload
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </>
-            )}
-          </div>
-          {/* Status toggle (optional) */}
-          {/*
-          <div className="mt-2">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={!!watch("status")}
-                onChange={e => setValue("status", e.target.checked)}
-                className="form-checkbox"
-              />
-              <span className="ml-2 text-sm">Active</span>
-            </label>
-          </div>
-          */}
-          {/* Show error if image is required and not provided */}
-          {errors.image && (
-            <p className="text-red-500 text-xs mt-1">{errors.image?.message || "Image is required."}</p>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
+        />
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 pt-4">
           <button
             type="submit"
             className="flex items-center gap-2 bg-[#0f3d3e] text-white px-5 py-2.5 rounded-full hover:bg-[#0a2e2f] transition-colors cursor-pointer"
+            disabled={isUploading}
           >
             <Save className="w-4 h-4" />
             <span className="font-medium">Save</span>
@@ -143,12 +112,13 @@ export default function CreateGalleryForm() {
             type="button"
             onClick={handleClose}
             className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+            disabled={isUploading}
           >
             <X className="w-4 h-4" />
             <span className="font-medium">Close</span>
           </button>
         </div>
       </form>
-    </div>
+    </Form>
   );
 }

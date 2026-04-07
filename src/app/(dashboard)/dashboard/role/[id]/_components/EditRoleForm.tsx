@@ -89,6 +89,16 @@ export default function EditRoleForm({
         <div className="min-h-screen bg-white">
             <DashboardWrapper>
                 <div className="max-w-5xl mx-auto">
+                    {/* Header showing which role is being edited */}
+                    <div className="mb-6 pb-4 border-b">
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            Edit Role: <span className="text-primary">{roleData.name}</span>
+                        </h1>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Modify role permissions and settings
+                        </p>
+                    </div>
+
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
                             <div className="rounded-lg bg-slate-50 p-8">

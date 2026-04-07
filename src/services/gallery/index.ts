@@ -3,15 +3,21 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createGallery = async (payload: FormData) => {
-    const response = await apiRequest("gallery", {
-        method: "POST",
-        body: payload,
-        authRequired: true,
-    });
+
+export const createGallery = async (data: FieldValues) => {
+  const response = await apiRequest("gallery", {
+    method: "POST",
+    body: JSON.stringify(data),
+    authRequired: true,
+  });
+
+  if (response.statusCode === 201) {
     revalidatePath("/dashboard/gallery");
-    return await response;
+  }
+
+  return response;
 };
 
 export const getGallery = async (query: TQuery[]) => {
@@ -36,10 +42,10 @@ export const getGalleryById = async (id: string) => {
     return await response;
 };
 
-export const updateGallery = async (id: string, payload: FormData) => {
+export const updateGallery = async (id: string, payload: FieldValues | FormData) => {
     const response = await apiRequest(`gallery/${id}`, {
         method: "PUT",
-        body: payload,
+        body: payload instanceof FormData ? payload : JSON.stringify(payload),
         authRequired: true,
     });
     revalidatePath("/dashboard/gallery");

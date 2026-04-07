@@ -3,16 +3,17 @@
 import { apiRequest } from "@/lib/apiRequest";
 import { TQuery } from "@/types/query.types";
 import { revalidatePath } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
-export const createFivePillars = async (payload: FormData) => {
+export const createFivePillars = async (data: FieldValues) => {
   const response = await apiRequest("fivepillars", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(data),
     authRequired: true,
   });
-
-  revalidatePath("/dashboard/fivepillar");
-
+  ["/", "/dashboard/fivepillars"].forEach((path) => {
+    revalidatePath(path);
+  });
   return await response;
 };
 
@@ -42,14 +43,19 @@ export const getFivePillarsById = async (id: string) => {
   return await response;
 };
 
-export const updateFivePillars = async (id: string, payload: FormData) => {
+export const updateFivePillars = async (
+  id: string,
+  payload: FieldValues | FormData,
+) => {
   const response = await apiRequest(`fivepillars/${id}`, {
     method: "PUT",
-    body: payload,
+    body: payload instanceof FormData ? payload : JSON.stringify(payload),
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/fivepillar");
+  ["/", "/dashboard/fivepillars"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
@@ -60,7 +66,9 @@ export const deleteFivePillars = async (id: string | undefined) => {
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/fivepillar");
+  ["/", "/dashboard/fivepillars"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };
@@ -72,7 +80,9 @@ export const updateFivePillarStatus = async (id: string, status: boolean) => {
     authRequired: true,
   });
 
-  revalidatePath("/dashboard/fivepillar");
+  ["/", "/dashboard/fivepillars"].forEach((path) => {
+    revalidatePath(path);
+  });
 
   return await response;
 };

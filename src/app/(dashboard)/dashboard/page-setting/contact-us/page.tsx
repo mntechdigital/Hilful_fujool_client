@@ -5,11 +5,14 @@ import { getContactUs } from "@/services/contactus";
 
 const ContactUsPage = async() => {
   const contactUsData = await getContactUs([]);
-  console.log("seee contactus data==>",contactUsData.data.data)
+  
+  const topberList = contactUsData?.data?.data || contactUsData?.data || [];
+  const firstContactUs = Array.isArray(topberList) ? topberList[0] : topberList;
+
   return (
     <DashboardWrapper>
       <h1 className="text-2xl font-semibold text-[#0f3d3e] mb-6">Contact Us</h1>
-      <ContactUsCRUD contactUsData={contactUsData?.data?.data[0]} />
+      <ContactUsCRUD contactUsData={firstContactUs} />
     </DashboardWrapper>
   );
 };
