@@ -4,7 +4,6 @@ import UpdateProfileCRUD, { UpdateProfileFormData } from "./_components/UpdatePr
 
 const UpdateProfilePage = async () => {
   const updateProfileRes = await loggedUser();
-  console.log("logged user infor==>", updateProfileRes);
 
   // Provide a fallback/default value if updateProfileRes is null
   const defaultProfileData: UpdateProfileFormData = {

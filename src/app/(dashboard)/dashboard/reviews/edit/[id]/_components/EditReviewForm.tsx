@@ -65,7 +65,6 @@ export default function EditReviewForm({ reviewId }: EditReviewFormProps) {
 
       // Upload new file only when user selects a new one
       if (selectedFile) {
-        console.log("Uploading new file:", selectedFile.name);
         showSuccessToast("Uploading image...");
         const uploadResult = await uploadImageToCloudinary(selectedFile);
 

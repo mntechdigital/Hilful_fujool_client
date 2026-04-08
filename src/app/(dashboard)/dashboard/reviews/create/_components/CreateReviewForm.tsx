@@ -51,7 +51,6 @@ export default function CreateReviewForm() {
       }
 
       imageUrl = uploadResult.secure_url;
-      console.log("see cloudenary link-->",imageUrl)
       showSuccessToast("Image uploaded successfully!");
     }
 

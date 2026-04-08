@@ -83,7 +83,6 @@ export default function EditServiceForm({ serviceId }: EditServiceFormProps) {
       };
 
       const res = await updateService(serviceId, payload);
-      console.log("see update info==>", res);
       
       if (res.statusCode === 200 || res.success) {
         showSuccessToast(res.message || "Service updated successfully!");

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { DashboardWrapper } from "../_components/DashboardWrapper";
 import { Plus } from "lucide-react";

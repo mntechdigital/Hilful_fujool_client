@@ -35,7 +35,6 @@ const BlogsPage = async (props: {
   ];
 
   const blogsData = await getBlogs(query);
-  console.log("get blog data==>", blogsData);
   return (
     <DashboardWrapper>
       <div className="flex items-center justify-between mb-6">
