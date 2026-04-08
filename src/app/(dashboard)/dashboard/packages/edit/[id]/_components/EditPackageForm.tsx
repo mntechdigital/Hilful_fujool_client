@@ -97,7 +97,6 @@ export default function EditPackageForm({ packageId }: EditPackageFormProps) {
               return null;
             }).filter(Boolean); // Remove any null/undefined values
             
-            console.log("Processed image URLs:", imageUrls);
             setExistingImageUrls(imageUrls);
           } else {
             console.log("No images found in package data");

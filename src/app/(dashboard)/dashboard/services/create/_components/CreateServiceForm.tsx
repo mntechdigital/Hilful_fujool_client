@@ -64,7 +64,6 @@ export default function CreateServiceForm() {
     };
 
     const res = await createService(payload);
-    console.log("see create service res==>",res)
     if (res.statusCode === 201 || res.success) {
       showSuccessToast(res.message || "Service created successfully!");
       form.reset();

@@ -8,7 +8,6 @@ import { getServices } from "@/services/service";
 const Dashboard = async () => {
   const packageRes = await getPackages([]);
   const packagesData = packageRes?.data?.data;
-  console.log("see packagedata-->",packagesData)
   const reviewRes = await getReviews([]);
   const reviewsData = reviewRes?.data?.data;
   const servicesRes = await getServices([]);

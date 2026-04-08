@@ -98,7 +98,6 @@ const EditRoleForm = ({ roleId, initialData }: EditRoleFormProps) => {
 
       // TODO: Replace with actual API call (e.g., updateRole(roleId, payload))
       const res = await updateProfile(roleId, payload);
-      console.log("Updated role data:", res);
       if (res.statusCode === 200 || res.success) {
         showSuccessToast("Profile updated successfully!");
         form.reset({

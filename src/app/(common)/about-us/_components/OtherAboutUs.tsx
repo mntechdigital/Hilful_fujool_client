@@ -12,7 +12,6 @@ const OtherAboutUs = async() => {
     if (!otherAboutData) {
         return <div>No data available</div>;
     }
-    console.log("see response ==>",otherAboutData);
   return (
     <section className="relative w-full bg-[#6B6B6B] overflow-hidden font-[Tiro Bangla]">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-12 min-h-[500px] lg:min-h-[610px]">
