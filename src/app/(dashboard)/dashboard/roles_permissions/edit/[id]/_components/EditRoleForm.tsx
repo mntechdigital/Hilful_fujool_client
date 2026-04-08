@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -17,18 +18,18 @@ import {
 } from "@/components/ui/form";
 import { updateProfile } from "@/services/auth";
 
-interface EditRoleFormProps {
-  roleId: string;
-  initialData: {
-    id: number;
-    name: string;
-    description: string;
-    email: string;
-    image: string | null;
-  };
-}
+// interface EditRoleFormProps {
+//   roleId: string;
+//   initialData: {
+//     id: number;
+//     name: string;
+//     description: string;
+//     email: string;
+//     image: string | null;
+//   };
+// }
 
-const EditRoleForm = ({ roleId, initialData }: EditRoleFormProps) => {
+const EditRoleForm = ({ roleId, initialData }: any) => {
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
