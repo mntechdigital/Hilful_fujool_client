@@ -96,8 +96,10 @@ const UpdateProfileCRUD = ({ profileData }: { profileData: UpdateProfileFormData
       // Prepare form data for submission
       const formData = new FormData();
       
+      // Extract user ID
+      const userId = data.id || profileData.id || "";
+      
       // Add all fields to FormData
-      formData.append("id", data.id || profileData.id || "");
       formData.append("fullName", data.fullName);
       formData.append("email", data.email);
       formData.append("phoneNumber", data.phoneNumber || "");
@@ -113,8 +115,8 @@ const UpdateProfileCRUD = ({ profileData }: { profileData: UpdateProfileFormData
         formData.append("image", data.image);
       }
 
-      // Call the API function
-      await updateProfile(formData);
+      // Call the API function with id as first argument
+      await updateProfile(userId, formData);
       
       console.log("Profile updated successfully!");
       // You can add success notification here
