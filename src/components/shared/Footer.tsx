@@ -43,7 +43,7 @@ const LogoSection = ({ image, description }: { image: string; description: strin
       alt="Logo" 
       width={80} 
       height={80} 
-      className="rounded-full bg-white p-1" 
+      className="p-1" 
       unoptimized
     />
     <p className="text-center text-gray-200 text-sm mt-2">{description}</p>
@@ -147,7 +147,7 @@ const Footer = async () => {
   if (!topberData) return null;
 
   const currentYear = new Date().getFullYear();
-  const description = 'আপনার পবিত্র হজ্ব ও ওমরাহ তীর্থযাত্রার পরিকল্পনা এবং বুকিংয়ের জন্য আপনার বিশ্বস্ত অংশীদার, প্রার্থনায় আপনাকে স্বাগতম।';
+  const description = 'কুরআন, হাদিস ও ইসলামী জ্ঞান ছড়িয়ে দিতে আপনার নির্ভরযোগ্য চ্যানেলে স্বাগতম। আমাদের সাথে থাকুন এবং ইসলামের আলোয় প্রতিদিনের জীবনে মানসম্পন্ন কন্টেন্ট উপভোগ করুন।';
 
   return (
     <footer 

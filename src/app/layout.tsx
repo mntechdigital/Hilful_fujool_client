@@ -34,9 +34,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Hilful Fujul | হিলফুল ফুজুল – নতুন চেতনায় প্রতিক্ষণে…",
+  title: "MunnatvIslamic | MunnaTvIslamic – ইসলামের আলোয় প্রতিদিন",
   description:
-    "© হিলফুল ফুজুল মিডিয়া লিমিটেডের একটি প্রতিষ্ঠান। ইসরাফিল ভিলা (তৃতীয় তলা), ফলপট্টি রোড, বরিশাল ৮২০০। ফোন: ০২৪৭৮৮৩০৫৪৫, ০১৬৭০-৬৮৭৯৫২ barishaltimes@gmail.com, bslhasib@gmail.com.",
+    "© MunnatvIslamic লিমিটেডের একটি প্রতিষ্ঠান। আমাদের লক্ষ্য ইসলামের আলোয় প্রতিদিনের জীবনে মানসম্পন্ন কন্টেন্ট প্রদান করা। আমরা ইসলামিক শিক্ষা, জীবনধারা, এবং সংস্কৃতি নিয়ে কাজ করি। আমাদের সাথে থাকুন এবং ইসলামের আলোয় প্রতিদিনের জীবনে মানসম্পন্ন কন্টেন্ট উপভোগ করুন।",
 };
 
 export default function RootLayout({
