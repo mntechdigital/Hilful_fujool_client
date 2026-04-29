@@ -45,4 +45,8 @@ This project is currently in development. Contribution guidelines will be added 
 ---
 ⚠️ Note: This is a work in progress. Features and documentation will be updated regularly.
 
+<<<<<<< HEAD
 hello world! hello world!
+=======
+hello world! goo too and work together
+>>>>>>> 919b8fea9a09c23e91e94af4c1db48debbe153e3
