@@ -41,7 +41,7 @@ const FivePillarOfIslam = async () => {
           ইসলামের মৌলিক পাঁচ স্তম্ভ
         </h1>
 
-        <p className="text-gray-600 text-lg max-w-4xl">
+        <p className="text-gray-600 text-lg max-w-4xl mx-auto text-center">
           ইসলাম পাঁচটি স্তম্ভের উপর প্রতিষ্ঠিত। প্রতিটি মুসলিমকে এই পাঁচটি নীতির
           উপর দৃঢ়ভাবে বিশ্বাস রাখতে হবে। সকল মুসলিমকে এইসব সাথে প্রথম তিনটি
           নীতি যথাসম্ভব পালন করতে হবে, এবং শেষ দুটি নীতি যথাসম্ভব পালন করতে হবে।
@@ -51,14 +51,14 @@ const FivePillarOfIslam = async () => {
       {/* Pillars Grid */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {fivePillarData.map((pillar: Pillar) => (
-          <div key={pillar.id} className="relative min-h-[450px]">
+          <div key={pillar.id} className="relative min-h-[380px] md:min-h-[450px]">
             {/* Background Image */}
             <div className="absolute inset-0">
               <Image
                 src={fivepillarbg}
                 alt="pillar background"
                 fill
-                className="object-contain"
+                className="object-contain object-center"
                 unoptimized
               />
             </div>
@@ -75,7 +75,7 @@ const FivePillarOfIslam = async () => {
               </div>
 
               {/* Title */}
-              <h3 className="text-center text-gray-800 font-bold text-lg mb-6 min-h-[3rem] flex items-center justify-center px-2">
+              <h3 className="text-center text-gray-800 font-bold text-lg md:text-xl mb-6 min-h-[3rem] flex items-center justify-center px-2">
                 {pillar.title}
               </h3>
 
@@ -93,7 +93,7 @@ const FivePillarOfIslam = async () => {
               </div>
 
               {/* Description */}
-              <p className="text-gray-700 text-sm text-center leading-relaxed px-2">
+              <p className="text-gray-700 text-sm md:text-base text-center leading-relaxed md:leading-loose px-4 md:px-6 max-w-[44ch] mx-auto break-words">
                 {pillar.description}
               </p>
             </div>
