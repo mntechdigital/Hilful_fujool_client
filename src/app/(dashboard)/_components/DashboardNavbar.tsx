@@ -69,14 +69,14 @@ export function Navbar({ adminData }: NavbarProps) {
             alt="Hilful Fujul Logo"
             width={150}
             height={40}
-            className="lg:h-10 lg:w-auto"
+            className="h-8 w-auto md:h-9 lg:h-10"
             priority
             unoptimized
           />
         </Link>
       </div>
       <div className="flex items-center max-sm:gap-1 gap-4">
-        <Link href="/#navbar">
+        <Link href="/" target="_blank">
           <Button
             variant="outline"
             className="cursor-pointer flex items-center"
