@@ -16,7 +16,7 @@ const DynamicLogo = async () => {
   return (
     <div className="flex items-center gap-2">
       <Link href="/">
-        <div className="w-12 h-12 overflow-hidden">
+        <div className="w-9 h-9 md:w-12 md:h-12 overflow-hidden">
           <img
             src={imageUrl}
             alt="Logo"
