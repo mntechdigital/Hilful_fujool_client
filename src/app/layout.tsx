@@ -34,9 +34,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Hilful Fujul | হিলফুল ফুজুল – নতুন চেতনায় প্রতিক্ষণে…",
+  title: "BN HR MANAGEMENT SYSTEM",
   description:
-    "© হিলফুল ফুজুল মিডিয়া লিমিটেডের একটি প্রতিষ্ঠান। ইসরাফিল ভিলা (তৃতীয় তলা), ফলপট্টি রোড, বরিশাল ৮২০০। ফোন: ০২৪৭৮৮৩০৫৪৫, ০১৬৭০-৬৮৭৯৫২ barishaltimes@gmail.com, bslhasib@gmail.com.",
+    "© 2024 BN HR Management System. All rights reserved. Developed by BN IT Team.",
 };
 
 export default function RootLayout({

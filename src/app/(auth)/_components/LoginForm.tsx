@@ -1,20 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { Button } from "@/components/ui/button";
 import { login } from "@/services/auth";
 import { showErrorToast, showSuccessToast } from "@/utils/toastMessage";
-import { Lock, Mail, Loader2, User, Eye, EyeOff } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { FieldValues, SubmitHandler, useForm, Controller } from "react-hook-form";
-import Image from "next/image";
-import footerbg from "../../../../public/footerbg.png";
-import footerIcon from "../../../../public/footericon.png";
-import footerRightImage from "../../../../public/Image (2).png";
+import { useTransition } from "react";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 
 const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const form = useForm({
@@ -38,136 +31,63 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex h-screen w-full">
-      {/* Left Side - Login Form - 50% width */}
-      <div className="flex flex-col items-center justify-center w-full lg:w-1/2 bg-white px-8">
-        <div className="w-full max-w-md">
-          {/* User Icon */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="bg-[#1F2937] rounded-full w-20 h-20 flex items-center justify-center mb-4">
-              <User className="text-white" size={40} strokeWidth={2.5} />
-            </div>
-            <h2 className="text-2xl font-bold text-black tracking-[0.25em]">LOGIN</h2>
+    <div className="min-h-screen w-full bg-slate-100 px-4 py-8 sm:px-6">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center">
+        <div className="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-semibold text-slate-900">HR Management Login</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Sign in to access your HR dashboard.
+            </p>
           </div>
 
-          {/* Login Form */}
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-5 w-full"
+            className="space-y-4"
           >
-            {/* Email Input */}
-            <Controller
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <div className="flex items-center bg-white rounded-md shadow-md px-4 py-3 border border-gray-100">
-                  <Mail className="text-gray-400 mr-3" size={20} />
-                  <input
-                    {...field}
-                    type="email"
-                    placeholder="Email"
-                    className="flex-1 outline-none bg-transparent text-gray-700 placeholder-gray-400 text-sm"
-                  />
-                </div>
-              )}
-            />
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="text-sm font-medium text-slate-700">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="you@company.com"
+                autoComplete="email"
+                className="h-11 w-full rounded-md border border-slate-300 px-3 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+                {...form.register("email", { required: true })}
+              />
+            </div>
 
-            {/* Password Input */}
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <div className="flex items-center bg-white rounded-md shadow-md px-4 py-3 border border-gray-100">
-                  <Lock className="text-gray-400 mr-3" size={20} />
-                  <input
-                    {...field}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    className="flex-1 outline-none bg-transparent text-gray-700 placeholder-gray-400 text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-              )}
-            />
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="text-sm font-medium text-slate-700">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                className="h-11 w-full rounded-md border border-slate-300 px-3 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+                {...form.register("password", { required: true })}
+              />
+            </div>
 
-            {/* Login Button */}
             <Button
               type="submit"
               disabled={isPending}
-              className="bg-[#D4A017] hover:bg-[#B8860B] text-white font-semibold py-3.5 rounded-md text-base shadow-lg transition-all duration-200 w-full mt-2"
+              className="h-11 w-full bg-slate-900 text-sm font-medium text-white hover:bg-slate-800"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="animate-spin mr-2" size={18} />
-                  Logging in...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
                 </>
               ) : (
-                "Login"
+                "Sign in"
               )}
             </Button>
           </form>
-        </div>
-      </div>
-
-      {/* Right Side - Gradient Background with Image - 50% width */}
-      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-8">
-        {/* Background Image */}
-        <Image
-          src={footerbg}
-          alt="Background"
-          fill
-          className="object-cover"
-          priority
-        />
-        
-        {/* Main Content Card - Full width and height */}
-        <div className="relative bg-white/20 backdrop-blur-sm rounded-[32px] shadow-2xl w-full h-full flex flex-col items-center justify-center p-12 z-10">
-          {/* Lightning Icon - Left side */}
-          <div className="absolute left-8 top-1/2 -translate-y-1/2 bg-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
-            <Image
-              src={footerIcon}
-              alt="Icon"
-              width={28}
-              height={28}
-              className="object-contain"
-            />
-          </div>
-
-          {/* Text Content */}
-          <div className="mb-8 text-center px-8">
-            <h3 className="text-white text-3xl font-bold leading-snug">
-              Very good works are waiting for you Login Now!!!
-            </h3>
-          </div>
-
-          {/* Image Container */}
-          <div className="relative w-full max-w-sm aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-orange-400 to-yellow-400 shadow-2xl">
-            <Image
-              src={footerRightImage}
-              alt="Happy person"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-
-          {/* Lightning Icon - Bottom right */}
-          <div className="absolute bottom-8 right-8 bg-white/70 backdrop-blur-sm rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
-            <Image
-              src={footerIcon}
-              alt="Icon"
-              width={24}
-              height={24}
-              className="object-contain"
-            />
-          </div>
         </div>
       </div>
     </div>
